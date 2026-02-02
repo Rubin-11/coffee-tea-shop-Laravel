@@ -1,30 +1,108 @@
+# ======================================
+# IDE и редакторы
+# ======================================
+.idea/
+.vscode/
+.cursor/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ======================================
+# Laravel (в папке src/)
+# ======================================
+src/vendor/
+src/node_modules/
+src/.env
+src/.env.backup
+src/.env.production
+src/storage/*.key
+src/bootstrap/cache/*
+!src/bootstrap/cache/.gitignore
+src/public/storage
+src/public/hot
+src/public/build
+src/storage/pail
+src/Homestead.yaml
+src/Homestead.json
+src/.phpunit.result.cache
+src/.phpactor.json
+src/auth.json
+
+# ======================================
+# Composer
+# ======================================
 /vendor/
+composer.phar
+auth.json
+
+# ======================================
+# Node.js и NPM
+# ======================================
 node_modules/
 npm-debug.log
 yarn-error.log
+yarn-debug.log
+.pnpm-debug.log
+.yarn/
+.npm/
+package-lock.json
+yarn.lock
 
-# Laravel 4 specific
-bootstrap/compiled.php
-app/storage/
+# ======================================
+# Docker
+# ======================================
+docker-compose.override.yml
+*.log
+.docker/
 
-# Laravel 5 & Lumen specific
-public/storage
-public/hot
+# ======================================
+# OS специфичные файлы
+# ======================================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+*Zone.Identifier
 
-# Laravel 5 & Lumen specific with changed public path
-public_html/storage
-public_html/hot
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
 
-storage/*.key
-.env
-Homestead.yaml
-Homestead.json
-/.vagrant
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# ======================================
+# Временные и дизайн файлы
+# ======================================
+*.pdf
+*.pix
+*.tmp
+*.temp
+*.bak
+
+# ======================================
+# Тестирование и отладка
+# ======================================
 .phpunit.result.cache
+.phpunit.cache
+coverage/
+.coverage
+htmlcov/
 
-/public/build
-/storage/pail
-.env.backup
-.env.production
-.phpactor.json
-auth.json
+# ======================================
+# Прочее
+# ======================================
+/.vagrant
+.phpstorm.meta.php
+_ide_helper.php
+_ide_helper_models.php
+.phpcs-cache
