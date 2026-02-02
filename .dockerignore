@@ -1,0 +1,9 @@
+/vendor
+/node_modules
+/storage/*.key
+/.env
+/.git
+/.idea
+/.vscode
+/composer.lock
+.DS_Store

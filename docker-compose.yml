@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Веб-сервер
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./src:/var/www
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - app-network
+
+  # PHP-FPM
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - ./src:/var/www
+    environment:
+      - PHP_UID=${UID:-1000}
+      - PHP_GID=${GID:-1000}
+      - PHP_MEMORY_LIMIT=256M
+      - MAX_UPLOAD=100M
+      - POST_MAX_SIZE=100M
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+  # PostgreSQL
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: laravel_db
+      POSTGRES_USER: laravel_user
+      POSTGRES_PASSWORD: secret_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"  # Открыт для DBeaver, pgAdmin и т.п.
+    networks:
+      - app-network
+
+
+# Объявляем том и сеть
+volumes:
+  postgres-data:
+
+networks:
+  app-network:
+    driver: bridge
