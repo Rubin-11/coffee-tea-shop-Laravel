@@ -22,20 +22,19 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('first_name', 100);  // Имя
-            $table->string('last_name', 100);   // Фамилия
-            $table->string('email', 250)->unique(); // Уникальный email
-            $table->string('phone', 20)->nullable();    // Номер телефона
-            $table->text('password');   // Хеш пароля
-            $table->boolean('is_admin')->default(false);    // Флаг администратора
-            $table->boolean('is_active')->default(true);    // Активен ли аккаунт
-            $table->timestamps();   // create_at и updated_at
-        });
+            $table->string('first_name', 100);
+            $table->string('last_name', 100);
+            $table->string('email', 250)->unique(); 
+            $table->string('phone', 20)->nullable();
+            $table->text('password');   
+            $table->boolean('is_admin')->default(false); 
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
 
-        // Индекс по email - ускоряет вход и проверку
-        Schema::table('users', function (Blueprint $table) {
+            // Индексы
             $table->index('email');
         });
+
     }
 
     public function down(): void
