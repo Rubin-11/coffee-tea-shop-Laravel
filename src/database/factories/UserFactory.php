@@ -7,38 +7,77 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
+ * Factory для генерации тестовых пользователей
+ * 
+ * Создает пользователей с реалистичными данными для тестирования.
+ * По умолчанию генерирует обычных пользователей (не администраторов).
+ * 
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
  */
 class UserFactory extends Factory
 {
     /**
-     * The current password being used by the factory.
+     * Текущий пароль, используемый фабрикой
+     * Кешируется для оптимизации (хеширование - дорогая операция)
      */
     protected static ?string $password;
 
     /**
-     * Define the model's default state.
+     * Определение состояния модели по умолчанию
      *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            // Имя пользователя (только имя, без фамилии)
+            'first_name' => fake()->firstName(),
+            
+            // Фамилия пользователя
+            'last_name' => fake()->lastName(),
+            
+            // Уникальный email адрес
             'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
+            
+            // Телефон в формате +7 (XXX) XXX-XX-XX
+            'phone' => fake()->optional(0.7)->numerify('+7 (###) ###-##-##'),
+            
+            // Хешированный пароль (по умолчанию 'password')
             'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            
+            // Обычный пользователь (не администратор)
+            'is_admin' => false,
+            
+            // Активный аккаунт
+            'is_active' => true,
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Создать пользователя-администратора
+     * 
+     * Использование: User::factory()->admin()->create()
+     *
+     * @return static
      */
-    public function unverified(): static
+    public function admin(): static
     {
         return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+            'is_admin' => true,
+        ]);
+    }
+
+    /**
+     * Создать неактивного пользователя (заблокированного)
+     * 
+     * Использование: User::factory()->inactive()->create()
+     *
+     * @return static
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
         ]);
     }
 }
