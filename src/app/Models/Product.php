@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,8 +17,79 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * Основная модель для товаров в магазине.
  * Содержит всю информацию: цену, вес, рейтинг, характеристики (горчинка, кислинка).
  * Поддерживает мягкое удаление (soft deletes) для сохранения истории.
+ *
+ * @property int $id
+ * @property int $category_id
+ * @property string $name
+ * @property string $slug
+ * @property string $description
+ * @property string|null $long_description
+ * @property numeric $price
+ * @property numeric|null $old_price
+ * @property int $weight
+ * @property string $sku
+ * @property int $stock
+ * @property numeric $rating
+ * @property-read int|null $reviews_count
+ * @property int|null $bitterness_percent
+ * @property int|null $acidity_percent
+ * @property bool $is_featured
+ * @property bool $is_available
+ * @property string|null $meta_title
+ * @property string|null $meta_description
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $approvedReviews
+ * @property-read int|null $approved_reviews_count
+ * @property-read \App\Models\Category $category
+ * @property-read int|null $discount_percent
+ * @property-read float|null $savings
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductImage> $images
+ * @property-read int|null $images_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductImage> $primaryImage
+ * @property-read int|null $primary_image_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $reviews
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
+ * @property-read int|null $tags_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product available()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product byCategory(int $categoryId)
+ * @method static \Database\Factories\ProductFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product featured()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product highestRated()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product inStockScope()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product priceRange(float $min, float $max)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereAcidityPercent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereBitternessPercent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereCategoryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereIsAvailable($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereIsFeatured($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereLongDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereMetaDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereMetaTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereOldPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereRating($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereReviewsCount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereSku($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereStock($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereWeight($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product withoutTrashed()
+ * @mixin \Eloquent
  */
-class Product extends Model
+final class Product extends Model
 {
     use HasFactory, SoftDeletes;
 

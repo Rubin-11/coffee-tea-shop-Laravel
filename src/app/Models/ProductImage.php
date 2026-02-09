@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,8 +14,34 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Хранит информацию об изображениях товаров.
  * Один товар может иметь несколько изображений (галерея).
  * Одно из изображений помечается как главное (is_primary = true)
+ *
+ * @property int $id
+ * @property int $product_id
+ * @property string $image_path
+ * @property string|null $alt_text
+ * @property int $sort_order
+ * @property bool $is_primary
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read string $url
+ * @property-read \App\Models\Product $product
+ * @method static \Database\Factories\ProductImageFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage ordered()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage primary()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage whereAltText($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage whereImagePath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage whereIsPrimary($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage whereSortOrder($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
-class ProductImage extends Model
+final class ProductImage extends Model
 {
     use HasFactory;
 

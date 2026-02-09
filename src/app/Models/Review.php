@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,8 +15,45 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * текст отзыва, достоинства и недостатки.
  * Отзывы проходят модерацию перед публикацией (is_approved).
  * Один пользователь может оставить только один отзыв на товар.
+ *
+ * @property int $id
+ * @property int $product_id
+ * @property int $user_id
+ * @property int $rating
+ * @property string $comment
+ * @property string|null $pros
+ * @property string|null $cons
+ * @property bool $is_verified_purchase
+ * @property bool $is_approved
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read string $rating_text
+ * @property-read \App\Models\Product $product
+ * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review approved()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review byRating(int $rating)
+ * @method static \Database\Factories\ReviewFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review latestFirst()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review negative()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review positive()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review verified()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereComment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereCons($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereIsApproved($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereIsVerifiedPurchase($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePros($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereRating($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereUserId($value)
+ * @mixin \Eloquent
  */
-class Review extends Model
+final class Review extends Model
 {
     use HasFactory;
 

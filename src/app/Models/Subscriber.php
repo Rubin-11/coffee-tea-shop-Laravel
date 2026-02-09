@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,8 +14,34 @@ use Illuminate\Support\Str;
  * Хранит email-адреса подписчиков на новости магазина.
  * Каждый подписчик имеет уникальный токен для отписки.
  * Форма подписки доступна в футере сайта.
+ *
+ * @property int $id
+ * @property string $email
+ * @property string $token
+ * @property bool $is_active
+ * @property \Illuminate\Support\Carbon $subscribed_at
+ * @property \Illuminate\Support\Carbon|null $unsubscribed_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read string $unsubscribe_url
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscriber active()
+ * @method static \Database\Factories\SubscriberFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscriber inactive()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscriber newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscriber newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscriber query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscriber recent(int $days = 30)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscriber whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscriber whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscriber whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscriber whereIsActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscriber whereSubscribedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscriber whereToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscriber whereUnsubscribedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscriber whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
-class Subscriber extends Model
+final class Subscriber extends Model
 {
     use HasFactory;
 
@@ -24,10 +52,13 @@ class Subscriber extends Model
      */
     protected $fillable = [
         'email',           // Email подписчика (уникальный)
+        'name',            // Имя подписчика (необязательное)
         'token',           // Уникальный токен для отписки
         'is_active',       // Активна ли подписка
         'subscribed_at',   // Дата и время подписки
         'unsubscribed_at', // Дата и время отписки (если отписался)
+        'ip_address',      // IP адрес для статистики
+        'user_agent',      // User Agent для аналитики
     ];
 
     /**
@@ -51,7 +82,7 @@ class Subscriber extends Model
      * 
      * Автоматически генерируем токен и дату подписки при создании
      */
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 

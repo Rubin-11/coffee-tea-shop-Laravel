@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,11 +12,55 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Модель статьи блога
  * 
  * Представляет статьи в блоге магазина.
- * Темы статей: "Здоровое питание", "Рецепты с кофе", 
+ * Темы статей: "Здоровое питание", "Рецепты с кофе",
  * "Гид по выбору кофе", "История происхождения"
  * Статьи имеют автора (пользователя) и могут быть черновиками или опубликованными.
+ *
+ * @property int $id
+ * @property string $title
+ * @property string $slug
+ * @property string $excerpt
+ * @property string $content
+ * @property string|null $featured_image
+ * @property int $author_id
+ * @property string|null $category
+ * @property int $views_count
+ * @property bool $is_published
+ * @property \Illuminate\Support\Carbon|null $published_at
+ * @property string|null $meta_title
+ * @property string|null $meta_description
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User $author
+ * @property-read string|null $image_url
+ * @property-read int $reading_time
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost byCategory(string $category)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost draft()
+ * @method static \Database\Factories\BlogPostFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost latestFirst()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost popular()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost published()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost whereAuthorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost whereCategory($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost whereContent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost whereExcerpt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost whereFeaturedImage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost whereIsPublished($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost whereMetaDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost whereMetaTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost wherePublishedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogPost whereViewsCount($value)
+ * @mixin \Eloquent
  */
-class BlogPost extends Model
+final class BlogPost extends Model
 {
     use HasFactory;
 
