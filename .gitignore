@@ -106,3 +106,6 @@ htmlcov/
 _ide_helper.php
 _ide_helper_models.php
 .phpcs-cache
+_ide_helper.php
+_ide_helper_models.php
+.phpstorm.meta.php
