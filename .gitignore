@@ -109,3 +109,8 @@ _ide_helper_models.php
 _ide_helper.php
 _ide_helper_models.php
 .phpstorm.meta.php
+
+# ======================================
+# Личные заметки и шпаргалки
+# ======================================
+git-cheatsheet/
