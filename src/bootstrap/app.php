@@ -11,7 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Регистрируем middleware-алиас для проверки непустой корзины
+        // Использование в маршрутах: ->middleware('cart.not.empty')
+        $middleware->alias([
+            'cart.not.empty' => \App\Http\Middleware\CheckCartNotEmpty::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
