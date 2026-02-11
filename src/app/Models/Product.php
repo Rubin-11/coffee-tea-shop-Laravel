@@ -267,7 +267,36 @@ final class Product extends Model
             return null;
         }
 
-        return round($this->old_price - $this->price, 2);
+        return round((float)$this->old_price - (float)$this->price, 2);
+    }
+
+    /**
+     * Получить URL главного изображения товара
+     * 
+     * Возвращает URL первого (главного) изображения товара.
+     * Если изображений нет, возвращает плейсхолдер.
+     * 
+     * @return string
+     */
+    public function getPrimaryImageUrlAttribute(): string
+    {
+        // Получаем первое изображение с is_primary = true
+        $primaryImage = $this->images()->where('is_primary', true)->first();
+        
+        if ($primaryImage) {
+            // Используем accessor url из модели ProductImage
+            return $primaryImage->url;
+        }
+        
+        // Если нет главного изображения, берем первое из всех
+        $firstImage = $this->images()->first();
+        
+        if ($firstImage) {
+            return $firstImage->url;
+        }
+        
+        // Если нет изображений вообще - возвращаем плейсхолдер
+        return asset('images/placeholder-product.png');
     }
 
     /**
@@ -349,5 +378,158 @@ final class Product extends Model
     public function scopeHighestRated($query)
     {
         return $query->orderBy('rating', 'desc');
+    }
+
+    // ==========================================
+    // АКСЕССОРЫ ДЛЯ КАРТОЧКИ ТОВАРА
+    // ==========================================
+
+    /**
+     * Получить URL главного изображения товара
+     * 
+     * Возвращает URL первого изображения или placeholder
+     * 
+     * @return string
+     */
+    public function getImageUrlAttribute(): string
+    {
+        // Путь к placeholder по умолчанию
+        $placeholder = '/images/products/placeholder.svg';
+        
+        // Если есть связанные изображения, берем первое
+        if ($this->relationLoaded('images') && $this->images->isNotEmpty()) {
+            $firstImage = $this->images->first();
+            if ($firstImage && !empty($firstImage->url)) {
+                return $firstImage->url;
+            }
+        }
+        
+        // Если есть primary изображение
+        if ($this->relationLoaded('primaryImage') && $this->primaryImage->isNotEmpty()) {
+            $primaryImage = $this->primaryImage->first();
+            if ($primaryImage && !empty($primaryImage->url)) {
+                return $primaryImage->url;
+            }
+        }
+        
+        // Иначе возвращаем заглушку
+        return $placeholder;
+    }
+
+    /**
+     * Получить уровень кислинки от 1 до 7
+     * 
+     * Преобразует процент (0-100) в уровень (1-7) для отображения точек
+     * 
+     * @return int
+     */
+    public function getAcidityAttribute(): int
+    {
+        if (is_null($this->acidity_percent)) {
+            return 0;
+        }
+        
+        // Преобразуем процент 0-100 в уровень 1-7
+        return (int) ceil(($this->acidity_percent / 100) * 7);
+    }
+
+    /**
+     * Получить уровень горчинки от 1 до 7
+     * 
+     * Преобразует процент (0-100) в уровень (1-7) для отображения точек
+     * 
+     * @return int
+     */
+    public function getBitternessAttribute(): int
+    {
+        if (is_null($this->bitterness_percent)) {
+            return 0;
+        }
+        
+        // Преобразуем процент 0-100 в уровень 1-7
+        return (int) ceil(($this->bitterness_percent / 100) * 7);
+    }
+
+    /**
+     * Получить уровень насыщенности от 1 до 7
+     * 
+     * Временно вычисляем как среднее между кислинкой и горчинкой
+     * Можно добавить отдельное поле в БД при необходимости
+     * 
+     * @return int
+     */
+    public function getSaturationAttribute(): int
+    {
+        $acidity = $this->acidity_percent ?? 50;
+        $bitterness = $this->bitterness_percent ?? 50;
+        
+        $average = ($acidity + $bitterness) / 2;
+        
+        // Преобразуем процент 0-100 в уровень 1-7
+        return (int) ceil(($average / 100) * 7);
+    }
+
+    /**
+     * Получить уровень обжарки от 1 до 5
+     * 
+     * Вычисляем на основе горчинки (чем больше обжарка, тем больше горчинка)
+     * Можно добавить отдельное поле roast_level в БД при необходимости
+     * 
+     * @return int
+     */
+    public function getRoastLevelAttribute(): int
+    {
+        if (is_null($this->bitterness_percent)) {
+            return 3; // Средняя обжарка по умолчанию
+        }
+        
+        // Преобразуем процент 0-100 в уровень 1-5
+        return (int) ceil(($this->bitterness_percent / 100) * 5);
+    }
+
+    /**
+     * Получить количество отзывов
+     * 
+     * Возвращает количество всех отзывов (не только одобренных)
+     * 
+     * @return int
+     */
+    public function getRatingCountAttribute(): int
+    {
+        return $this->reviews_count ?? 0;
+    }
+
+    /**
+     * Получить варианты веса товара
+     * 
+     * Возвращает стандартные варианты: 250г, 500г, 1000г
+     * Можно расширить для поддержки разных весов для разных товаров
+     * 
+     * @return array
+     */
+    public function getWeightOptionsAttribute(): array
+    {
+        // Стандартные варианты веса для кофе/чая
+        return [250, 500, 1000];
+    }
+
+    /**
+     * Получить цену со скидкой (алиас для удобства)
+     * 
+     * @return float
+     */
+    public function getDiscountedPriceAttribute(): float
+    {
+        return floatval($this->price);
+    }
+
+    /**
+     * Получить процент скидки (алиас для удобства)
+     * 
+     * @return int
+     */
+    public function getDiscountAttribute(): int
+    {
+        return $this->discount_percent ?? 0;
     }
 }

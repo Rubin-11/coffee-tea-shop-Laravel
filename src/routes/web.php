@@ -167,3 +167,40 @@ Route::prefix('newsletter')->name('newsletter.')->group(function () {
     Route::get('/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])
         ->name('unsubscribe');
 });
+
+// ==================== ИНФОРМАЦИОННЫЕ СТРАНИЦЫ ====================
+
+/**
+ * Статические информационные страницы сайта
+ * Доступны всем пользователям
+ */
+Route::prefix('pages')->name('pages.')->group(function () {
+    // О компании
+    Route::view('/about', 'pages.about')->name('about');
+    
+    // Доставка и оплата
+    Route::view('/delivery', 'pages.delivery')->name('delivery');
+    
+    // Гарантии и возврат
+    Route::view('/returns', 'pages.returns')->name('returns');
+    
+    // Политика конфиденциальности
+    Route::view('/privacy', 'pages.privacy')->name('privacy');
+    
+    // Пользовательское соглашение
+    Route::view('/terms', 'pages.terms')->name('terms');
+    
+    // Контакты
+    Route::view('/contacts', 'pages.contacts')->name('contacts');
+});
+
+// ==================== ЛИЧНЫЙ КАБИНЕТ ====================
+
+/**
+ * Маршруты личного кабинета пользователя
+ * Требует авторизации
+ */
+Route::middleware('auth')->prefix('profile')->name('profile.')->group(function () {
+    // Главная страница профиля
+    Route::view('/', 'profile.index')->name('index');
+});

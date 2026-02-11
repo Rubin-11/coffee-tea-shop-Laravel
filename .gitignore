@@ -30,6 +30,14 @@ src/.phpunit.result.cache
 src/.phpactor.json
 src/auth.json
 
+# Laravel скомпилированные views (кеш blade-шаблонов)
+src/storage/framework/views/*
+!src/storage/framework/views/.gitignore
+
+# Laravel логи
+src/storage/logs/*
+!src/storage/logs/.gitignore
+
 # ======================================
 # Composer
 # ======================================
@@ -114,3 +122,4 @@ _ide_helper_models.php
 # Личные заметки и шпаргалки
 # ======================================
 git-cheatsheet/
+resources/

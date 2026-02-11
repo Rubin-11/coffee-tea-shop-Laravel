@@ -1,11 +1,95 @@
-@import 'tailwindcss';
+/**
+ * Главный CSS файл проекта
+ * 
+ * Импортирует все кастомные стили
+ */
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+/* ========== ИМПОРТЫ (ITCSS: порядок важен!) ========== */
+/* 1. Settings - переменные */
+@import './base/variables.css';
+/* 2. Base - reset и базовые стили */
+@import './base/reset.css';
+/* 3. Layout - сетки и компоновка */
+@import './layout/layout.css';
+/* 4. Components - компоненты */
+@import './components/header.css';
+@import './components/footer.css';
+@import './components/buttons.css';
+@import './components/cards.css';
+/* 5. Pages - стили страниц */
+@import './pages/home.css';
+/* 6. Utilities - утилиты (последние для переопределения) */
+@import './utilities/utilities.css';
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+/* ========== ШРИФТЫ ========== */
+
+/* Подключение шрифта Gilroy (согласно макету) */
+/* ВАЖНО: Файлы шрифтов находятся в src/resources/font/Gilroy/ */
+
+/* Gilroy Light - используется для font-weight: 300 */
+@font-face {
+  font-family: 'Gilroy';
+  font-weight: 300;
+  font-style: normal;
+  src: url('../font/Gilroy/Gilroy-Light.otf') format('opentype');
+  font-display: swap;
+}
+
+/* Gilroy Light также для font-weight: 400 (normal) */
+@font-face {
+  font-family: 'Gilroy';
+  font-weight: 400;
+  font-style: normal;
+  src: url('../font/Gilroy/Gilroy-Light.otf') format('opentype');
+  font-display: swap;
+}
+
+/* Gilroy Light также для font-weight: 500 (medium) */
+@font-face {
+  font-family: 'Gilroy';
+  font-weight: 500;
+  font-style: normal;
+  src: url('../font/Gilroy/Gilroy-Light.otf') format('opentype');
+  font-display: swap;
+}
+
+/* Gilroy ExtraBold - используется для font-weight: 700 (bold) */
+@font-face {
+  font-family: 'Gilroy';
+  font-weight: 700;
+  font-style: normal;
+  src: url('../font/Gilroy/Gilroy-ExtraBold.otf') format('opentype');
+  font-display: swap;
+}
+
+/* Gilroy ExtraBold - используется для font-weight: 800 */
+@font-face {
+  font-family: 'Gilroy';
+  font-weight: 800;
+  font-style: normal;
+  src: url('../font/Gilroy/Gilroy-ExtraBold.otf') format('opentype');
+  font-display: swap;
+}
+
+/* Gilroy ExtraBold - используется для font-weight: 900 (black) */
+@font-face {
+  font-family: 'Gilroy';
+  font-weight: 900;
+  font-style: normal;
+  src: url('../font/Gilroy/Gilroy-ExtraBold.otf') format('opentype');
+  font-display: swap;
+}
+
+/* ========== СТИЛИ ДЛЯ ПЕЧАТИ ========== */
+@media print {
+  .header,
+  .footer,
+  .btn,
+  .newsletter {
+    display: none !important;
+  }
+  
+  body {
+    background-color: white;
+  }
 }

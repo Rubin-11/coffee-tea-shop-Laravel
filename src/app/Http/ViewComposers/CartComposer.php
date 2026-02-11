@@ -47,7 +47,7 @@ class CartComposer
         $cartTotal = $this->cartService->getTotal();
         
         // Получаем общее количество единиц товаров (опционально)
-        $cartTotalQuantity = $this->cartService->getTotalQuantity();
+        $cartTotalQuantity = $this->cartService->getItemsQuantity();
 
         // Передаём данные в представление
         // Теперь в любом Blade-шаблоне доступны переменные:

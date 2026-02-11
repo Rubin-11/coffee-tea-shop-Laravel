@@ -164,4 +164,25 @@ final class Category extends Model
     {
         return $this->children()->exists();
     }
+
+    /**
+ * Получить полный URL изображения категории
+ * 
+ * Если поле image заполнено, возвращает публичный URL к файлу через storage
+ * Если поле image пустое, возвращает плейсхолдер
+ * 
+ * @return string
+ */
+public function getImageUrlAttribute(): string
+{
+    // Если изображение задано в БД
+    if ($this->image) {
+        // Используем asset() для формирования URL
+        // storage/categories/имя-файла.png → http://домен/storage/categories/имя-файла.png
+        return asset('storage/' . $this->image);
+    }
+    
+    // Если изображения нет - возвращаем плейсхолдер
+    return asset('images/placeholder-category.png');
+}
 }

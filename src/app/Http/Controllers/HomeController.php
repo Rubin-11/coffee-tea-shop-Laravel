@@ -15,7 +15,6 @@ use Illuminate\Contracts\View\View;
  * Отвечает за отображение главной страницы интернет-магазина.
  * Собирает все необходимые данные:
  * - Рекомендуемые товары (featured products)
- * - Новинки (недавно добавленные товары)
  * - Популярные категории верхнего уровня
  * - Последние статьи блога
  * 
@@ -36,17 +35,12 @@ final class HomeController extends Controller
      *    - Ограничиваем до 8 товаров
      *    - Загружаем связи (category, images) для оптимизации запросов
      * 
-     * 2. НОВИНКИ
-     *    - Получаем последние добавленные товары
-     *    - Сортируем по дате создания (created_at)
-     *    - Ограничиваем до 8 товаров
-     * 
-     * 3. КАТЕГОРИИ
+     * 2. КАТЕГОРИИ
      *    - Получаем только главные категории (parent_id = null)
      *    - Фильтруем только активные (is_active = true)
      *    - Загружаем количество товаров в каждой категории
      * 
-     * 4. СТАТЬИ БЛОГА
+     * 3. СТАТЬИ БЛОГА
      *    - Получаем только опубликованные статьи
      *    - Сортируем по дате публикации (newest first)
      *    - Ограничиваем до 3 последних статей
@@ -67,20 +61,6 @@ final class HomeController extends Controller
         $featuredProducts = Product::featured()
             ->available()
             ->with(['category', 'images'])
-            ->limit(8)
-            ->get();
-
-        // ==========================================
-        // ПОЛУЧЕНИЕ НОВИНОК (ПОСЛЕДНИЕ ТОВАРЫ)
-        // ==========================================
-        // 
-        // available() - только доступные товары
-        // latest('created_at') - сортировка по дате создания (новые первые)
-        // with() - загружаем связи для избежания N+1 проблемы
-        // limit(8) - показываем 8 последних товаров
-        $newProducts = Product::available()
-            ->with(['category', 'images'])
-            ->latest('created_at')
             ->limit(8)
             ->get();
 
@@ -118,12 +98,11 @@ final class HomeController extends Controller
         // ВОЗВРАТ ПРЕДСТАВЛЕНИЯ С ДАННЫМИ
         // ==========================================
         // 
-        // Передаем все собранные данные в view 'welcome'
+        // Передаем все собранные данные в view 'home'
         // В Blade-шаблоне эти переменные будут доступны напрямую:
-        // {{ $featuredProducts }}, {{ $newProducts }}, и т.д.
-        return view('welcome', compact(
+        // {{ $featuredProducts }}, {{ $categories }}, {{ $blogPosts }}
+        return view('home', compact(
             'featuredProducts',
-            'newProducts',
             'categories',
             'blogPosts'
         ));

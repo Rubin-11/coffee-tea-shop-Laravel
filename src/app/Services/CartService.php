@@ -190,29 +190,31 @@ final readonly class CartService
     }
 
     /**
-     * Получить количество товаров в корзине
+     * Получить количество позиций в корзине
      * 
-     * Возвращает общее количество единиц товаров (не позиций)
+     * Возвращает количество уникальных товаров (позиций).
+     * Используется для отображения счетчика в хедере.
      * 
-     * @return int Общее количество товаров
+     * @return int Количество позиций (уникальных товаров)
      */
     public function getItemsCount(): int
+    {
+        return $this->getCartItems()->count();
+    }
+
+    /**
+     * Получить общее количество единиц товаров в корзине
+     * 
+     * Возвращает сумму всех quantity (общее количество единиц всех товаров).
+     * Например: 2 кофе + 3 чая = 5 единиц товаров.
+     * 
+     * @return int Общее количество единиц товаров
+     */
+    public function getItemsQuantity(): int
     {
         $items = $this->getCartItems();
 
         return $items->sum(fn(CartItem $item) => $item->quantity);
-    }
-
-    /**
-     * Получить количество позиций в корзине
-     * 
-     * Возвращает количество уникальных товаров (позиций)
-     * 
-     * @return int Количество позиций
-     */
-    public function getItemsQuantity(): int
-    {
-        return $this->getCartItems()->count();
     }
 
     /**
@@ -222,7 +224,7 @@ final readonly class CartService
      */
     public function isEmpty(): bool
     {
-        return $this->getItemsQuantity() === 0;
+        return $this->getItemsCount() === 0;
     }
 
     /**

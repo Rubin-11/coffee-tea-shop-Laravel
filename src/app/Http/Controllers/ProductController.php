@@ -26,6 +26,7 @@ final class ProductController extends Controller
      * 
      * Этот метод показывает список всех доступных товаров с возможностью:
      * - Фильтрации по категории (?category_id=1)
+     * - Фильтрации по скидке (?filter=discount)
      * - Фильтрации по ценовому диапазону (?min_price=100&max_price=500)
      * - Сортировки (?sort=price_asc, price_desc, rating, newest)
      * - Пагинации (по 12 товаров на странице)
@@ -33,6 +34,7 @@ final class ProductController extends Controller
      * Примеры использования:
      * - /products - все товары
      * - /products?category_id=1 - товары категории 1
+     * - /products?filter=discount - товары со скидкой
      * - /products?sort=price_asc - сортировка по возрастанию цены
      * - /products?min_price=200&max_price=500 - товары от 200 до 500 руб
      * 
@@ -57,6 +59,18 @@ final class ProductController extends Controller
         // Пример: /products?category_id=1
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->integer('category_id'));
+        }
+
+        // ==========================================
+        // ФИЛЬТРАЦИЯ ПО СКИДКЕ
+        // ==========================================
+        // 
+        // Если в URL есть параметр filter=discount, показываем только товары со скидкой
+        // Товар со скидкой: old_price не пусто и old_price > price
+        // Пример: /products?filter=discount
+        if ($request->input('filter') === 'discount') {
+            $query->whereNotNull('old_price')
+                ->whereColumn('old_price', '>', 'price');
         }
 
         // ==========================================
