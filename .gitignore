@@ -12,11 +12,14 @@
 # ======================================
 # Laravel (в папке src/)
 # ======================================
+# Файлы окружения (root и src/)
+.env.testing
 src/vendor/
 src/node_modules/
 src/.env
 src/.env.backup
 src/.env.production
+src/.env.testing
 src/storage/*.key
 src/bootstrap/cache/*
 !src/bootstrap/cache/.gitignore
@@ -29,6 +32,9 @@ src/Homestead.json
 src/.phpunit.result.cache
 src/.phpactor.json
 src/auth.json
+
+# Laravel ключ шифрования (в корне проекта)
+cipher
 
 # Laravel скомпилированные views (кеш blade-шаблонов)
 src/storage/framework/views/*
@@ -103,8 +109,15 @@ $RECYCLE.BIN/
 .phpunit.result.cache
 .phpunit.cache
 coverage/
+coverage-report/
 .coverage
 htmlcov/
+src/coverage-report/
+
+# ======================================
+# Сторонние инструменты и конфигурации
+# ======================================
+.gigaide/
 
 # ======================================
 # Прочее

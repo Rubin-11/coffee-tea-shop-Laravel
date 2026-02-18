@@ -348,7 +348,7 @@ final readonly class OrderService
                 'product_name' => $cartItem->product->name, // Сохраняем название на момент заказа
                 'quantity' => $cartItem->quantity,
                 'price' => $cartItem->price, // Цена на момент добавления в корзину
-                'subtotal' => $cartItem->getSubtotal(),
+                'total' => $cartItem->getSubtotal(), // Исправлено: было 'subtotal', должно быть 'total'
             ]);
         }
     }

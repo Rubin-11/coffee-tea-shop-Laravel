@@ -98,6 +98,23 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        // Отдельная конфигурация для тестовой базы данных
+        // Используется при запуске PHPUnit тестов
+        'pgsql_testing' => [
+            'driver' => 'pgsql',
+            'url' => env('DB_URL'),
+            'host' => env('DB_HOST', 'postgres'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'coffee_tea_shop_test'),
+            'username' => env('DB_USERNAME', 'laravel_user'),
+            'password' => env('DB_PASSWORD', 'secret_password'),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => 'prefer',
+        ],
+
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),

@@ -199,8 +199,8 @@ class ProductFactory extends Factory
             'sku' => 'CF-' . fake()->unique()->numberBetween(1000, 9999),
             'price' => fake()->randomFloat(2, 250, 800),
             'weight' => fake()->randomElement([250, 500, 1000]),
-            'bitterness_percent' => fake()->randomElement([0, 2, 4, 6, 8, 10]),
-            'acidity_percent' => fake()->randomElement([0, 2, 4, 6, 8, 10]),
+            'bitterness_percent' => fake()->randomElement([2, 4, 6, 8, 10]), // Убрали 0
+            'acidity_percent' => fake()->randomElement([2, 4, 6, 8, 10]), // Убрали 0
             'description' => 'Премиальный кофе ' . $name . '. ' . fake()->sentence(12),
         ]);
     }

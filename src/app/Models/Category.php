@@ -146,6 +146,60 @@ final class Category extends Model
     }
 
     /**
+     * Scope для фильтрации только активных категорий
+     * 
+     * Использование: Category::active()->get()
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Получить всех предков категории (родитель, родитель родителя и т.д.)
+     * 
+     * Рекурсивно обходит цепочку parent до корневой категории.
+     * Возвращает коллекцию от ближайшего родителя к самому дальнему предку.
+     *
+     * @return \Illuminate\Support\Collection<int, Category>
+     */
+    public function getAllAncestors(): \Illuminate\Support\Collection
+    {
+        $ancestors = collect();
+        $current = $this->parent;
+
+        while ($current !== null) {
+            $ancestors->push($current);
+            $current = $current->parent;
+        }
+
+        return $ancestors;
+    }
+
+    /**
+     * Получить всех потомков категории (дети, дети детей и т.д.)
+     * 
+     * Рекурсивно обходит дерево дочерних категорий.
+     * Возвращает плоскую коллекцию всех подкатегорий любого уровня вложенности.
+     *
+     * @return \Illuminate\Support\Collection<int, Category>
+     */
+    public function getAllDescendants(): \Illuminate\Support\Collection
+    {
+        $descendants = collect();
+
+        foreach ($this->children as $child) {
+            $descendants->push($child);
+            $descendants = $descendants->merge($child->getAllDescendants());
+        }
+
+        return $descendants;
+    }
+
+    /**
      * Проверить, является ли категория главной (без родителя)
      * 
      * @return bool

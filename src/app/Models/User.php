@@ -99,6 +99,42 @@ final class User extends Authenticatable
     }
 
     /**
+     * Получить все заказы пользователя
+     * 
+     * Возвращает все заказы, сделанные этим пользователем
+     * 
+     * @return HasMany
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Получить позиции корзины пользователя
+     * 
+     * Возвращает товары в корзине пользователя
+     * 
+     * @return HasMany
+     */
+    public function cartItems(): HasMany
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
+    /**
+     * Получить адреса доставки пользователя
+     * 
+     * Возвращает все сохраненные адреса доставки
+     * 
+     * @return HasMany
+     */
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(Address::class);
+    }
+
+    /**
      * Получить все отзывы пользователя
      * 
      * Возвращает отзывы на товары, оставленные этим пользователем
@@ -192,5 +228,18 @@ final class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->is_admin;
+    }
+
+    /**
+     * Получить адрес доставки по умолчанию
+     * 
+     * Возвращает адрес, отмеченный как основной (is_default = true).
+     * Если основной адрес не задан, возвращает null.
+     * 
+     * @return \App\Models\Address|null
+     */
+    public function getDefaultAddress(): ?Address
+    {
+        return $this->addresses()->where('is_default', true)->first();
     }
 }

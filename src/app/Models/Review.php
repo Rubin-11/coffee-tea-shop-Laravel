@@ -228,4 +228,25 @@ final class Review extends Model
     {
         return $query->where('rating', $rating);
     }
+
+    /**
+     * Boot модели для автоматических действий
+     *
+     * Выполняет валидацию рейтинга при создании и обновлении отзыва.
+     *
+     * @return void
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        // Проверяем валидность рейтинга при создании и обновлении
+        static::saving(function (Review $review) {
+            if ($review->rating < 1 || $review->rating > 5) {
+                throw new \InvalidArgumentException(
+                    'Рейтинг отзыва должен быть от 1 до 5. Получено: ' . $review->rating
+                );
+            }
+        });
+    }
 }
