@@ -270,16 +270,14 @@ button, input, select, textarea {
 }
 
 /* Зёрна: левее и ниже чашки (в макете x=865, y=318; чашка x=906, y=267) */
-/* angle: 157.31° из макета — зёрна повёрнуты; FILL = object-fit: cover (без искажения) */
 .hero__beans {
     position: absolute;
     z-index: 1;
-    width: 756.54px;
+    width: 756.5px; /* точный размер из макета: 756.54 × 521.4 */
     height: 521.4px;
-    object-fit: cover;
     right: 28px;
     top: calc(50% + 63px);
-    transform: translateY(-50%) rotate(157.31deg);
+    transform: translateY(-50%);
 }
 
 /* Чашка: правее зёрен, прижата к правому краю (в макете x=906, y=267) */
