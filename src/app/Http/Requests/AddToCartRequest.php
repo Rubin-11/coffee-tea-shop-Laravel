@@ -39,7 +39,13 @@ final class AddToCartRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        // Приводим quantity к целому числу, если оно передано
+        // Приводим числовые поля к целому числу, если они переданы
+        if ($this->has('product_id')) {
+            $this->merge([
+                'product_id' => (int) $this->product_id,
+            ]);
+        }
+
         if ($this->has('quantity')) {
             $this->merge([
                 'quantity' => (int) $this->quantity,
