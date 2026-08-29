@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * Модель заказа
- * 
+ *
  * Представляет заказ клиента в интернет-магазине.
  * Содержит информацию о покупателе, способах доставки и оплаты,
  * статусах обработки, а также связь с товарами в заказе.
@@ -34,19 +37,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $payment_status
  * @property string|null $notes
  * @property string|null $admin_notes
- * @property \Illuminate\Support\Carbon|null $paid_at
- * @property \Illuminate\Support\Carbon|null $shipped_at
- * @property \Illuminate\Support\Carbon|null $delivered_at
- * @property \Illuminate\Support\Carbon|null $cancelled_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $paid_at
+ * @property Carbon|null $shipped_at
+ * @property Carbon|null $delivered_at
+ * @property Carbon|null $cancelled_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read string $delivery_method_text
  * @property-read string $payment_method_text
  * @property-read string $payment_status_text
  * @property-read string $status_text
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\OrderItem> $items
+ * @property-read Collection<int, OrderItem> $items
  * @property-read int|null $items_count
- * @property-read \App\Models\User|null $user
+ * @property-read User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order byUser(int $userId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order cancelled()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order delivered()
@@ -79,6 +83,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereTotal($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 final class Order extends Model
@@ -87,8 +92,8 @@ final class Order extends Model
 
     /**
      * Поля, которые можно массово заполнять
-     * 
-     * @var array<int, string>
+     *
+     * @var list<string>
      */
     protected $fillable = [
         'user_id',              // ID пользователя (null для гостевых заказов)
@@ -115,8 +120,8 @@ final class Order extends Model
 
     /**
      * Атрибуты, которые должны быть скрыты в массивах и JSON
-     * 
-     * @var array<int, string>
+     *
+     * @var list<string>
      */
     protected $hidden = [
         'admin_notes',  // Скрываем внутренние заметки от клиентов
@@ -124,7 +129,7 @@ final class Order extends Model
 
     /**
      * Преобразование типов атрибутов
-     * 
+     *
      * @return array<string, string>
      */
     protected function casts(): array
@@ -135,9 +140,9 @@ final class Order extends Model
             'discount' => 'decimal:2',          // Скидка с 2 знаками
             'total' => 'decimal:2',             // Итоговая сумма с 2 знаками
             'paid_at' => 'datetime',            // Преобразуем в объект Carbon
-            'shipped_at' => 'datetime',         
-            'delivered_at' => 'datetime',           
-            'cancelled_at' => 'datetime',       
+            'shipped_at' => 'datetime',
+            'delivered_at' => 'datetime',
+            'cancelled_at' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
@@ -145,10 +150,8 @@ final class Order extends Model
 
     /**
      * Получить пользователя, сделавшего заказ
-     * 
+     *
      * Для гостевых заказов вернет null
-     * 
-     * @return BelongsTo
      */
     public function user(): BelongsTo
     {
@@ -157,8 +160,6 @@ final class Order extends Model
 
     /**
      * Получить все позиции (товары) в заказе
-     * 
-     * @return HasMany
      */
     public function items(): HasMany
     {
@@ -167,10 +168,8 @@ final class Order extends Model
 
     /**
      * Рассчитать общую сумму заказа
-     * 
+     *
      * Вычисляет: сумма товаров + доставка - скидка
-     * 
-     * @return float
      */
     public function calculateTotal(): float
     {
@@ -182,54 +181,46 @@ final class Order extends Model
 
     /**
      * Проверить, оплачен ли заказ
-     * 
-     * @return bool
      */
     public function isPaid(): bool
     {
-        return $this->payment_status === 'paid' || !is_null($this->paid_at);
+        return $this->payment_status === 'paid' || ! is_null($this->paid_at);
     }
 
     /**
      * Проверить, доставлен ли заказ
-     * 
-     * @return bool
      */
     public function isDelivered(): bool
     {
-        return $this->status === 'delivered' && !is_null($this->delivered_at);
+        return $this->status === 'delivered' && ! is_null($this->delivered_at);
     }
 
     /**
      * Проверить, отменен ли заказ
-     * 
-     * @return bool
      */
     public function isCancelled(): bool
     {
-        return $this->status === 'cancelled' && !is_null($this->cancelled_at);
+        return $this->status === 'cancelled' && ! is_null($this->cancelled_at);
     }
 
     /**
      * Проверить, можно ли отменить заказ
-     * 
+     *
      * Заказ можно отменить только если он еще не отправлен
-     * 
-     * @return bool
      */
     public function canBeCancelled(): bool
     {
-        return in_array($this->status, ['pending', 'processing', 'paid']) 
-               && !$this->isCancelled();
+        return in_array($this->status, ['pending', 'processing', 'paid'])
+               && ! $this->isCancelled();
     }
 
     /**
      * Scope для получения заказов, ожидающих обработки
-     * 
+     *
      * Использование: Order::pending()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopePending($query)
     {
@@ -238,11 +229,11 @@ final class Order extends Model
 
     /**
      * Scope для получения оплаченных заказов
-     * 
+     *
      * Использование: Order::paid()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopePaid($query)
     {
@@ -251,11 +242,11 @@ final class Order extends Model
 
     /**
      * Scope для получения доставленных заказов
-     * 
+     *
      * Использование: Order::delivered()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeDelivered($query)
     {
@@ -264,11 +255,11 @@ final class Order extends Model
 
     /**
      * Scope для получения отмененных заказов
-     * 
+     *
      * Использование: Order::cancelled()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeCancelled($query)
     {
@@ -277,12 +268,11 @@ final class Order extends Model
 
     /**
      * Scope для получения заказов пользователя
-     * 
+     *
      * Использование: Order::byUser($userId)->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $userId
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeByUser($query, int $userId)
     {
@@ -291,11 +281,11 @@ final class Order extends Model
 
     /**
      * Scope для получения недавних заказов (по дате создания)
-     * 
+     *
      * Использование: Order::recent()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeRecent($query)
     {
@@ -304,8 +294,6 @@ final class Order extends Model
 
     /**
      * Получить текстовое представление статуса заказа
-     * 
-     * @return string
      */
     public function getStatusTextAttribute(): string
     {
@@ -322,8 +310,6 @@ final class Order extends Model
 
     /**
      * Получить текстовое представление статуса оплаты
-     * 
-     * @return string
      */
     public function getPaymentStatusTextAttribute(): string
     {
@@ -337,8 +323,6 @@ final class Order extends Model
 
     /**
      * Получить текстовое представление способа доставки
-     * 
-     * @return string
      */
     public function getDeliveryMethodTextAttribute(): string
     {
@@ -352,8 +336,6 @@ final class Order extends Model
 
     /**
      * Получить текстовое представление способа оплаты
-     * 
-     * @return string
      */
     public function getPaymentMethodTextAttribute(): string
     {

@@ -10,31 +10,31 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * Factory для генерации адресов доставки
- * 
+ *
  * Создает реалистичные адреса доставки для пользователей:
  * - Российские города и улицы
  * - Дома, квартиры, почтовые индексы
  * - Контактные телефоны
  * - Названия адресов (Дом, Работа, Дача и т.д.)
  * - Основные и дополнительные адреса
- * 
+ *
  * Каждый пользователь может иметь несколько адресов,
  * один из которых может быть отмечен как основной (по умолчанию).
- * 
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Address>
+ *
+ * @extends Factory<Address>
  */
 class AddressFactory extends Factory
 {
     /**
      * Модель, для которой создается фабрика
-     * 
+     *
      * @var string
      */
     protected $model = Address::class;
 
     /**
      * Список российских городов для генерации адресов
-     * 
+     *
      * @var array<string>
      */
     private const CITIES = [
@@ -52,7 +52,7 @@ class AddressFactory extends Factory
 
     /**
      * Список типичных названий улиц
-     * 
+     *
      * @var array<string>
      */
     private const STREETS = [
@@ -78,7 +78,7 @@ class AddressFactory extends Factory
 
     /**
      * Список типичных названий адресов
-     * 
+     *
      * @var array<string>
      */
     private const ADDRESS_NAMES = [
@@ -93,9 +93,9 @@ class AddressFactory extends Factory
 
     /**
      * Определение состояния по умолчанию для модели
-     * 
+     *
      * Генерирует случайный адрес доставки с реалистичными данными
-     * 
+     *
      * @return array<string, mixed>
      */
     public function definition(): array
@@ -130,8 +130,8 @@ class AddressFactory extends Factory
             $city,
             $street,
             $house,
-            $apartment ? ', кв. ' . $apartment : '',
-            $postalCode ? ', индекс ' . $postalCode : ''
+            $apartment ? ', кв. '.$apartment : '',
+            $postalCode ? ', индекс '.$postalCode : ''
         );
 
         return [
@@ -170,11 +170,10 @@ class AddressFactory extends Factory
 
     /**
      * Состояние для адреса конкретного пользователя
-     * 
+     *
      * Использование: Address::factory()->forUser($user)->create()
-     * 
-     * @param \App\Models\User|int $user Пользователь или его ID
-     * @return static
+     *
+     * @param  User|int  $user  Пользователь или его ID
      */
     public function forUser($user): static
     {
@@ -187,10 +186,8 @@ class AddressFactory extends Factory
 
     /**
      * Состояние для основного адреса (по умолчанию)
-     * 
+     *
      * Использование: Address::factory()->default()->create()
-     * 
-     * @return static
      */
     public function default(): static
     {
@@ -202,10 +199,8 @@ class AddressFactory extends Factory
 
     /**
      * Состояние для домашнего адреса
-     * 
+     *
      * Использование: Address::factory()->home()->create()
-     * 
-     * @return static
      */
     public function home(): static
     {
@@ -216,25 +211,21 @@ class AddressFactory extends Factory
 
     /**
      * Состояние для рабочего адреса
-     * 
+     *
      * Использование: Address::factory()->work()->create()
-     * 
-     * @return static
      */
     public function work(): static
     {
         return $this->state(fn (array $attributes) => [
             'name' => 'Работа',
-            'apartment' => fake()->optional(0.9)->numberBetween(1, 50) . fake()->randomElement(['', 'А', 'Б']), // Офисы обычно есть
+            'apartment' => fake()->optional(0.9)->numberBetween(1, 50).fake()->randomElement(['', 'А', 'Б']), // Офисы обычно есть
         ]);
     }
 
     /**
      * Состояние для адреса дачи/загородного дома
-     * 
+     *
      * Использование: Address::factory()->dacha()->create()
-     * 
-     * @return static
      */
     public function dacha(): static
     {
@@ -271,12 +262,10 @@ class AddressFactory extends Factory
 
     /**
      * Состояние для адреса в Калининграде
-     * 
+     *
      * Полезно для тестирования доставки в основном городе магазина
-     * 
+     *
      * Использование: Address::factory()->kaliningrad()->create()
-     * 
-     * @return static
      */
     public function kaliningrad(): static
     {
@@ -305,7 +294,7 @@ class AddressFactory extends Factory
                     'г. Калининград, %s, д. %s%s, индекс %s',
                     $street,
                     $house,
-                    $apartment ? ', кв. ' . $apartment : '',
+                    $apartment ? ', кв. '.$apartment : '',
                     fake()->numerify('2360##')
                 ),
             ];
@@ -314,10 +303,8 @@ class AddressFactory extends Factory
 
     /**
      * Состояние для адреса в Москве
-     * 
+     *
      * Использование: Address::factory()->moscow()->create()
-     * 
-     * @return static
      */
     public function moscow(): static
     {
@@ -345,7 +332,7 @@ class AddressFactory extends Factory
                     'г. Москва, %s, д. %s%s, индекс %s',
                     $street,
                     $house,
-                    $apartment ? ', кв. ' . $apartment : '',
+                    $apartment ? ', кв. '.$apartment : '',
                     fake()->numerify('1#####')
                 ),
             ];
@@ -354,10 +341,8 @@ class AddressFactory extends Factory
 
     /**
      * Состояние для адреса без почтового индекса
-     * 
+     *
      * Использование: Address::factory()->noPostalCode()->create()
-     * 
-     * @return static
      */
     public function noPostalCode(): static
     {
@@ -368,7 +353,7 @@ class AddressFactory extends Factory
                 $attributes['city'],
                 $attributes['street'],
                 $attributes['house'],
-                $attributes['apartment'] ? ', кв. ' . $attributes['apartment'] : ''
+                $attributes['apartment'] ? ', кв. '.$attributes['apartment'] : ''
             );
 
             return [
@@ -380,10 +365,8 @@ class AddressFactory extends Factory
 
     /**
      * Состояние для адреса без квартиры (частный дом)
-     * 
+     *
      * Использование: Address::factory()->privateHouse()->create()
-     * 
-     * @return static
      */
     public function privateHouse(): static
     {
@@ -394,7 +377,7 @@ class AddressFactory extends Factory
                 $attributes['city'],
                 $attributes['street'],
                 $attributes['house'],
-                $attributes['postal_code'] ? ', индекс ' . $attributes['postal_code'] : ''
+                $attributes['postal_code'] ? ', индекс '.$attributes['postal_code'] : ''
             );
 
             return [
@@ -407,10 +390,8 @@ class AddressFactory extends Factory
 
     /**
      * Состояние для адреса с полной информацией (все поля заполнены)
-     * 
+     *
      * Использование: Address::factory()->complete()->create()
-     * 
-     * @return static
      */
     public function complete(): static
     {

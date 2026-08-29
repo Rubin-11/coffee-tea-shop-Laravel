@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Модель товара (кофе, чай, аксессуары)
- * 
+ *
  * Основная модель для товаров в магазине.
  * Содержит всю информацию: цену, вес, рейтинг, характеристики (горчинка, кислинка).
  * Поддерживает мягкое удаление (soft deletes) для сохранения истории.
@@ -37,21 +40,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $is_available
  * @property string|null $meta_title
  * @property string|null $meta_description
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $approvedReviews
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read Collection<int, Review> $approvedReviews
  * @property-read int|null $approved_reviews_count
- * @property-read \App\Models\Category $category
+ * @property-read Category $category
  * @property-read int|null $discount_percent
  * @property-read float|null $savings
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductImage> $images
+ * @property-read Collection<int, ProductImage> $images
  * @property-read int|null $images_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductImage> $primaryImage
+ * @property-read Collection<int, ProductImage> $primaryImage
  * @property-read int|null $primary_image_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $reviews
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
+ * @property-read Collection<int, Review> $reviews
+ * @property-read Collection<int, Tag> $tags
  * @property-read int|null $tags_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product available()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product byCategory(int $categoryId)
  * @method static \Database\Factories\ProductFactory factory($count = null, $state = [])
@@ -87,6 +91,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereWeight($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 final class Product extends Model
@@ -95,8 +100,8 @@ final class Product extends Model
 
     /**
      * Поля, которые можно массово заполнять
-     * 
-     * @var array<int, string>
+     *
+     * @var list<string>
      */
     protected $fillable = [
         'category_id',          // ID категории товара
@@ -121,8 +126,8 @@ final class Product extends Model
 
     /**
      * Атрибуты, которые должны быть скрыты в массивах и JSON
-     * 
-     * @var array<int, string>
+     *
+     * @var list<string>
      */
     protected $hidden = [
         'deleted_at',  // Скрываем дату удаления при сериализации
@@ -130,7 +135,7 @@ final class Product extends Model
 
     /**
      * Преобразование типов атрибутов
-     * 
+     *
      * @return array<string, string>
      */
     protected function casts(): array
@@ -154,8 +159,6 @@ final class Product extends Model
 
     /**
      * Получить категорию товара
-     * 
-     * @return BelongsTo
      */
     public function category(): BelongsTo
     {
@@ -164,10 +167,8 @@ final class Product extends Model
 
     /**
      * Получить все изображения товара
-     * 
+     *
      * Товар может иметь несколько изображений для галереи
-     * 
-     * @return HasMany
      */
     public function images(): HasMany
     {
@@ -176,10 +177,8 @@ final class Product extends Model
 
     /**
      * Получить главное изображение товара
-     * 
+     *
      * Используется для отображения в списке товаров
-     * 
-     * @return HasMany
      */
     public function primaryImage(): HasMany
     {
@@ -188,22 +187,18 @@ final class Product extends Model
 
     /**
      * Получить все теги товара
-     * 
+     *
      * Связь многие-ко-многим. Товар может иметь несколько тегов:
      * "Новинка", "Акция", "Органический"
-     * 
-     * @return BelongsToMany
      */
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'product_tag')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 
     /**
      * Получить все отзывы на товар
-     * 
-     * @return HasMany
      */
     public function reviews(): HasMany
     {
@@ -212,10 +207,8 @@ final class Product extends Model
 
     /**
      * Получить только одобренные отзывы
-     * 
+     *
      * Отфильтровывает отзывы, прошедшие модерацию
-     * 
-     * @return HasMany
      */
     public function approvedReviews(): HasMany
     {
@@ -224,8 +217,6 @@ final class Product extends Model
 
     /**
      * Проверить, есть ли товар в наличии
-     * 
-     * @return bool
      */
     public function inStock(): bool
     {
@@ -234,22 +225,18 @@ final class Product extends Model
 
     /**
      * Проверить, есть ли скидка на товар
-     * 
-     * @return bool
      */
     public function hasDiscount(): bool
     {
-        return !is_null($this->old_price) && $this->old_price > $this->price;
+        return ! is_null($this->old_price) && $this->old_price > $this->price;
     }
 
     /**
      * Получить размер скидки в процентах
-     * 
-     * @return int|null
      */
     public function getDiscountPercentAttribute(): ?int
     {
-        if (!$this->hasDiscount()) {
+        if (! $this->hasDiscount()) {
             return null;
         }
 
@@ -258,54 +245,50 @@ final class Product extends Model
 
     /**
      * Получить сумму экономии при скидке
-     * 
-     * @return float|null
      */
     public function getSavingsAttribute(): ?float
     {
-        if (!$this->hasDiscount()) {
+        if (! $this->hasDiscount()) {
             return null;
         }
 
-        return round((float)$this->old_price - (float)$this->price, 2);
+        return round((float) $this->old_price - (float) $this->price, 2);
     }
 
     /**
      * Получить URL главного изображения товара
-     * 
+     *
      * Возвращает URL первого (главного) изображения товара.
      * Если изображений нет, возвращает плейсхолдер.
-     * 
-     * @return string
      */
     public function getPrimaryImageUrlAttribute(): string
     {
         // Получаем первое изображение с is_primary = true
-        $primaryImage = $this->images()->where('is_primary', true)->first();
-        
+        $primaryImage = $this->images->where('is_primary', true)->first();
+
         if ($primaryImage) {
             // Используем accessor url из модели ProductImage
             return $primaryImage->url;
         }
-        
+
         // Если нет главного изображения, берем первое из всех
-        $firstImage = $this->images()->first();
-        
+        $firstImage = $this->images->first();
+
         if ($firstImage) {
             return $firstImage->url;
         }
-        
+
         // Если нет изображений вообще - возвращаем плейсхолдер
         return asset('images/placeholder-product.png');
     }
 
     /**
      * Scope для получения только доступных товаров
-     * 
+     *
      * Использование: Product::available()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeAvailable($query)
     {
@@ -314,11 +297,11 @@ final class Product extends Model
 
     /**
      * Scope для получения рекомендуемых товаров
-     * 
+     *
      * Использование: Product::featured()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeFeatured($query)
     {
@@ -327,11 +310,11 @@ final class Product extends Model
 
     /**
      * Scope для получения товаров в наличии
-     * 
+     *
      * Использование: Product::inStock()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeInStockScope($query)
     {
@@ -340,12 +323,11 @@ final class Product extends Model
 
     /**
      * Scope для фильтрации по категории
-     * 
+     *
      * Использование: Product::byCategory($categoryId)->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $categoryId
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeByCategory($query, int $categoryId)
     {
@@ -354,13 +336,11 @@ final class Product extends Model
 
     /**
      * Scope для фильтрации по диапазону цен
-     * 
+     *
      * Использование: Product::priceRange(200, 500)->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param float $min
-     * @param float $max
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopePriceRange($query, float $min, float $max)
     {
@@ -369,11 +349,11 @@ final class Product extends Model
 
     /**
      * Scope для сортировки по рейтингу
-     * 
+     *
      * Использование: Product::highestRated()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeHighestRated($query)
     {
@@ -386,113 +366,101 @@ final class Product extends Model
 
     /**
      * Получить URL главного изображения товара
-     * 
+     *
      * Возвращает URL первого изображения или placeholder
-     * 
-     * @return string
      */
     public function getImageUrlAttribute(): string
     {
         // Путь к placeholder по умолчанию
         $placeholder = '/images/products/placeholder.svg';
-        
+
         // Если есть связанные изображения, берем первое
         if ($this->relationLoaded('images') && $this->images->isNotEmpty()) {
             $firstImage = $this->images->first();
-            if ($firstImage && !empty($firstImage->url)) {
+            if (! empty($firstImage->url)) {
                 return $firstImage->url;
             }
         }
-        
+
         // Если есть primary изображение
         if ($this->relationLoaded('primaryImage') && $this->primaryImage->isNotEmpty()) {
             $primaryImage = $this->primaryImage->first();
-            if ($primaryImage && !empty($primaryImage->url)) {
+            if (! empty($primaryImage->url)) {
                 return $primaryImage->url;
             }
         }
-        
+
         // Иначе возвращаем заглушку
         return $placeholder;
     }
 
     /**
      * Получить уровень кислинки от 1 до 7
-     * 
+     *
      * Преобразует процент (0-100) в уровень (1-7) для отображения точек
-     * 
-     * @return int
      */
     public function getAcidityAttribute(): int
     {
         if (is_null($this->acidity_percent)) {
             return 0;
         }
-        
+
         // Преобразуем процент 0-100 в уровень 1-7
         return (int) ceil(($this->acidity_percent / 100) * 7);
     }
 
     /**
      * Получить уровень горчинки от 1 до 7
-     * 
+     *
      * Преобразует процент (0-100) в уровень (1-7) для отображения точек
-     * 
-     * @return int
      */
     public function getBitternessAttribute(): int
     {
         if (is_null($this->bitterness_percent)) {
             return 0;
         }
-        
+
         // Преобразуем процент 0-100 в уровень 1-7
         return (int) ceil(($this->bitterness_percent / 100) * 7);
     }
 
     /**
      * Получить уровень насыщенности от 1 до 7
-     * 
+     *
      * Временно вычисляем как среднее между кислинкой и горчинкой
      * Можно добавить отдельное поле в БД при необходимости
-     * 
-     * @return int
      */
     public function getSaturationAttribute(): int
     {
         $acidity = $this->acidity_percent ?? 50;
         $bitterness = $this->bitterness_percent ?? 50;
-        
+
         $average = ($acidity + $bitterness) / 2;
-        
+
         // Преобразуем процент 0-100 в уровень 1-7
         return (int) ceil(($average / 100) * 7);
     }
 
     /**
      * Получить уровень обжарки от 1 до 5
-     * 
+     *
      * Вычисляем на основе горчинки (чем больше обжарка, тем больше горчинка)
      * Можно добавить отдельное поле roast_level в БД при необходимости
-     * 
-     * @return int
      */
     public function getRoastLevelAttribute(): int
     {
         if (is_null($this->bitterness_percent)) {
             return 3; // Средняя обжарка по умолчанию
         }
-        
+
         // Преобразуем процент 0-100 в уровень 1-5
         return (int) ceil(($this->bitterness_percent / 100) * 5);
     }
 
     /**
      * Получить количество отзывов
-     * 
+     *
      * Возвращает количество всех отзывов (не только одобренных)
-     * 
-     * @return int
      */
     public function getRatingCountAttribute(): int
     {
@@ -501,11 +469,9 @@ final class Product extends Model
 
     /**
      * Получить варианты веса товара
-     * 
+     *
      * Возвращает стандартные варианты: 250г, 500г, 1000г
      * Можно расширить для поддержки разных весов для разных товаров
-     * 
-     * @return array
      */
     public function getWeightOptionsAttribute(): array
     {
@@ -515,8 +481,6 @@ final class Product extends Model
 
     /**
      * Получить цену со скидкой (алиас для удобства)
-     * 
-     * @return float
      */
     public function getDiscountedPriceAttribute(): float
     {
@@ -525,8 +489,6 @@ final class Product extends Model
 
     /**
      * Получить процент скидки (алиас для удобства)
-     * 
-     * @return int
      */
     public function getDiscountAttribute(): int
     {

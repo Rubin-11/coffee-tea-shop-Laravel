@@ -8,28 +8,28 @@ use Illuminate\Support\Str;
 
 /**
  * Factory для генерации тегов товаров
- * 
+ *
  * Создает теги для маркировки товаров:
  * "Новинка", "Хит продаж", "Акция", "Органический", "Премиум"
- * 
+ *
  * Теги используются для быстрой фильтрации и привлечения внимания к товарам
- * 
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Tag>
+ *
+ * @extends Factory<Tag>
  */
 class TagFactory extends Factory
 {
     /**
      * Модель, для которой создается фабрика
-     * 
+     *
      * @var string
      */
     protected $model = Tag::class;
 
     /**
      * Определение состояния по умолчанию для модели
-     * 
+     *
      * Генерирует случайный тег из предопределенного списка
-     * 
+     *
      * @return array<string, mixed>
      */
     public function definition(): array
@@ -53,7 +53,7 @@ class TagFactory extends Factory
         return [
             // Название тега
             'name' => $name,
-            
+
             // Slug генерируется из названия
             // Например: "Хит продаж" -> "hit-prodazh"
             'slug' => Str::slug($name),

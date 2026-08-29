@@ -2,17 +2,17 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 /**
  * Factory для генерации тестовых пользователей
- * 
+ *
  * Создает пользователей с реалистичными данными для тестирования.
  * По умолчанию генерирует обычных пользователей (не администраторов).
- * 
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ *
+ * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
@@ -32,22 +32,22 @@ class UserFactory extends Factory
         return [
             // Имя пользователя (только имя, без фамилии)
             'first_name' => fake()->firstName(),
-            
+
             // Фамилия пользователя
             'last_name' => fake()->lastName(),
-            
+
             // Уникальный email адрес
             'email' => fake()->unique()->safeEmail(),
-            
+
             // Телефон в формате +7 (XXX) XXX-XX-XX
             'phone' => fake()->optional(0.7)->numerify('+7 (###) ###-##-##'),
-            
+
             // Хешированный пароль (по умолчанию 'password')
             'password' => static::$password ??= Hash::make('password'),
-            
+
             // Обычный пользователь (не администратор)
             'is_admin' => false,
-            
+
             // Активный аккаунт
             'is_active' => true,
         ];
@@ -55,10 +55,8 @@ class UserFactory extends Factory
 
     /**
      * Создать пользователя-администратора
-     * 
-     * Использование: User::factory()->admin()->create()
      *
-     * @return static
+     * Использование: User::factory()->admin()->create()
      */
     public function admin(): static
     {
@@ -69,10 +67,8 @@ class UserFactory extends Factory
 
     /**
      * Создать неактивного пользователя (заблокированного)
-     * 
-     * Использование: User::factory()->inactive()->create()
      *
-     * @return static
+     * Использование: User::factory()->inactive()->create()
      */
     public function inactive(): static
     {

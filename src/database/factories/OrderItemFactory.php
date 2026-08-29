@@ -11,33 +11,33 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * Factory для генерации позиций заказа
- * 
+ *
  * Создает реалистичные позиции (товары) в заказе:
  * - Связь с заказом и товаром
  * - "Снапшот" данных товара на момент заказа
  * - Количество товара (обычно 1-5 единиц)
  * - Зафиксированная цена на момент заказа
  * - Рассчитанная итоговая стоимость позиции
- * 
+ *
  * ВАЖНО: Позиция заказа хранит исторические данные (snapshot).
  * Даже если цена товара изменится, в заказе останется цена на момент покупки.
- * 
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\OrderItem>
+ *
+ * @extends Factory<OrderItem>
  */
 class OrderItemFactory extends Factory
 {
     /**
      * Модель, для которой создается фабрика
-     * 
+     *
      * @var string
      */
     protected $model = OrderItem::class;
 
     /**
      * Определение состояния по умолчанию для модели
-     * 
+     *
      * Генерирует случайную позицию заказа с реалистичными данными
-     * 
+     *
      * @return array<string, mixed>
      */
     public function definition(): array
@@ -96,11 +96,10 @@ class OrderItemFactory extends Factory
 
     /**
      * Состояние для позиции заказа с конкретным заказом
-     * 
+     *
      * Использование: OrderItem::factory()->forOrder($order)->create()
-     * 
-     * @param \App\Models\Order|int $order Заказ или его ID
-     * @return static
+     *
+     * @param  Order|int  $order  Заказ или его ID
      */
     public function forOrder($order): static
     {
@@ -113,16 +112,15 @@ class OrderItemFactory extends Factory
 
     /**
      * Состояние для позиции заказа с конкретным товаром
-     * 
+     *
      * При использовании этого состояния:
      * - Берется реальная цена товара из БД
      * - Берется реальное название товара
      * - Гарантируется соответствие данных
-     * 
+     *
      * Использование: OrderItem::factory()->forProduct($product)->create()
-     * 
-     * @param \App\Models\Product $product Товар
-     * @return static
+     *
+     * @param  Product  $product  Товар
      */
     public function forProduct(Product $product): static
     {
@@ -130,7 +128,7 @@ class OrderItemFactory extends Factory
             // Используем реальную цену и название товара
             $price = (float) $product->price;
             $quantity = $attributes['quantity'];
-            
+
             return [
                 'product_id' => $product->id,
                 'product_name' => $product->name,
@@ -142,19 +140,17 @@ class OrderItemFactory extends Factory
 
     /**
      * Состояние для позиции с большим количеством товара
-     * 
+     *
      * Полезно для тестирования обработки крупных заказов
-     * 
+     *
      * Использование: OrderItem::factory()->bulk()->create()
-     * 
-     * @return static
      */
     public function bulk(): static
     {
         return $this->state(function (array $attributes) {
             $quantity = fake()->numberBetween(5, 20);
             $price = $attributes['price'];
-            
+
             return [
                 'quantity' => $quantity,
                 'total' => round($price * $quantity, 2),
@@ -164,18 +160,16 @@ class OrderItemFactory extends Factory
 
     /**
      * Состояние для позиции с одной единицей товара
-     * 
+     *
      * Самый распространенный случай - покупка одной упаковки кофе/чая
-     * 
+     *
      * Использование: OrderItem::factory()->single()->create()
-     * 
-     * @return static
      */
     public function single(): static
     {
         return $this->state(function (array $attributes) {
             $price = $attributes['price'];
-            
+
             return [
                 'quantity' => 1,
                 'total' => $price, // При количестве = 1, total = price
@@ -185,19 +179,17 @@ class OrderItemFactory extends Factory
 
     /**
      * Состояние для дорогой позиции (премиум товар)
-     * 
+     *
      * Полезно для тестирования заказов с дорогими товарами
-     * 
+     *
      * Использование: OrderItem::factory()->premium()->create()
-     * 
-     * @return static
      */
     public function premium(): static
     {
         return $this->state(function (array $attributes) {
             $price = fake()->randomFloat(2, 1500, 5000);
             $quantity = $attributes['quantity'];
-            
+
             return [
                 'price' => $price,
                 'total' => round($price * $quantity, 2),
@@ -214,14 +206,12 @@ class OrderItemFactory extends Factory
 
     /**
      * Состояние для позиции со скидкой
-     * 
+     *
      * Имитирует ситуацию, когда товар был куплен по старой цене (со скидкой).
      * В реальном приложении это будет обрабатываться через поле old_price у Product,
      * но для тестов полезно иметь отдельное состояние.
-     * 
+     *
      * Использование: OrderItem::factory()->discounted()->create()
-     * 
-     * @return static
      */
     public function discounted(): static
     {
@@ -231,7 +221,7 @@ class OrderItemFactory extends Factory
             $discountPercent = fake()->numberBetween(15, 40);
             $discountedPrice = round($originalPrice * (1 - $discountPercent / 100), 2);
             $quantity = $attributes['quantity'];
-            
+
             return [
                 'price' => $discountedPrice,
                 'total' => round($discountedPrice * $quantity, 2),
@@ -241,10 +231,8 @@ class OrderItemFactory extends Factory
 
     /**
      * Состояние для позиции кофе
-     * 
+     *
      * Использование: OrderItem::factory()->coffee()->create()
-     * 
-     * @return static
      */
     public function coffee(): static
     {
@@ -259,7 +247,7 @@ class OrderItemFactory extends Factory
 
             $price = fake()->randomFloat(2, 300, 800);
             $quantity = $attributes['quantity'];
-            
+
             return [
                 'product_name' => fake()->randomElement($coffeeNames),
                 'price' => $price,
@@ -270,10 +258,8 @@ class OrderItemFactory extends Factory
 
     /**
      * Состояние для позиции чая
-     * 
+     *
      * Использование: OrderItem::factory()->tea()->create()
-     * 
-     * @return static
      */
     public function tea(): static
     {
@@ -288,7 +274,7 @@ class OrderItemFactory extends Factory
 
             $price = fake()->randomFloat(2, 200, 600);
             $quantity = $attributes['quantity'];
-            
+
             return [
                 'product_name' => fake()->randomElement($teaNames),
                 'price' => $price,

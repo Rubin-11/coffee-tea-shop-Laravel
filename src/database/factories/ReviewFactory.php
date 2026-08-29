@@ -9,28 +9,28 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * Factory для генерации отзывов на товары
- * 
+ *
  * Создает реалистичные отзывы покупателей:
  * - Рейтинг от 1 до 5 звезд (с перевесом в 4-5)
  * - Текст отзыва о качестве, вкусе, аромате
  * - Достоинства и недостатки товара
  * - Отметка о проверенной покупке
  * - Статус модерации (одобрен/не одобрен)
- * 
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Review>
+ *
+ * @extends Factory<Review>
  */
 class ReviewFactory extends Factory
 {
     /**
      * Модель, для которой создается фабрика
-     * 
+     *
      * @var string
      */
     protected $model = Review::class;
 
     /**
      * Шаблоны положительных отзывов для кофе
-     * 
+     *
      * @var array<string>
      */
     private static array $positiveComments = [
@@ -48,7 +48,7 @@ class ReviewFactory extends Factory
 
     /**
      * Шаблоны нейтральных отзывов
-     * 
+     *
      * @var array<string>
      */
     private static array $neutralComments = [
@@ -61,7 +61,7 @@ class ReviewFactory extends Factory
 
     /**
      * Шаблоны отрицательных отзывов
-     * 
+     *
      * @var array<string>
      */
     private static array $negativeComments = [
@@ -74,7 +74,7 @@ class ReviewFactory extends Factory
 
     /**
      * Достоинства товаров
-     * 
+     *
      * @var array<string>
      */
     private static array $pros = [
@@ -92,7 +92,7 @@ class ReviewFactory extends Factory
 
     /**
      * Недостатки товаров
-     * 
+     *
      * @var array<string>
      */
     private static array $cons = [
@@ -108,9 +108,9 @@ class ReviewFactory extends Factory
 
     /**
      * Определение состояния по умолчанию для модели
-     * 
+     *
      * Генерирует случайный отзыв с реалистичными данными
-     * 
+     *
      * @return array<string, mixed>
      */
     public function definition(): array
@@ -125,7 +125,7 @@ class ReviewFactory extends Factory
         ]);
 
         // Выбираем текст отзыва в зависимости от рейтинга
-        $comment = match(true) {
+        $comment = match (true) {
             $rating >= 4 => fake()->randomElement(self::$positiveComments),
             $rating == 3 => fake()->randomElement(self::$neutralComments),
             default => fake()->randomElement(self::$negativeComments),
@@ -134,7 +134,7 @@ class ReviewFactory extends Factory
         // Добавляем достоинства и недостатки (опционально)
         $pros = fake()->optional(0.7)->randomElement(self::$pros);
         if ($pros && fake()->boolean(50)) {
-            $pros .= ', ' . fake()->randomElement(self::$pros);
+            $pros .= ', '.fake()->randomElement(self::$pros);
         }
 
         $cons = fake()->optional(0.5)->randomElement(self::$cons);
@@ -143,22 +143,22 @@ class ReviewFactory extends Factory
             // Связь с товаром и пользователем будет установлена в seeder
             'product_id' => Product::factory(),
             'user_id' => User::factory(),
-            
+
             // Рейтинг от 1 до 5
             'rating' => $rating,
-            
+
             // Текст отзыва
             'comment' => $comment,
-            
+
             // Достоинства (опционально)
             'pros' => $pros,
-            
+
             // Недостатки (опционально)
             'cons' => $cons,
-            
+
             // 70% отзывов - проверенная покупка
             'is_verified_purchase' => fake()->boolean(70),
-            
+
             // 90% отзывов одобрены модератором
             'is_approved' => fake()->boolean(90),
         ];
@@ -166,10 +166,8 @@ class ReviewFactory extends Factory
 
     /**
      * Состояние для положительного отзыва (4-5 звезд)
-     * 
+     *
      * Использование: Review::factory()->positive()->create()
-     * 
-     * @return static
      */
     public function positive(): static
     {
@@ -181,10 +179,8 @@ class ReviewFactory extends Factory
 
     /**
      * Состояние для отрицательного отзыва (1-2 звезды)
-     * 
+     *
      * Использование: Review::factory()->negative()->create()
-     * 
-     * @return static
      */
     public function negative(): static
     {
@@ -196,10 +192,8 @@ class ReviewFactory extends Factory
 
     /**
      * Состояние для отзыва с проверенной покупкой
-     * 
+     *
      * Использование: Review::factory()->verified()->create()
-     * 
-     * @return static
      */
     public function verified(): static
     {
@@ -211,10 +205,8 @@ class ReviewFactory extends Factory
 
     /**
      * Состояние для неодобренного отзыва (на модерации)
-     * 
+     *
      * Использование: Review::factory()->pending()->create()
-     * 
-     * @return static
      */
     public function pending(): static
     {
@@ -225,10 +217,8 @@ class ReviewFactory extends Factory
 
     /**
      * Состояние для отзыва с максимальным рейтингом
-     * 
+     *
      * Использование: Review::factory()->excellent()->create()
-     * 
-     * @return static
      */
     public function excellent(): static
     {

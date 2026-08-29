@@ -16,7 +16,7 @@ use Tests\TestCase;
 
 /**
  * Тест для проверки работы всех фабрик моделей
- * 
+ *
  * Этот тест проверяет, что все фабрики могут создавать модели
  * без ошибок и с корректными данными.
  */
@@ -132,10 +132,10 @@ class FactoriesTest extends TestCase
         $this->assertNotNull($cartItem->product_id);
         $this->assertGreaterThan(0, $cartItem->quantity);
         $this->assertGreaterThan(0, $cartItem->price);
-        
+
         // Должен быть либо user_id, либо session_id
         $this->assertTrue(
-            !is_null($cartItem->user_id) || !is_null($cartItem->session_id)
+            ! is_null($cartItem->user_id) || ! is_null($cartItem->session_id)
         );
     }
 

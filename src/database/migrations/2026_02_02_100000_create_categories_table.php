@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Таблица категорий товаров (кофе, чай, аксессуары)
      * Поддерживает вложенность (parent_id для подкатегорий)
      */
@@ -16,25 +16,25 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            
+
             // Основная информация
             $table->string('name');                           // Название категории
             $table->string('slug')->unique();                 // URL-friendly название
             $table->text('description')->nullable();          // Описание категории
             $table->string('image')->nullable();              // Изображение категории
-            
+
             // Вложенность категорий
             $table->foreignId('parent_id')                    // Родительская категория
-                  ->nullable()
-                  ->constrained('categories')
-                  ->cascadeOnDelete();
-            
+                ->nullable()
+                ->constrained('categories')
+                ->cascadeOnDelete();
+
             // Сортировка и отображение
             $table->integer('sort_order')->default(0);        // Порядок сортировки
             $table->boolean('is_active')->default(true);      // Активна ли категория
-            
+
             $table->timestamps();
-            
+
             // Индексы для оптимизации
             $table->index('parent_id');
             $table->index('is_active');

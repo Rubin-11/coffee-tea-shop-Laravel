@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Services\CartService;
 use App\Services\OrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -12,13 +13,13 @@ use Illuminate\View\View;
 
 /**
  * Контроллер для работы с заказами
- * 
+ *
  * Обрабатывает HTTP запросы, связанные с просмотром заказов:
  * - Список всех заказов пользователя (история заказов)
  * - Детальная информация о конкретном заказе
  * - Отмена заказа
  * - Повторный заказ
- * 
+ *
  * Доступен только для авторизованных пользователей (через middleware 'auth').
  * Контроллер не содержит бизнес-логики, только обработку HTTP запросов.
  */
@@ -26,11 +27,11 @@ final class OrderController extends Controller
 {
     /**
      * Конструктор контроллера
-     * 
+     *
      * Внедряем OrderService для работы с заказами.
      * Middleware 'auth' применяется в маршрутах (web.php).
-     * 
-     * @param OrderService $orderService Сервис для работы с заказами
+     *
+     * @param  OrderService  $orderService  Сервис для работы с заказами
      */
     public function __construct(
         private readonly OrderService $orderService
@@ -38,12 +39,12 @@ final class OrderController extends Controller
 
     /**
      * Показать список всех заказов пользователя
-     * 
+     *
      * GET /orders
-     * 
+     *
      * Отображает историю заказов текущего пользователя
      * с пагинацией и возможностью фильтрации по статусу.
-     * 
+     *
      * @return View Представление списка заказов
      */
     public function index(): View
@@ -83,26 +84,26 @@ final class OrderController extends Controller
 
     /**
      * Показать детальную информацию о заказе
-     * 
+     *
      * GET /orders/{id}
-     * 
+     *
      * Отображает подробную информацию о конкретном заказе:
      * - Список товаров с ценами
      * - Адрес доставки
      * - Способ оплаты и доставки
      * - Статус заказа
      * - История изменений статуса (если реализовано)
-     * 
-     * @param int $id ID заказа
-     * @return View|RedirectResponse Представление заказа или перенаправление
+     *
+     * @param  int  $id  ID заказа
+     * @return View Представление заказа
      */
-    public function show(int $id): View|RedirectResponse
+    public function show(int $id): View
     {
         // Находим заказ с загрузкой связанных данных
         $order = Order::with([
-                'items.product.primaryImage', // Товары с изображениями
-                'user', // Пользователь (если заказ от авторизованного)
-            ])
+            'items.product.primaryImage', // Товары с изображениями
+            'user', // Пользователь (если заказ от авторизованного)
+        ])
             ->findOrFail($id);
 
         // Проверяем права доступа: заказ должен принадлежать текущему пользователю
@@ -118,13 +119,13 @@ final class OrderController extends Controller
 
     /**
      * Отменить заказ
-     * 
+     *
      * POST /orders/{id}/cancel
-     * 
+     *
      * Отменяет заказ, если это возможно (заказ еще не отправлен).
      * Возвращает товары на склад и уведомляет пользователя.
-     * 
-     * @param int $id ID заказа
+     *
+     * @param  int  $id  ID заказа
      * @return RedirectResponse Перенаправление обратно с сообщением
      */
     public function cancel(int $id): RedirectResponse
@@ -139,7 +140,7 @@ final class OrderController extends Controller
             }
 
             // Проверяем, можно ли отменить заказ
-            if (!$order->canBeCancelled()) {
+            if (! $order->canBeCancelled()) {
                 return redirect()
                     ->route('orders.show', $order->id)
                     ->with('error', 'Этот заказ нельзя отменить. Он уже отправлен или доставлен.');
@@ -160,19 +161,19 @@ final class OrderController extends Controller
             // Перенаправляем с ошибкой
             return redirect()
                 ->back()
-                ->with('error', 'Ошибка при отмене заказа: ' . $e->getMessage());
+                ->with('error', 'Ошибка при отмене заказа: '.$e->getMessage());
         }
     }
 
     /**
      * Повторить заказ
-     * 
+     *
      * POST /orders/{id}/reorder
-     * 
+     *
      * Добавляет все товары из заказа в корзину для повторного заказа.
      * Полезно для быстрого оформления похожего заказа.
-     * 
-     * @param int $id ID заказа
+     *
+     * @param  int  $id  ID заказа
      * @return RedirectResponse Перенаправление в корзину
      */
     public function reorder(int $id): RedirectResponse
@@ -188,7 +189,7 @@ final class OrderController extends Controller
             }
 
             // Внедряем CartService для добавления товаров
-            $cartService = app(\App\Services\CartService::class);
+            $cartService = app(CartService::class);
 
             $addedCount = 0;
             $unavailableItems = [];
@@ -197,8 +198,9 @@ final class OrderController extends Controller
             foreach ($order->items as $item) {
                 try {
                     // Проверяем, доступен ли товар
-                    if (!$item->product || !$item->product->is_available) {
+                    if (! $item->product || ! $item->product->is_available) {
                         $unavailableItems[] = $item->product_name;
+
                         continue;
                     }
 
@@ -218,9 +220,9 @@ final class OrderController extends Controller
 
             // Формируем сообщение о результате
             $message = "Добавлено товаров в корзину: {$addedCount}";
-            
-            if (!empty($unavailableItems)) {
-                $message .= '. Недоступны: ' . implode(', ', $unavailableItems);
+
+            if (! empty($unavailableItems)) {
+                $message .= '. Недоступны: '.implode(', ', $unavailableItems);
             }
 
             // Перенаправляем в корзину
@@ -232,19 +234,19 @@ final class OrderController extends Controller
             // Перенаправляем с ошибкой
             return redirect()
                 ->back()
-                ->with('error', 'Ошибка при повторении заказа: ' . $e->getMessage());
+                ->with('error', 'Ошибка при повторении заказа: '.$e->getMessage());
         }
     }
 
     /**
      * Скачать счет/квитанцию по заказу
-     * 
+     *
      * GET /orders/{id}/invoice
-     * 
+     *
      * Генерирует PDF документ с информацией о заказе для печати.
      * (Заглушка для будущей реализации)
-     * 
-     * @param int $id ID заказа
+     *
+     * @param  int  $id  ID заказа
      * @return RedirectResponse Перенаправление (пока не реализовано)
      */
     public function invoice(int $id): RedirectResponse
@@ -261,7 +263,7 @@ final class OrderController extends Controller
         // Можно использовать пакеты:
         // - barryvdh/laravel-dompdf
         // - spatie/laravel-pdf
-        
+
         return redirect()
             ->back()
             ->with('info', 'Функция скачивания счета будет доступна в ближайшее время');

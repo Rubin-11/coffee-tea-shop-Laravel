@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Hash;
 
 /**
  * Seeder для пользователей
- * 
+ *
  * Создает тестовых пользователей для разработки и демонстрации:
  * - 2 администратора (включая тестовый аккаунт с известным паролем)
  * - 18-23 обычных пользователей (включая тестовый аккаунт)
- * 
+ *
  * Тестовые аккаунты для входа:
  * - admin@coffee-shop.ru / password (администратор)
  * - user@coffee-shop.ru / password (обычный пользователь)
@@ -30,7 +30,7 @@ class UserSeeder extends Seeder
         // ============================================
         // АДМИНИСТРАТОРЫ (2 пользователя)
         // ============================================
-        
+
         // 1. Главный администратор (для тестирования)
         User::create([
             'first_name' => 'Администратор',
@@ -56,7 +56,7 @@ class UserSeeder extends Seeder
         // ============================================
         // ОБЫЧНЫЕ ПОЛЬЗОВАТЕЛИ (18-23 пользователя)
         // ============================================
-        
+
         // 1. Тестовый обычный пользователь (для тестирования)
         User::create([
             'first_name' => 'Тестовый',
@@ -92,7 +92,7 @@ class UserSeeder extends Seeder
         // 3. Генерируем случайных пользователей (16-20 штук)
         // Итого будет: 2 админа + 1 тестовый + 2 именованных + 16-20 случайных = 21-25 пользователей
         $randomUsersCount = rand(16, 20);
-        
+
         User::factory()
             ->count($randomUsersCount)
             ->create();
@@ -105,9 +105,9 @@ class UserSeeder extends Seeder
 
         $this->command->info('✅ Создано пользователей:');
         $this->command->info('   - Администраторов: 2');
-        $this->command->info('   - Обычных пользователей: ' . ($randomUsersCount + 3));
+        $this->command->info('   - Обычных пользователей: '.($randomUsersCount + 3));
         $this->command->info('   - Неактивных пользователей: 2');
-        $this->command->info('   - Всего: ' . User::count());
+        $this->command->info('   - Всего: '.User::count());
         $this->command->newLine();
         $this->command->info('🔐 Тестовые аккаунты:');
         $this->command->info('   📧 admin@coffee-shop.ru / password (администратор)');

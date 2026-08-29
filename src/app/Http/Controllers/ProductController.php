@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 /**
  * Контроллер товаров
- * 
+ *
  * Отвечает за отображение каталога товаров и страниц отдельных товаров.
  * Содержит два основных метода:
  * - index() - для каталога товаров с фильтрацией и сортировкой
  * - show() - для отображения детальной страницы товара
- * 
+ *
  * В будущем сложная логика фильтрации будет вынесена в ProductFilterService,
  * но пока контроллер остается простым и понятным.
  */
@@ -23,22 +25,22 @@ final class ProductController extends Controller
 {
     /**
      * Отображение каталога товаров
-     * 
+     *
      * Этот метод показывает список всех доступных товаров с возможностью:
      * - Фильтрации по категории (?category_id=1)
      * - Фильтрации по скидке (?filter=discount)
      * - Фильтрации по ценовому диапазону (?min_price=100&max_price=500)
      * - Сортировки (?sort=price_asc, price_desc, rating, newest)
      * - Пагинации (по 12 товаров на странице)
-     * 
+     *
      * Примеры использования:
      * - /products - все товары
      * - /products?category_id=1 - товары категории 1
      * - /products?filter=discount - товары со скидкой
      * - /products?sort=price_asc - сортировка по возрастанию цены
      * - /products?min_price=200&max_price=500 - товары от 200 до 500 руб
-     * 
-     * @param Request $request HTTP запрос с параметрами фильтрации
+     *
+     * @param  Request  $request  HTTP запрос с параметрами фильтрации
      * @return View Возвращает представление каталога товаров
      */
     public function index(Request $request): View
@@ -46,7 +48,7 @@ final class ProductController extends Controller
         // ==========================================
         // СОЗДАНИЕ БАЗОВОГО ЗАПРОСА
         // ==========================================
-        // 
+        //
         // Начинаем с запроса всех доступных товаров
         // available() - scope, который фильтрует по is_available = true
         $query = Product::available();
@@ -54,7 +56,7 @@ final class ProductController extends Controller
         // ==========================================
         // ФИЛЬТРАЦИЯ ПО КАТЕГОРИИ
         // ==========================================
-        // 
+        //
         // Если в URL есть параметр category_id, фильтруем товары
         // Пример: /products?category_id=1
         if ($request->filled('category_id')) {
@@ -64,7 +66,7 @@ final class ProductController extends Controller
         // ==========================================
         // ФИЛЬТРАЦИЯ ПО СКИДКЕ
         // ==========================================
-        // 
+        //
         // Если в URL есть параметр filter=discount, показываем только товары со скидкой
         // Товар со скидкой: old_price не пусто и old_price > price
         // Пример: /products?filter=discount
@@ -76,10 +78,10 @@ final class ProductController extends Controller
         // ==========================================
         // ФИЛЬТРАЦИЯ ПО ЦЕНЕ
         // ==========================================
-        // 
+        //
         // Фильтруем товары по минимальной и максимальной цене
         // Пример: /products?min_price=200&max_price=500
-        
+
         // Если указана минимальная цена
         if ($request->filled('min_price')) {
             $query->where('price', '>=', $request->float('min_price'));
@@ -93,25 +95,25 @@ final class ProductController extends Controller
         // ==========================================
         // СОРТИРОВКА ТОВАРОВ
         // ==========================================
-        // 
+        //
         // Определяем порядок сортировки на основе параметра sort
         // По умолчанию сортируем по дате создания (новые первые)
         $sort = $request->input('sort', 'newest');
 
         // Switch для разных типов сортировки
-        match($sort) {
+        match ($sort) {
             // Сортировка по цене: от дешевых к дорогим
             'price_asc' => $query->orderBy('price', 'asc'),
-            
+
             // Сортировка по цене: от дорогих к дешевым
             'price_desc' => $query->orderBy('price', 'desc'),
-            
+
             // Сортировка по рейтингу: от высокого к низкому
             'rating' => $query->orderBy('rating', 'desc'),
-            
+
             // Сортировка по популярности (количество отзывов)
             'popular' => $query->orderBy('reviews_count', 'desc'),
-            
+
             // Сортировка по дате: новые товары первые (по умолчанию)
             default => $query->latest('created_at'),
         };
@@ -119,7 +121,7 @@ final class ProductController extends Controller
         // ==========================================
         // EAGER LOADING (ОПТИМИЗАЦИЯ ЗАПРОСОВ)
         // ==========================================
-        // 
+        //
         // Загружаем связанные данные заранее, чтобы избежать проблемы N+1
         // Вместо множества запросов к БД делаем всего несколько
         $query->with([
@@ -131,7 +133,7 @@ final class ProductController extends Controller
         // ==========================================
         // ПАГИНАЦИЯ РЕЗУЛЬТАТОВ
         // ==========================================
-        // 
+        //
         // paginate(12) разбивает результаты на страницы по 12 товаров
         // Автоматически создает ссылки для навигации между страницами
         // Сохраняет все параметры фильтрации в URL при переходе на другую страницу
@@ -140,10 +142,10 @@ final class ProductController extends Controller
         // ==========================================
         // ПОЛУЧЕНИЕ ВСЕХ КАТЕГОРИЙ ДЛЯ ФИЛЬТРА
         // ==========================================
-        // 
+        //
         // Для отображения фильтра по категориям в sidebar
         // withCount подсчитывает количество доступных товаров в каждой категории
-        $categories = \App\Models\Category::where('is_active', true)
+        $categories = Category::where('is_active', true)
             ->withCount('availableProducts')
             ->orderBy('sort_order')
             ->get();
@@ -151,7 +153,7 @@ final class ProductController extends Controller
         // ==========================================
         // ВОЗВРАТ ПРЕДСТАВЛЕНИЯ
         // ==========================================
-        // 
+        //
         // Передаем в view:
         // - products: коллекция товаров с пагинацией
         // - categories: список категорий для фильтра
@@ -165,7 +167,7 @@ final class ProductController extends Controller
 
     /**
      * Отображение страницы отдельного товара
-     * 
+     *
      * Этот метод показывает детальную информацию о товаре:
      * - Основная информация (название, цена, описание, характеристики)
      * - Категория товара
@@ -173,36 +175,37 @@ final class ProductController extends Controller
      * - Теги товара (Новинка, Акция и т.д.)
      * - Отзывы покупателей (только одобренные)
      * - Похожие товары из той же категории
-     * 
-     * @param string $slug URL-дружественное название товара (например: "colombia-supremo")
+     *
+     * @param  string  $slug  URL-дружественное название товара (например: "colombia-supremo")
      * @return View Возвращает представление страницы товара
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Если товар не найден
+     *
+     * @throws ModelNotFoundException Если товар не найден
      */
     public function show(string $slug): View
     {
         // ==========================================
         // ПОЛУЧЕНИЕ ТОВАРА ПО SLUG
         // ==========================================
-        // 
+        //
         // Ищем товар по его slug (URL-дружественное название)
         // Например: /products/colombia-supremo
-        // 
+        //
         // with() - загружаем все связанные данные заранее (eager loading):
         //   - category: категория товара (для breadcrumbs и связанных товаров)
         //   - images: все изображения для галереи
         //   - tags: теги товара (Новинка, Акция, Органический)
         //   - approvedReviews.user: одобренные отзывы с данными пользователей
-        // 
+        //
         // available() - только доступные товары (is_available = true)
         //   Если товар недоступен, будет ошибка 404
-        // 
+        //
         // firstOrFail() - получаем первый результат или выбрасываем исключение 404
         $product = Product::with([
-                'category',
-                'images',
-                'tags',
-                'approvedReviews.user',  // reviews + данные пользователей, оставивших отзывы
-            ])
+            'category',
+            'images',
+            'tags',
+            'approvedReviews.user',  // reviews + данные пользователей, оставивших отзывы
+        ])
             ->where('slug', $slug)
             ->available()
             ->firstOrFail();
@@ -210,7 +213,7 @@ final class ProductController extends Controller
         // ==========================================
         // ПОЛУЧЕНИЕ ПОХОЖИХ ТОВАРОВ
         // ==========================================
-        // 
+        //
         // Показываем другие товары из той же категории
         // Исключаем текущий товар из списка
         // Ограничиваем до 4 похожих товаров
@@ -224,18 +227,18 @@ final class ProductController extends Controller
         // ==========================================
         // РАСЧЕТ СТАТИСТИКИ ОТЗЫВОВ
         // ==========================================
-        // 
+        //
         // Подсчитываем распределение рейтингов для графика
         // Например: 5 звезд - 10 отзывов, 4 звезды - 5 отзывов и т.д.
         $ratingDistribution = $product->approvedReviews
             ->groupBy('rating')
-            ->map(fn($reviews) => $reviews->count())
+            ->map(fn ($reviews) => $reviews->count())
             ->sortKeysDesc();  // Сортируем от 5 к 1
 
         // ==========================================
         // ВОЗВРАТ ПРЕДСТАВЛЕНИЯ
         // ==========================================
-        // 
+        //
         // Передаем в view:
         // - product: основной товар со всеми данными
         // - relatedProducts: похожие товары

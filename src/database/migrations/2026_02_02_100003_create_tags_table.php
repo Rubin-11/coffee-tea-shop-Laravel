@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Таблица тегов для товаров
      * Например: "новинка", "акция", "органический", "премиум"
      */
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('name')->unique();                  // Название тега
             $table->string('slug')->unique();                  // URL-friendly название
             $table->timestamps();
-            
+
             // Индекс
             $table->index('slug');
         });

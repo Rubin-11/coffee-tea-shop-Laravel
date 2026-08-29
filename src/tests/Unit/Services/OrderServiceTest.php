@@ -7,8 +7,6 @@ namespace Tests\Unit\Services;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Product;
-use App\Models\User;
 use App\Services\CartService;
 use App\Services\OrderService;
 use Database\Factories\OrderFactory;
@@ -18,7 +16,7 @@ use Tests\TestCase;
 
 /**
  * Unit тесты для OrderService
- * 
+ *
  * Этот класс тестирует всю бизнес-логику сервиса заказов:
  * - Создание заказов из корзины
  * - Расчет стоимости (товары, доставка, скидки)
@@ -33,25 +31,19 @@ class OrderServiceTest extends TestCase
 
     /**
      * Экземпляр тестируемого сервиса заказов
-     * 
-     * @var OrderService
      */
     private OrderService $orderService;
 
     /**
      * Экземпляр сервиса корзины (используется для создания заказов)
-     * 
-     * @var CartService
      */
     private CartService $cartService;
 
     /**
      * Настройка перед каждым тестом
-     * 
+     *
      * Этот метод автоматически вызывается перед каждым тестом.
      * Здесь мы создаем чистые экземпляры сервисов для тестирования.
-     * 
-     * @return void
      */
     protected function setUp(): void
     {
@@ -72,14 +64,12 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Успешное создание заказа из корзины
-     * 
+     *
      * Проверяет базовый сценарий создания заказа:
      * 1. Пользователь добавил товар в корзину
      * 2. Оформляет заказ с указанием данных доставки
      * 3. Создается заказ с правильными данными
      * 4. Корзина очищается после создания заказа
-     * 
-     * @return void
      */
     public function test_can_create_order_from_cart(): void
     {
@@ -141,11 +131,9 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Ошибка при попытке создать заказ из пустой корзины
-     * 
+     *
      * Пользователь не должен иметь возможность оформить заказ,
      * если его корзина пуста.
-     * 
-     * @return void
      */
     public function test_throws_exception_when_cart_is_empty(): void
     {
@@ -154,7 +142,7 @@ class OrderServiceTest extends TestCase
         Auth::login($user);
 
         // Корзина пуста (ничего не добавляем)
-        
+
         $orderData = [
             'name' => 'Иван Иванов',
             'email' => 'ivan@example.com',
@@ -174,11 +162,9 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Ошибка при наличии недоступных товаров в корзине
-     * 
+     *
      * Если в корзине есть товары, которых нет в наличии или они недоступны,
      * заказ не должен быть создан.
-     * 
-     * @return void
      */
     public function test_throws_exception_when_items_unavailable(): void
     {
@@ -218,11 +204,9 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Правильное создание позиций заказа
-     * 
+     *
      * Проверяет, что для каждого товара в корзине создается
      * соответствующая позиция в заказе с правильными данными.
-     * 
-     * @return void
      */
     public function test_creates_order_items_correctly(): void
     {
@@ -274,12 +258,10 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Фиксация названия товара в заказе
-     * 
+     *
      * Название товара должно быть сохранено в позиции заказа
      * на момент покупки (snapshot). Даже если потом название товара изменится,
      * в заказе должно остаться старое название.
-     * 
-     * @return void
      */
     public function test_fixes_product_details_in_order(): void
     {
@@ -315,17 +297,15 @@ class OrderServiceTest extends TestCase
         // В позиции заказа должно остаться старое название
         $orderItem = OrderItem::where('order_id', $order->id)->first();
         $this->assertEquals('Кофе Эфиопия 250г', $orderItem->product_name);
-        
+
         // А в базе товаров - новое
         $this->assertEquals('Кофе Эфиопия 500г', $product->fresh()->name);
     }
 
     /**
      * Тест: Очистка корзины после создания заказа
-     * 
+     *
      * После успешного создания заказа корзина должна быть автоматически очищена.
-     * 
-     * @return void
      */
     public function test_clears_cart_after_order_creation(): void
     {
@@ -362,11 +342,9 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Генерация уникального номера заказа
-     * 
+     *
      * Каждый заказ должен иметь уникальный номер.
      * Два разных заказа не могут иметь одинаковый номер.
-     * 
-     * @return void
      */
     public function test_generates_unique_order_number(): void
     {
@@ -400,13 +378,11 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Правильный формат номера заказа
-     * 
+     *
      * Номер заказа должен соответствовать формату: ORD-YYYY-XXXXX
      * Где YYYY - текущий год, XXXXX - порядковый номер с ведущими нулями
-     * 
+     *
      * Например: ORD-2026-00001, ORD-2026-00002 и т.д.
-     * 
-     * @return void
      */
     public function test_order_number_format_is_correct(): void
     {
@@ -432,21 +408,19 @@ class OrderServiceTest extends TestCase
         // Проверяем формат номера заказа с помощью регулярного выражения
         $year = date('Y');
         $expectedPattern = "/^ORD-{$year}-\d{5}$/"; // ORD-2026-00001
-        
+
         $this->assertMatchesRegularExpression(
             $expectedPattern,
             $order->order_number,
-            "Номер заказа должен соответствовать формату ORD-YYYY-XXXXX"
+            'Номер заказа должен соответствовать формату ORD-YYYY-XXXXX'
         );
     }
 
     /**
      * Тест: Корректное увеличение номера заказа
-     * 
+     *
      * Номера заказов должны увеличиваться последовательно:
      * ORD-2026-00001, ORD-2026-00002, ORD-2026-00003 и т.д.
-     * 
-     * @return void
      */
     public function test_order_number_increments_correctly(): void
     {
@@ -477,7 +451,7 @@ class OrderServiceTest extends TestCase
 
         // Assert (Проверка)
         $year = date('Y');
-        
+
         // Извлекаем порядковые номера из номеров заказов
         $number1 = (int) substr($order1->order_number, -5);
         $number2 = (int) substr($order2->order_number, -5);
@@ -490,16 +464,14 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Сброс нумерации заказов каждый год
-     * 
+     *
      * Нумерация заказов должна начинаться заново каждый год.
      * Например:
      * - В 2026 году: ORD-2026-00001, ORD-2026-00002...
      * - В 2027 году: ORD-2027-00001, ORD-2027-00002... (нумерация сбрасывается)
-     * 
+     *
      * Этот тест проверяет, что если есть заказы из прошлого года,
      * новый заказ все равно начнется с 00001.
-     * 
-     * @return void
      */
     public function test_order_number_resets_yearly(): void
     {
@@ -542,7 +514,7 @@ class OrderServiceTest extends TestCase
 
         // Assert (Проверка)
         $currentYear = date('Y');
-        
+
         // Новый заказ должен начинаться с 00001, а не с 01000
         $this->assertEquals("ORD-{$currentYear}-00001", $order->order_number);
     }
@@ -553,11 +525,9 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Правильный расчет промежуточной суммы заказа
-     * 
+     *
      * Промежуточная сумма (subtotal) = сумма стоимости всех товаров
      * без учета доставки и скидок.
-     * 
-     * @return void
      */
     public function test_calculates_subtotal_correctly(): void
     {
@@ -589,16 +559,14 @@ class OrderServiceTest extends TestCase
         // Assert (Проверка)
         // Ожидаемая промежуточная сумма: 701.00 + 599.97 + 500.00 = 1800.97
         $expectedSubtotal = 1800.97;
-        
+
         $this->assertEquals($expectedSubtotal, (float) $order->subtotal);
     }
 
     /**
      * Тест: Бесплатная доставка при самовывозе
-     * 
+     *
      * При выборе самовывоза (pickup) стоимость доставки должна быть 0.
-     * 
-     * @return void
      */
     public function test_calculates_delivery_cost_for_pickup(): void
     {
@@ -626,10 +594,8 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Расчет стоимости курьерской доставки (300 руб)
-     * 
+     *
      * При заказе менее 2000 руб курьерская доставка стоит 300 руб.
-     * 
-     * @return void
      */
     public function test_calculates_delivery_cost_for_courier(): void
     {
@@ -658,10 +624,8 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Бесплатная курьерская доставка при заказе от 2000 руб
-     * 
+     *
      * Если сумма заказа >= 2000 руб, курьерская доставка бесплатная.
-     * 
-     * @return void
      */
     public function test_free_courier_delivery_over_threshold(): void
     {
@@ -691,10 +655,8 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Расчет стоимости доставки почтой (400 руб)
-     * 
+     *
      * Доставка почтой России всегда стоит 400 руб, независимо от суммы заказа.
-     * 
-     * @return void
      */
     public function test_calculates_delivery_cost_for_post(): void
     {
@@ -722,10 +684,8 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Скидка 5% для заказов от 3000 руб
-     * 
+     *
      * При сумме заказа >= 3000 руб автоматически применяется скидка 5%.
-     * 
-     * @return void
      */
     public function test_calculates_discount_for_large_orders(): void
     {
@@ -751,16 +711,14 @@ class OrderServiceTest extends TestCase
         // Assert (Проверка)
         // Ожидаемая скидка: 3500 * 0.05 = 175.00
         $expectedDiscount = 175.00;
-        
+
         $this->assertEquals($expectedDiscount, (float) $order->discount);
     }
 
     /**
      * Тест: Правильный расчет итоговой суммы заказа
-     * 
+     *
      * Итоговая сумма (total) = subtotal + delivery_cost - discount
-     * 
-     * @return void
      */
     public function test_calculates_total_correctly(): void
     {
@@ -789,7 +747,7 @@ class OrderServiceTest extends TestCase
         // Delivery: 0.00 (бесплатно, т.к. >= 2000)
         // Discount: 175.00 (5% от 3500)
         // Total: 3500.00 + 0.00 - 175.00 = 3325.00
-        
+
         $this->assertEquals(3500.00, (float) $order->subtotal);
         $this->assertEquals(0.00, (float) $order->delivery_cost);
         $this->assertEquals(175.00, (float) $order->discount);
@@ -798,13 +756,11 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Сложный расчет с доставкой и скидкой
-     * 
+     *
      * Проверяет правильность всех расчетов в комплексе:
      * - Несколько товаров с разными ценами
      * - Платная доставка
      - Скидка для крупного заказа
-     * 
-     * @return void
      */
     public function test_calculates_total_with_delivery_and_discount(): void
     {
@@ -815,7 +771,7 @@ class OrderServiceTest extends TestCase
         // Создаем товары на общую сумму 1800 руб (меньше 2000, но меньше 3000)
         $product1 = $this->createProduct(['price' => 900.00, 'stock' => 10, 'is_available' => true]);
         $product2 = $this->createProduct(['price' => 900.00, 'stock' => 10, 'is_available' => true]);
-        
+
         $this->cartService->addItem($product1->id, 1);
         $this->cartService->addItem($product2->id, 1);
 
@@ -836,7 +792,7 @@ class OrderServiceTest extends TestCase
         // Delivery: 300.00 (курьер, т.к. < 2000)
         // Discount: 0.00 (нет скидки, т.к. < 3000)
         // Total: 1800.00 + 300.00 - 0.00 = 2100.00
-        
+
         $this->assertEquals(1800.00, (float) $order->subtotal);
         $this->assertEquals(300.00, (float) $order->delivery_cost);
         $this->assertEquals(0.00, (float) $order->discount);
@@ -849,11 +805,9 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Уменьшение остатков товаров после создания заказа
-     * 
+     *
      * После успешного создания заказа количество товаров на складе
      * должно автоматически уменьшиться на заказанное количество.
-     * 
-     * @return void
      */
     public function test_decreases_product_stock_after_order(): void
     {
@@ -890,11 +844,9 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Правильное уменьшение остатков для нескольких товаров
-     * 
+     *
      * Если в заказе несколько разных товаров, остатки должны уменьшиться
      * для каждого товара на соответствующее количество.
-     * 
-     * @return void
      */
     public function test_stock_decreased_by_correct_quantity(): void
     {
@@ -940,10 +892,8 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Успешная отмена заказа со статусом pending
-     * 
+     *
      * Заказ со статусом "ожидает обработки" может быть отменен.
-     * 
-     * @return void
      */
     public function test_can_cancel_pending_order(): void
     {
@@ -963,7 +913,7 @@ class OrderServiceTest extends TestCase
         ];
 
         $order = $this->orderService->createOrder($orderData);
-        
+
         // Убеждаемся, что заказ имеет статус pending
         $this->assertEquals('pending', $order->status);
 
@@ -977,16 +927,14 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Нельзя отменить доставленный заказ
-     * 
+     *
      * Заказ, который уже доставлен, не может быть отменен.
-     * 
-     * @return void
      */
     public function test_cannot_cancel_delivered_order(): void
     {
         // Arrange (Подготовка)
         $user = $this->createUser();
-        
+
         // Создаем заказ со статусом "delivered" напрямую через фабрику
         $order = Order::factory()->delivered()->forUser($user)->create();
 
@@ -1000,16 +948,14 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Нельзя отменить отправленный заказ
-     * 
+     *
      * Заказ, который уже отправлен, не может быть отменен.
-     * 
-     * @return void
      */
     public function test_cannot_cancel_shipped_order(): void
     {
         // Arrange (Подготовка)
         $user = $this->createUser();
-        
+
         // Создаем заказ со статусом "shipped"
         $order = Order::factory()->forUser($user)->create([
             'status' => 'shipped',
@@ -1025,11 +971,9 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Возврат товаров на склад при отмене заказа
-     * 
+     *
      * При отмене заказа товары должны быть возвращены на склад
      * (остатки увеличиваются на количество из заказа).
-     * 
-     * @return void
      */
     public function test_returns_stock_when_order_cancelled(): void
     {
@@ -1053,7 +997,7 @@ class OrderServiceTest extends TestCase
         ];
 
         $order = $this->orderService->createOrder($orderData);
-        
+
         // После создания заказа остаток: 20 - 5 = 15
         $product->refresh();
         $this->assertEquals(15, $product->stock);
@@ -1069,11 +1013,9 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Изменение статуса заказа на cancelled при отмене
-     * 
+     *
      * После отмены статус заказа должен измениться на 'cancelled',
      * и должна быть установлена дата отмены.
-     * 
-     * @return void
      */
     public function test_updates_order_status_to_cancelled(): void
     {
@@ -1109,10 +1051,8 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Отметка заказа как оплаченного
-     * 
+     *
      * После подтверждения оплаты заказ должен быть отмечен как оплаченный.
-     * 
-     * @return void
      */
     public function test_marks_order_as_paid(): void
     {
@@ -1132,7 +1072,7 @@ class OrderServiceTest extends TestCase
         ];
 
         $order = $this->orderService->createOrder($orderData);
-        
+
         // Проверяем начальные статусы
         $this->assertEquals('pending', $order->status);
         $this->assertEquals('pending', $order->payment_status);
@@ -1149,11 +1089,9 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Установка времени оплаты
-     * 
+     *
      * При отметке заказа как оплаченного должна быть установлена
      * текущая дата и время оплаты (paid_at).
-     * 
-     * @return void
      */
     public function test_sets_paid_at_timestamp(): void
     {
@@ -1179,7 +1117,7 @@ class OrderServiceTest extends TestCase
 
         // Assert (Проверка)
         $this->assertNotNull($paidOrder->paid_at);
-        
+
         // Проверяем, что время оплаты было установлено только что (в течение последних 2 секунд)
         // Используем diffInSeconds() для проверки разницы во времени
         $this->assertTrue(
@@ -1190,10 +1128,8 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Изменение статуса оплаты на paid
-     * 
+     *
      * После оплаты payment_status должен измениться с 'pending' на 'paid'.
-     * 
-     * @return void
      */
     public function test_payment_status_changes_to_paid(): void
     {
@@ -1231,11 +1167,9 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Метод calculateOrderTotal возвращает правильные данные
-     * 
+     *
      * Этот вспомогательный метод используется для предпросмотра стоимости
      * заказа до его создания (например, на странице checkout).
-     * 
-     * @return void
      */
     public function test_calculate_order_total_returns_correct_data(): void
     {
@@ -1271,20 +1205,18 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Гостевой заказ (без авторизации)
-     * 
+     *
      * Система должна позволять создавать заказы для неавторизованных пользователей.
      * В этом случае user_id будет null, но все остальные данные должны сохраниться.
-     * 
-     * @return void
      */
     public function test_guest_user_can_create_order(): void
     {
         // Arrange (Подготовка)
         // НЕ авторизуем пользователя, создаем гостевую корзину
-        $sessionId = 'test_guest_session_' . time();
-        
+        $sessionId = 'test_guest_session_'.time();
+
         $product = $this->createProduct(['price' => 500.00, 'stock' => 10, 'is_available' => true]);
-        
+
         // Создаем гостевую корзину напрямую
         CartItem::create([
             'session_id' => $sessionId,
@@ -1320,20 +1252,18 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Можно отменить оплаченный заказ (статус paid)
-     * 
+     *
      * Даже если заказ оплачен, но еще не отправлен, его можно отменить
      * (например, для возврата денег клиенту).
-     * 
-     * @return void
      */
     public function test_can_cancel_paid_order(): void
     {
         // Arrange (Подготовка)
         $user = $this->createUser();
-        
+
         // Создаем оплаченный заказ через фабрику
         $order = Order::factory()->paid()->forUser($user)->create();
-        
+
         // Создаем позицию заказа с товаром
         $product = $this->createProduct(['price' => 500.00, 'stock' => 10, 'is_available' => true]);
         OrderItem::create([
@@ -1356,7 +1286,7 @@ class OrderServiceTest extends TestCase
 
         // Assert (Проверка)
         $this->assertEquals('cancelled', $cancelledOrder->status);
-        
+
         // Товары вернулись на склад
         $product->refresh();
         $this->assertEquals(10, $product->stock); // 7 + 3 = 10
@@ -1364,10 +1294,8 @@ class OrderServiceTest extends TestCase
 
     /**
      * Тест: Округление сумм до 2 знаков после запятой
-     * 
+     *
      * Все денежные суммы должны быть округлены до 2 знаков после запятой.
-     * 
-     * @return void
      */
     public function test_rounds_amounts_to_two_decimals(): void
     {

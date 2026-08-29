@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CheckoutRequest;
 use App\Models\Address;
+use App\Models\Order;
 use App\Services\CartService;
 use App\Services\OrderService;
 use Illuminate\Http\RedirectResponse;
@@ -16,13 +17,13 @@ use Illuminate\View\View;
 
 /**
  * Контроллер оформления заказа
- * 
+ *
  * Обрабатывает HTTP запросы, связанные с оформлением заказа:
  * - Отображение формы оформления заказа
  * - Создание заказа из корзины
  * - Обработка оплаты
  * - Подтверждение заказа
- * 
+ *
  * Вся бизнес-логика вынесена в OrderService и CartService.
  * Контроллер только обрабатывает HTTP запросы и возвращает ответы.
  */
@@ -30,11 +31,11 @@ final class CheckoutController extends Controller
 {
     /**
      * Конструктор контроллера
-     * 
+     *
      * Dependency Injection: внедряем сервисы для работы с корзиной и заказами
-     * 
-     * @param CartService $cartService Сервис для работы с корзиной
-     * @param OrderService $orderService Сервис для работы с заказами
+     *
+     * @param  CartService  $cartService  Сервис для работы с корзиной
+     * @param  OrderService  $orderService  Сервис для работы с заказами
      */
     public function __construct(
         private readonly CartService $cartService,
@@ -43,15 +44,15 @@ final class CheckoutController extends Controller
 
     /**
      * Показать форму оформления заказа
-     * 
+     *
      * GET /checkout
-     * 
+     *
      * Отображает форму для оформления заказа с:
      * - Товарами из корзины
      * - Адресами пользователя (если авторизован)
      * - Способами доставки и оплаты
      * - Расчетом стоимости доставки
-     * 
+     *
      * @return View|RedirectResponse Представление формы или перенаправление
      */
     public function index(): View|RedirectResponse
@@ -68,7 +69,7 @@ final class CheckoutController extends Controller
 
         // Проверяем доступность всех товаров
         $availability = $this->cartService->checkAvailability();
-        if (!$availability['available']) {
+        if (! $availability['available']) {
             return redirect()
                 ->route('cart.index')
                 ->with('error', 'Некоторые товары в корзине недоступны. Пожалуйста, обновите корзину.');
@@ -82,8 +83,8 @@ final class CheckoutController extends Controller
         }
 
         // Получаем адреса пользователя (если авторизован)
-        $addresses = Auth::check() 
-            ? Address::byUser(Auth::id())->get() 
+        $addresses = Auth::check()
+            ? Address::byUser(Auth::id())->get()
             : collect();
 
         // Рассчитываем предварительную стоимость для разных способов доставки
@@ -143,17 +144,17 @@ final class CheckoutController extends Controller
 
     /**
      * Создать заказ
-     * 
+     *
      * POST /checkout
-     * 
+     *
      * Обрабатывает данные формы оформления заказа:
      * 1. Валидирует данные (через CheckoutRequest)
      * 2. Создает заказ через OrderService
      * 3. Обрабатывает оплату (если онлайн)
      * 4. Отправляет уведомления
      * 5. Перенаправляет на страницу подтверждения
-     * 
-     * @param CheckoutRequest $request Валидированные данные запроса
+     *
+     * @param  CheckoutRequest  $request  Валидированные данные запроса
      * @return RedirectResponse Перенаправление на страницу результата
      */
     public function store(CheckoutRequest $request): RedirectResponse
@@ -183,7 +184,7 @@ final class CheckoutController extends Controller
                 $order = $this->orderService->createOrder($validated);
 
                 // Если пользователь авторизован и создается новый адрес - сохраняем его
-                if (Auth::check() && isset($validated['new_address']) && !isset($validated['address_id'])) {
+                if (Auth::check() && isset($validated['new_address']) && ! isset($validated['address_id'])) {
                     $this->saveNewAddress($validated['new_address']);
                 }
 
@@ -224,26 +225,26 @@ final class CheckoutController extends Controller
             // Перенаправляем обратно с ошибкой
             return redirect()
                 ->route('checkout.index')
-                ->with('error', 'Ошибка при оформлении заказа: ' . $e->getMessage())
+                ->with('error', 'Ошибка при оформлении заказа: '.$e->getMessage())
                 ->withInput();
         }
     }
 
     /**
      * Страница успешного оформления заказа
-     * 
+     *
      * GET /checkout/success/{order}
-     * 
+     *
      * Отображает страницу с подтверждением успешного создания заказа
      * и информацией о заказе.
-     * 
-     * @param int $orderId ID заказа
-     * @return View|RedirectResponse Представление страницы успеха
+     *
+     * @param  int  $orderId  ID заказа
+     * @return View Представление страницы успеха
      */
-    public function success(int $orderId): View|RedirectResponse
+    public function success(int $orderId): View
     {
         // Получаем заказ
-        $order = \App\Models\Order::with(['items.product'])
+        $order = Order::with(['items.product'])
             ->findOrFail($orderId);
 
         // Проверяем права доступа
@@ -255,14 +256,14 @@ final class CheckoutController extends Controller
             }
         } else {
             // Для гостей проверяем по email в сессии
-            if (!session()->has('last_order_email') || 
+            if (! session()->has('last_order_email') ||
                 session('last_order_email') !== $order->customer_email) {
                 abort(403, 'У вас нет доступа к этому заказу');
             }
         }
 
         // Сохраняем email в сессию (для гостей)
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             session(['last_order_email' => $order->customer_email]);
         }
 
@@ -274,17 +275,17 @@ final class CheckoutController extends Controller
 
     /**
      * Сохранить новый адрес пользователя
-     * 
+     *
      * Вспомогательный метод для сохранения адреса из формы заказа
      * в базу данных для использования в будущих заказах.
-     * 
-     * @param array $addressData Данные адреса из формы
+     *
+     * @param  array  $addressData  Данные адреса из формы
      * @return Address|null Созданный адрес или null
      */
     private function saveNewAddress(array $addressData): ?Address
     {
         // Сохраняем адрес только для авторизованных пользователей
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return null;
         }
 
@@ -302,7 +303,7 @@ final class CheckoutController extends Controller
                 'is_default' => Address::byUser(Auth::id())->count() === 0, // Первый адрес делаем основным
             ]);
 
-            Log::info("Сохранен новый адрес пользователя", [
+            Log::info('Сохранен новый адрес пользователя', [
                 'user_id' => Auth::id(),
                 'address_id' => $address->id,
             ]);

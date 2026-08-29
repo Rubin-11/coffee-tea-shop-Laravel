@@ -12,7 +12,7 @@ use Tests\TestCase;
 
 /**
  * Unit тесты для модели CartItem
- * 
+ *
  * Тестируем:
  * - Расчеты (subtotal, округление)
  * - Проверку цен (изменение, получение, обновление)
@@ -32,7 +32,7 @@ final class CartItemTest extends TestCase
 
     /**
      * Тест: правильный расчет промежуточной суммы (price * quantity)
-     * 
+     *
      * Проверяем базовую математику: цена умножается на количество
      */
     public function test_calculates_subtotal_correctly(): void
@@ -53,7 +53,7 @@ final class CartItemTest extends TestCase
 
     /**
      * Тест: округление subtotal до 2 знаков после запятой
-     * 
+     *
      * Проверяем корректность округления при нестандартных ценах
      */
     public function test_subtotal_rounds_to_two_decimals(): void
@@ -71,15 +71,15 @@ final class CartItemTest extends TestCase
 
         // Assert: Проверяем, что результат имеет максимум 2 знака после запятой
         $this->assertEquals(999.99, $subtotal);
-        
+
         // Дополнительная проверка: результат - это float с 2 знаками
         $this->assertIsFloat($subtotal);
-        $this->assertEquals(2, strlen(substr(strrchr((string)$subtotal, '.'), 1)));
+        $this->assertEquals(2, strlen(substr(strrchr((string) $subtotal, '.'), 1)));
     }
 
     /**
      * Тест: subtotal корректно считается для единичного товара
-     * 
+     *
      * Граничный случай: quantity = 1
      */
     public function test_subtotal_for_single_item(): void
@@ -104,7 +104,7 @@ final class CartItemTest extends TestCase
 
     /**
      * Тест: определение изменения цены товара
-     * 
+     *
      * Проверяем, что метод hasPriceChanged() правильно определяет,
      * изменилась ли цена товара с момента добавления в корзину
      */
@@ -145,7 +145,7 @@ final class CartItemTest extends TestCase
 
     /**
      * Тест: получение актуальной цены товара
-     * 
+     *
      * Метод getCurrentPrice() должен вернуть текущую цену из БД,
      * а не цену, сохраненную в корзине
      */
@@ -176,10 +176,10 @@ final class CartItemTest extends TestCase
     {
         // Arrange: Создаем позицию корзины
         $cartItem = CartItem::factory()->create();
-        
+
         // Удаляем товар из БД
         $cartItem->product->delete();
-        
+
         // Перезагружаем модель, чтобы обновить связи
         $cartItem = $cartItem->fresh();
 
@@ -192,7 +192,7 @@ final class CartItemTest extends TestCase
 
     /**
      * Тест: обновление цены до актуальной
-     * 
+     *
      * Метод updatePrice() должен синхронизировать цену в корзине
      * с текущей ценой товара
      */
@@ -241,7 +241,7 @@ final class CartItemTest extends TestCase
 
     /**
      * Тест: товар доступен, если есть достаточно на складе
-     * 
+     *
      * Проверяем основной сценарий: товар в наличии и его хватает
      */
     public function test_is_available_when_product_in_stock(): void
@@ -263,7 +263,7 @@ final class CartItemTest extends TestCase
 
     /**
      * Тест: товар НЕ доступен при недостаточном количестве на складе
-     * 
+     *
      * Важный граничный случай для предотвращения overselling
      */
     public function test_is_not_available_when_insufficient_stock(): void
@@ -285,7 +285,7 @@ final class CartItemTest extends TestCase
 
     /**
      * Тест: товар НЕ доступен, если выключен (is_available = false)
-     * 
+     *
      * Даже если товар есть на складе, он может быть временно недоступен
      */
     public function test_is_not_available_when_product_unavailable(): void
@@ -326,7 +326,7 @@ final class CartItemTest extends TestCase
 
     /**
      * Тест: возвращает максимально доступное количество
-     * 
+     *
      * Полезно для отображения сообщения "В наличии только X шт."
      */
     public function test_returns_max_available_quantity(): void
@@ -370,7 +370,7 @@ final class CartItemTest extends TestCase
 
     /**
      * Тест: scope byUser фильтрует по пользователю
-     * 
+     *
      * Проверяем, что запрос возвращает только корзину конкретного пользователя
      */
     public function test_by_user_scope_filters_by_user_id(): void
@@ -388,7 +388,7 @@ final class CartItemTest extends TestCase
 
         // Assert: Должно вернуться 3 позиции только для user1
         $this->assertCount(3, $user1Items);
-        
+
         // Проверяем, что все позиции принадлежат user1
         $user1Items->each(function ($item) use ($user1) {
             $this->assertEquals($user1->id, $item->user_id);
@@ -397,7 +397,7 @@ final class CartItemTest extends TestCase
 
     /**
      * Тест: scope bySession фильтрует по сессии (гостевая корзина)
-     * 
+     *
      * Проверяем работу с гостевыми корзинами через session_id
      */
     public function test_by_session_scope_filters_by_session_id(): void
@@ -408,7 +408,7 @@ final class CartItemTest extends TestCase
 
         CartItem::factory()->guest($session1)->count(2)->create();
         CartItem::factory()->guest($session2)->count(3)->create();
-        
+
         // Также создаем позицию для авторизованного пользователя
         CartItem::factory()->forUser(User::factory()->create())->create();
 
@@ -417,7 +417,7 @@ final class CartItemTest extends TestCase
 
         // Assert: Должно вернуться 2 позиции для session1
         $this->assertCount(2, $sessionItems);
-        
+
         // Проверяем корректность данных
         $sessionItems->each(function ($item) use ($session1) {
             $this->assertEquals($session1, $item->session_id);
@@ -427,13 +427,13 @@ final class CartItemTest extends TestCase
 
     /**
      * Тест: scope available фильтрует доступные позиции
-     * 
+     *
      * Возвращает только те позиции, товары которых доступны для заказа
      */
     public function test_available_scope_filters_available_items(): void
     {
         // Arrange: Создаем разные сценарии
-        
+
         // 1. Доступный товар (stock > 0, is_available = true)
         $availableProduct = Product::factory()->create([
             'stock' => 10,
@@ -473,7 +473,7 @@ final class CartItemTest extends TestCase
 
     /**
      * Тест: автоматическое заполнение цены при создании
-     * 
+     *
      * Если при создании CartItem не указана цена, она должна
      * автоматически заполниться из product->price
      */
@@ -497,7 +497,7 @@ final class CartItemTest extends TestCase
 
     /**
      * Тест: не перезаписывает цену, если она указана явно
-     * 
+     *
      * Если при создании указали конкретную цену, она должна сохраниться
      */
     public function test_does_not_override_explicitly_set_price(): void
@@ -525,7 +525,7 @@ final class CartItemTest extends TestCase
 
     /**
      * Тест: hasPriceChanged использует точность 0.01
-     * 
+     *
      * Проверяем, что небольшие различия в округлении не считаются изменением цены
      * Метод использует порог 0.01: если разница СТРОГО БОЛЬШЕ 0.01, то это изменение
      */
@@ -545,21 +545,21 @@ final class CartItemTest extends TestCase
 
         // Act & Assert: Большая разница - это изменение
         $this->assertTrue($cartItem->hasPriceChanged());
-        
+
         // Тест 2: Цена не изменилась - точное совпадение
         $cartItem2 = CartItem::factory()->create([
             'product_id' => $product->id,
             'price' => 100.00,  // Разница 0.00
         ]);
         $this->assertFalse($cartItem2->hasPriceChanged());
-        
+
         // Тест 3: Небольшая разница в 2 цента ДОЛЖНА считаться изменением
         $cartItem3 = CartItem::factory()->create([
             'product_id' => $product->id,
             'price' => 100.02,  // Разница 0.02 > 0.01
         ]);
         $this->assertTrue($cartItem3->hasPriceChanged());
-        
+
         // Тест 4: Проверяем отрицательную разницу (цена в корзине меньше)
         $cartItem4 = CartItem::factory()->create([
             'product_id' => $product->id,
@@ -576,7 +576,7 @@ final class CartItemTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $product = Product::factory()->create();
-        
+
         $cartItem = CartItem::factory()->create([
             'user_id' => $user->id,
             'product_id' => $product->id,
@@ -585,7 +585,7 @@ final class CartItemTest extends TestCase
         // Act & Assert: Проверяем связи
         $this->assertInstanceOf(User::class, $cartItem->user);
         $this->assertEquals($user->id, $cartItem->user->id);
-        
+
         $this->assertInstanceOf(Product::class, $cartItem->product);
         $this->assertEquals($product->id, $cartItem->product->id);
     }
@@ -604,8 +604,8 @@ final class CartItemTest extends TestCase
         // Assert: Проверяем типы после cast
         $this->assertIsInt($cartItem->quantity);
         $this->assertEquals(5, $cartItem->quantity);
-        
-        $this->assertIsString((string)$cartItem->price); // decimal хранится как строка
-        $this->assertEquals('123.45', (string)$cartItem->price);
+
+        $this->assertIsString((string) $cartItem->price); // decimal хранится как строка
+        $this->assertEquals('123.45', (string) $cartItem->price);
     }
 }

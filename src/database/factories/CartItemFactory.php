@@ -12,33 +12,33 @@ use Illuminate\Support\Str;
 
 /**
  * Factory для генерации позиций корзины
- * 
+ *
  * Создает реалистичные позиции в корзине покупок:
  * - Корзины авторизованных пользователей (через user_id)
  * - Гостевые корзины (через session_id)
  * - Связь с товарами
  * - Количество товара (обычно 1-3 единицы)
  * - Зафиксированная цена на момент добавления в корзину
- * 
+ *
  * ВАЖНО: Цена в корзине может отличаться от текущей цены товара,
  * если цена изменилась после добавления товара в корзину.
- * 
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\CartItem>
+ *
+ * @extends Factory<CartItem>
  */
 class CartItemFactory extends Factory
 {
     /**
      * Модель, для которой создается фабрика
-     * 
+     *
      * @var string
      */
     protected $model = CartItem::class;
 
     /**
      * Определение состояния по умолчанию для модели
-     * 
+     *
      * Генерирует случайную позицию корзины с реалистичными данными
-     * 
+     *
      * @return array<string, mixed>
      */
     public function definition(): array
@@ -87,11 +87,10 @@ class CartItemFactory extends Factory
 
     /**
      * Состояние для корзины авторизованного пользователя
-     * 
+     *
      * Использование: CartItem::factory()->forUser($user)->create()
-     * 
-     * @param \App\Models\User|int $user Пользователь или его ID
-     * @return static
+     *
+     * @param  User|int  $user  Пользователь или его ID
      */
     public function forUser($user): static
     {
@@ -105,11 +104,10 @@ class CartItemFactory extends Factory
 
     /**
      * Состояние для гостевой корзины
-     * 
+     *
      * Использование: CartItem::factory()->guest($sessionId)->create()
-     * 
-     * @param string|null $sessionId ID сессии (если null, сгенерируется автоматически)
-     * @return static
+     *
+     * @param  string|null  $sessionId  ID сессии (если null, сгенерируется автоматически)
      */
     public function guest(?string $sessionId = null): static
     {
@@ -121,15 +119,14 @@ class CartItemFactory extends Factory
 
     /**
      * Состояние для позиции с конкретным товаром
-     * 
+     *
      * При использовании этого состояния:
      * - Берется реальная цена товара из БД
      * - Гарантируется соответствие данных
-     * 
+     *
      * Использование: CartItem::factory()->forProduct($product)->create()
-     * 
-     * @param \App\Models\Product $product Товар
-     * @return static
+     *
+     * @param  Product  $product  Товар
      */
     public function forProduct(Product $product): static
     {
@@ -141,12 +138,10 @@ class CartItemFactory extends Factory
 
     /**
      * Состояние для позиции с одной единицей товара
-     * 
+     *
      * Самый распространенный случай - добавили один товар в корзину
-     * 
+     *
      * Использование: CartItem::factory()->single()->create()
-     * 
-     * @return static
      */
     public function single(): static
     {
@@ -157,11 +152,10 @@ class CartItemFactory extends Factory
 
     /**
      * Состояние для позиции с несколькими единицами товара
-     * 
+     *
      * Использование: CartItem::factory()->multiple(5)->create()
-     * 
-     * @param int $quantity Количество единиц товара
-     * @return static
+     *
+     * @param  int  $quantity  Количество единиц товара
      */
     public function multiple(int $quantity): static
     {
@@ -172,19 +166,17 @@ class CartItemFactory extends Factory
 
     /**
      * Состояние для старой позиции корзины
-     * 
+     *
      * Полезно для тестирования очистки старых корзин или синхронизации цен.
      * Товары, которые лежат в корзине больше месяца.
-     * 
+     *
      * Использование: CartItem::factory()->old()->create()
-     * 
-     * @return static
      */
     public function old(): static
     {
         return $this->state(function (array $attributes) {
             $createdAt = fake()->dateTimeBetween('-6 months', '-1 month');
-            
+
             return [
                 'created_at' => $createdAt,
                 'updated_at' => fake()->dateTimeBetween($createdAt, '-1 month'),
@@ -194,18 +186,16 @@ class CartItemFactory extends Factory
 
     /**
      * Состояние для свежей позиции корзины
-     * 
+     *
      * Товары, только что добавленные в корзину (сегодня или вчера)
-     * 
+     *
      * Использование: CartItem::factory()->fresh()->create()
-     * 
-     * @return static
      */
     public function fresh(): static
     {
         return $this->state(function (array $attributes) {
             $createdAt = fake()->dateTimeBetween('-1 day', 'now');
-            
+
             return [
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt,
@@ -215,14 +205,12 @@ class CartItemFactory extends Factory
 
     /**
      * Состояние для позиции с устаревшей ценой
-     * 
+     *
      * Имитирует ситуацию, когда товар добавлен в корзину давно,
      * а цена товара с тех пор изменилась.
      * Полезно для тестирования синхронизации цен.
-     * 
+     *
      * Использование: CartItem::factory()->outdatedPrice()->create()
-     * 
-     * @return static
      */
     public function outdatedPrice(): static
     {
@@ -232,7 +220,7 @@ class CartItemFactory extends Factory
             $priceChange = fake()->randomElement([-1, 1]); // Цена могла вырасти или упасть
             $changePercent = fake()->numberBetween(10, 30) / 100;
             $oldPrice = round($currentPrice * (1 + ($priceChange * $changePercent)), 2);
-            
+
             return [
                 'price' => $oldPrice,
                 'created_at' => fake()->dateTimeBetween('-2 months', '-1 week'),
@@ -242,12 +230,10 @@ class CartItemFactory extends Factory
 
     /**
      * Состояние для большого количества товара в корзине
-     * 
+     *
      * Полезно для тестирования проверки наличия на складе
-     * 
+     *
      * Использование: CartItem::factory()->bulk()->create()
-     * 
-     * @return static
      */
     public function bulk(): static
     {
@@ -258,10 +244,8 @@ class CartItemFactory extends Factory
 
     /**
      * Состояние для позиции кофе
-     * 
+     *
      * Использование: CartItem::factory()->coffee()->create()
-     * 
-     * @return static
      */
     public function coffee(): static
     {
@@ -272,10 +256,8 @@ class CartItemFactory extends Factory
 
     /**
      * Состояние для позиции чая
-     * 
+     *
      * Использование: CartItem::factory()->tea()->create()
-     * 
-     * @return static
      */
     public function tea(): static
     {
@@ -286,17 +268,15 @@ class CartItemFactory extends Factory
 
     /**
      * Состояние для позиции с одинаковым session_id
-     * 
+     *
      * Полезно для создания нескольких позиций в одной гостевой корзине
-     * 
+     *
      * Использование: CartItem::factory()->sameSession()->count(3)->create()
-     * 
-     * @return static
      */
     public function sameSession(): static
     {
         static $sessionId = null;
-        
+
         // Генерируем session_id один раз для всех позиций
         if ($sessionId === null) {
             $sessionId = Str::random(40);
@@ -311,8 +291,6 @@ class CartItemFactory extends Factory
     /**
      * Сброс статического session_id
      * Вызывайте этот метод в setUp() тестов для создания новых гостевых корзин
-     * 
-     * @return void
      */
     public static function resetSessionId(): void
     {

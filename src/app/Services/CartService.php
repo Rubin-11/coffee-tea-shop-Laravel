@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Session;
 
 /**
  * Сервис для работы с корзиной покупок
- * 
+ *
  * Этот сервис инкапсулирует всю бизнес-логику работы с корзиной:
  * - Добавление товаров в корзину
  * - Обновление количества товаров
@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Session;
  * - Расчет общей стоимости
  * - Подсчет количества позиций
  * - Очистка корзины
- * 
+ *
  * Поддерживает как авторизованных пользователей (через user_id),
  * так и гостей (через session_id).
  */
@@ -29,10 +29,10 @@ final readonly class CartService
 {
     /**
      * Получить все товары из корзины текущего пользователя
-     * 
+     *
      * Загружает товары с их связями (product, product.images)
      * для отображения в корзине
-     * 
+     *
      * @return Collection<CartItem>
      */
     public function getCartItems(): Collection
@@ -53,13 +53,14 @@ final readonly class CartService
 
     /**
      * Добавить товар в корзину
-     * 
+     *
      * Если товар уже есть в корзине, увеличивает его количество.
      * Если товара нет - создает новую позицию.
-     * 
-     * @param int $productId ID товара
-     * @param int $quantity Количество (по умолчанию 1)
+     *
+     * @param  int  $productId  ID товара
+     * @param  int  $quantity  Количество (по умолчанию 1)
      * @return CartItem Созданная или обновленная позиция корзины
+     *
      * @throws \Exception Если товар не найден или недостаточно на складе
      */
     public function addItem(int $productId, int $quantity = 1): CartItem
@@ -109,10 +110,11 @@ final readonly class CartService
 
     /**
      * Обновить количество товара в корзине
-     * 
-     * @param int $cartItemId ID позиции корзины
-     * @param int $quantity Новое количество
+     *
+     * @param  int  $cartItemId  ID позиции корзины
+     * @param  int  $quantity  Новое количество
      * @return CartItem Обновленная позиция корзины
+     *
      * @throws \Exception Если позиция не найдена или недостаточно товара
      */
     public function updateItem(int $cartItemId, int $quantity): CartItem
@@ -120,7 +122,7 @@ final readonly class CartService
         // Находим позицию корзины
         $cartItem = $this->findCartItem($cartItemId);
 
-        if (!$cartItem) {
+        if (! $cartItem) {
             throw new \Exception('Позиция не найдена в корзине');
         }
 
@@ -140,16 +142,17 @@ final readonly class CartService
 
     /**
      * Удалить товар из корзины
-     * 
-     * @param int $cartItemId ID позиции корзины
+     *
+     * @param  int  $cartItemId  ID позиции корзины
      * @return bool Успешность удаления
+     *
      * @throws \Exception Если позиция не найдена
      */
     public function removeItem(int $cartItemId): bool
     {
         $cartItem = $this->findCartItem($cartItemId);
 
-        if (!$cartItem) {
+        if (! $cartItem) {
             throw new \Exception('Позиция не найдена в корзине');
         }
 
@@ -158,9 +161,9 @@ final readonly class CartService
 
     /**
      * Очистить всю корзину
-     * 
+     *
      * Удаляет все товары из корзины текущего пользователя
-     * 
+     *
      * @return int Количество удаленных позиций
      */
     public function clearCart(): int
@@ -174,9 +177,9 @@ final readonly class CartService
 
     /**
      * Получить общую стоимость корзины
-     * 
+     *
      * Вычисляет сумму всех товаров с учетом их количества
-     * 
+     *
      * @return float Общая стоимость корзины
      */
     public function getTotal(): float
@@ -184,17 +187,17 @@ final readonly class CartService
         $items = $this->getCartItems();
 
         return round(
-            $items->sum(fn(CartItem $item) => $item->getSubtotal()),
+            $items->sum(fn (CartItem $item) => $item->getSubtotal()),
             2
         );
     }
 
     /**
      * Получить количество позиций в корзине
-     * 
+     *
      * Возвращает количество уникальных товаров (позиций).
      * Используется для отображения счетчика в хедере.
-     * 
+     *
      * @return int Количество позиций (уникальных товаров)
      */
     public function getItemsCount(): int
@@ -204,22 +207,22 @@ final readonly class CartService
 
     /**
      * Получить общее количество единиц товаров в корзине
-     * 
+     *
      * Возвращает сумму всех quantity (общее количество единиц всех товаров).
      * Например: 2 кофе + 3 чая = 5 единиц товаров.
-     * 
+     *
      * @return int Общее количество единиц товаров
      */
     public function getItemsQuantity(): int
     {
         $items = $this->getCartItems();
 
-        return $items->sum(fn(CartItem $item) => $item->quantity);
+        return $items->sum(fn (CartItem $item) => $item->quantity);
     }
 
     /**
      * Проверить, пуста ли корзина
-     * 
+     *
      * @return bool true если корзина пуста
      */
     public function isEmpty(): bool
@@ -229,10 +232,10 @@ final readonly class CartService
 
     /**
      * Синхронизировать цены в корзине с актуальными ценами товаров
-     * 
+     *
      * Обновляет цены в корзине в соответствии с текущими ценами товаров.
      * Полезно перед оформлением заказа.
-     * 
+     *
      * @return int Количество обновленных позиций
      */
     public function syncPrices(): int
@@ -252,11 +255,11 @@ final readonly class CartService
 
     /**
      * Проверить доступность всех товаров в корзине
-     * 
+     *
      * Проверяет, что все товары в корзине:
      * - Доступны для заказа (is_available = true)
      * - Есть в достаточном количестве на складе
-     * 
+     *
      * @return array{available: bool, unavailable_items: array} Результат проверки
      */
     public function checkAvailability(): array
@@ -265,7 +268,7 @@ final readonly class CartService
         $unavailableItems = [];
 
         foreach ($items as $item) {
-            if (!$item->isAvailable()) {
+            if (! $item->isAvailable()) {
                 $unavailableItems[] = [
                     'cart_item_id' => $item->id,
                     'product_name' => $item->product->name,
@@ -284,12 +287,11 @@ final readonly class CartService
 
     /**
      * Перенести корзину гостя на авторизованного пользователя
-     * 
+     *
      * Используется после авторизации/регистрации пользователя.
      * Объединяет гостевую корзину с корзиной пользователя.
-     * 
-     * @param int $userId ID пользователя
-     * @return void
+     *
+     * @param  int  $userId  ID пользователя
      */
     public function mergeGuestCart(int $userId): void
     {
@@ -328,8 +330,8 @@ final readonly class CartService
 
     /**
      * Найти существующую позицию товара в корзине
-     * 
-     * @param int $productId ID товара
+     *
+     * @param  int  $productId  ID товара
      * @return CartItem|null Позиция корзины или null
      */
     private function findExistingCartItem(int $productId): ?CartItem
@@ -347,11 +349,11 @@ final readonly class CartService
 
     /**
      * Найти позицию корзины по ID
-     * 
+     *
      * Проверяет права доступа - возвращает позицию только если она
      * принадлежит текущему пользователю или гостевой сессии
-     * 
-     * @param int $cartItemId ID позиции корзины
+     *
+     * @param  int  $cartItemId  ID позиции корзины
      * @return CartItem|null Позиция корзины или null
      */
     private function findCartItem(int $cartItemId): ?CartItem
@@ -369,14 +371,14 @@ final readonly class CartService
 
     /**
      * Получить ID текущей сессии
-     * 
+     *
      * Создает новую сессию, если она не существует
-     * 
+     *
      * @return string ID сессии
      */
     private function getSessionId(): string
     {
-        if (!Session::has('cart_session_id')) {
+        if (! Session::has('cart_session_id')) {
             Session::put('cart_session_id', Session::getId());
         }
 

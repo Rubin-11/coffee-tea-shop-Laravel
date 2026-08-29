@@ -7,14 +7,15 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 /**
  * Контроллер категорий товаров
- * 
+ *
  * Отвечает за отображение категорий и товаров в них.
  * Поддерживает иерархическую структуру категорий (главные и подкатегории).
- * 
+ *
  * Содержит два основных метода:
  * - index() - отображение всех категорий с иерархией
  * - show() - отображение товаров выбранной категории с подкатегориями
@@ -23,29 +24,29 @@ final class CategoryController extends Controller
 {
     /**
      * Отображение всех категорий
-     * 
+     *
      * Этот метод показывает все активные категории в иерархическом виде:
      * - Главные категории (parent_id = null)
      * - Их подкатегории
      * - Количество товаров в каждой категории
-     * 
+     *
      * Используется для:
      * - Страницы "Все категории" (/categories)
      * - Навигационного меню
      * - Карты сайта
-     * 
+     *
      * Пример структуры:
-     * 
+     *
      * Кофе в зернах (50 товаров)
      *   ├── Арабика (25 товаров)
      *   ├── Робуста (15 товаров)
      *   └── Эспрессо-смеси (10 товаров)
-     * 
+     *
      * Чай (30 товаров)
      *   ├── Зеленый чай (12 товаров)
      *   ├── Черный чай (10 товаров)
      *   └── Травяной чай (8 товаров)
-     * 
+     *
      * @return View Возвращает представление со списком всех категорий
      */
     public function index(): View
@@ -53,7 +54,7 @@ final class CategoryController extends Controller
         // ==========================================
         // ПОЛУЧЕНИЕ ГЛАВНЫХ КАТЕГОРИЙ
         // ==========================================
-        // 
+        //
         // Загружаем только главные категории (те, у которых нет родителя)
         // Для каждой категории также загружаем:
         // - Активные подкатегории (activeChildren)
@@ -64,8 +65,8 @@ final class CategoryController extends Controller
                 // Загружаем активные подкатегории с подсчетом товаров
                 'activeChildren' => function ($query) {
                     $query->withCount('availableProducts')
-                          ->orderBy('sort_order');
-                }
+                        ->orderBy('sort_order');
+                },
             ])
             ->withCount('availableProducts')  // Подсчет товаров в главной категории
             ->orderBy('sort_order')           // Сортируем по заданному порядку
@@ -74,7 +75,7 @@ final class CategoryController extends Controller
         // ==========================================
         // ВОЗВРАТ ПРЕДСТАВЛЕНИЯ
         // ==========================================
-        // 
+        //
         // В view будет доступна переменная $categories с полной иерархией
         // Каждая категория имеет:
         // - available_products_count: количество товаров
@@ -84,45 +85,46 @@ final class CategoryController extends Controller
 
     /**
      * Отображение товаров выбранной категории
-     * 
+     *
      * Этот метод показывает:
      * - Информацию о категории (название, описание, изображение)
      * - Подкатегории (если есть)
      * - Товары категории с фильтрацией и сортировкой
      * - Breadcrumbs (хлебные крошки) для навигации
-     * 
+     *
      * Поддерживает:
      * - Фильтрацию по цене (?min_price, ?max_price)
      * - Сортировку (?sort=price_asc, price_desc, rating, newest)
      * - Пагинацию (12 товаров на странице)
-     * 
+     *
      * Примеры использования:
      * - /categories/coffee - все товары категории "Кофе"
      * - /categories/coffee?sort=price_asc - сортировка по цене
      * - /categories/arabica?min_price=300 - арабика дороже 300 руб
-     * 
-     * @param string $slug URL-дружественное название категории
-     * @param Request $request HTTP запрос с параметрами фильтрации
+     *
+     * @param  string  $slug  URL-дружественное название категории
+     * @param  Request  $request  HTTP запрос с параметрами фильтрации
      * @return View Возвращает представление категории с товарами
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Если категория не найдена
+     *
+     * @throws ModelNotFoundException Если категория не найдена
      */
     public function show(string $slug, Request $request): View
     {
         // ==========================================
         // ПОЛУЧЕНИЕ КАТЕГОРИИ ПО SLUG
         // ==========================================
-        // 
+        //
         // Ищем категорию по её slug (например: "coffee-beans")
         // Загружаем связанные данные:
         // - parent: родительская категория (для breadcrumbs)
         // - activeChildren: активные подкатегории с подсчетом товаров
         $category = Category::with([
-                'parent',  // Родительская категория для хлебных крошек
-                'activeChildren' => function ($query) {
-                    $query->withCount('availableProducts')
-                          ->orderBy('sort_order');
-                }
-            ])
+            'parent',  // Родительская категория для хлебных крошек
+            'activeChildren' => function ($query) {
+                $query->withCount('availableProducts')
+                    ->orderBy('sort_order');
+            },
+        ])
             ->where('slug', $slug)
             ->where('is_active', true)
             ->firstOrFail();
@@ -130,7 +132,7 @@ final class CategoryController extends Controller
         // ==========================================
         // СОЗДАНИЕ ЗАПРОСА ДЛЯ ТОВАРОВ
         // ==========================================
-        // 
+        //
         // Получаем все доступные товары выбранной категории
         $query = Product::where('category_id', $category->id)
             ->available();
@@ -138,7 +140,7 @@ final class CategoryController extends Controller
         // ==========================================
         // ФИЛЬТРАЦИЯ ПО ЦЕНЕ
         // ==========================================
-        
+
         // Минимальная цена
         if ($request->filled('min_price')) {
             $query->where('price', '>=', $request->float('min_price'));
@@ -152,12 +154,12 @@ final class CategoryController extends Controller
         // ==========================================
         // СОРТИРОВКА ТОВАРОВ
         // ==========================================
-        // 
+        //
         // Применяем сортировку на основе параметра sort
         // По умолчанию сортируем по дате создания (новые первые)
         $sort = $request->input('sort', 'newest');
 
-        match($sort) {
+        match ($sort) {
             'price_asc' => $query->orderBy('price', 'asc'),
             'price_desc' => $query->orderBy('price', 'desc'),
             'rating' => $query->orderBy('rating', 'desc'),
@@ -168,7 +170,7 @@ final class CategoryController extends Controller
         // ==========================================
         // ЗАГРУЗКА СВЯЗАННЫХ ДАННЫХ
         // ==========================================
-        // 
+        //
         // Eager loading для оптимизации запросов
         $query->with([
             'images',    // Изображения товара
@@ -178,7 +180,7 @@ final class CategoryController extends Controller
         // ==========================================
         // ПАГИНАЦИЯ
         // ==========================================
-        // 
+        //
         // Разбиваем результаты на страницы по 12 товаров
         // withQueryString() сохраняет параметры фильтрации в URL
         $products = $query->paginate(12)->withQueryString();
@@ -186,7 +188,7 @@ final class CategoryController extends Controller
         // ==========================================
         // ПОСТРОЕНИЕ BREADCRUMBS (ХЛЕБНЫХ КРОШЕК)
         // ==========================================
-        // 
+        //
         // Создаем массив для навигационной цепочки
         // Пример: Главная > Кофе > Арабика
         $breadcrumbs = collect();
@@ -208,7 +210,7 @@ final class CategoryController extends Controller
         // ==========================================
         // ПОЛУЧЕНИЕ ДИАПАЗОНА ЦЕН
         // ==========================================
-        // 
+        //
         // Находим минимальную и максимальную цену среди товаров категории
         // Используется для слайдера фильтра цен
         $priceRange = Product::where('category_id', $category->id)
@@ -219,7 +221,7 @@ final class CategoryController extends Controller
         // ==========================================
         // ВОЗВРАТ ПРЕДСТАВЛЕНИЯ
         // ==========================================
-        // 
+        //
         // Передаем в view:
         // - category: данные категории с подкатегориями
         // - products: товары с пагинацией

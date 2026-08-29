@@ -6,7 +6,6 @@ namespace Tests\Unit\Models;
 
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Group;
@@ -34,7 +33,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Заказ со статусом "pending" можно отменить
-     * 
+     *
      * Проверяем, что заказ в статусе "ожидает обработки" (pending)
      * можно отменить, так как он еще не был отправлен.
      */
@@ -52,7 +51,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Заказ со статусом "paid" можно отменить
-     * 
+     *
      * Проверяем, что оплаченный заказ (paid), который еще не отправлен,
      * можно отменить. В этом случае потребуется возврат средств.
      */
@@ -70,7 +69,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Заказ со статусом "processing" можно отменить
-     * 
+     *
      * Проверяем, что заказ в обработке (processing) можно отменить,
      * пока он не был отправлен покупателю.
      */
@@ -92,7 +91,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Заказ со статусом "shipped" нельзя отменить
-     * 
+     *
      * Проверяем, что заказ, который уже отправлен (shipped),
      * нельзя отменить, так как он находится в пути к покупателю.
      */
@@ -115,7 +114,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Заказ со статусом "delivered" нельзя отменить
-     * 
+     *
      * Проверяем, что доставленный заказ (delivered) нельзя отменить.
      * Для возврата товара нужно использовать другой механизм (возврат/обмен).
      */
@@ -133,7 +132,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Уже отмененный заказ нельзя отменить повторно
-     * 
+     *
      * Проверяем, что заказ со статусом "cancelled" нельзя отменить снова.
      * Это предотвращает повторную отмену и дублирование логики возврата товаров на склад.
      */
@@ -155,7 +154,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Метод isPaid() возвращает true для оплаченного заказа
-     * 
+     *
      * Проверяем, что метод isPaid() правильно определяет оплаченный заказ:
      * - по статусу оплаты payment_status === 'paid'
      * - по заполненному полю paid_at
@@ -178,7 +177,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Метод isPaid() возвращает false для неоплаченного заказа
-     * 
+     *
      * Проверяем, что метод isPaid() правильно определяет неоплаченный заказ.
      */
     public function test_is_paid_returns_false_when_not_paid(): void
@@ -198,7 +197,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Метод isDelivered() возвращает true для доставленного заказа
-     * 
+     *
      * Проверяем, что метод isDelivered() правильно определяет доставленный заказ:
      * - статус должен быть 'delivered'
      * - поле delivered_at должно быть заполнено
@@ -219,7 +218,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Метод isDelivered() возвращает false для недоставленного заказа
-     * 
+     *
      * Проверяем, что метод isDelivered() правильно определяет недоставленный заказ.
      */
     public function test_is_delivered_returns_false_when_not_delivered(): void
@@ -239,7 +238,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Метод isCancelled() возвращает true для отмененного заказа
-     * 
+     *
      * Проверяем, что метод isCancelled() правильно определяет отмененный заказ:
      * - статус должен быть 'cancelled'
      * - поле cancelled_at должно быть заполнено
@@ -260,7 +259,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Метод isCancelled() возвращает false для неотмененного заказа
-     * 
+     *
      * Проверяем, что метод isCancelled() правильно определяет неотмененный заказ.
      */
     public function test_is_cancelled_returns_false_when_not_cancelled(): void
@@ -284,7 +283,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Метод calculateTotal() правильно рассчитывает итоговую сумму
-     * 
+     *
      * Проверяем базовую формулу расчета:
      * total = subtotal + delivery_cost - discount
      */
@@ -306,7 +305,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: calculateTotal() учитывает стоимость доставки
-     * 
+     *
      * Проверяем, что стоимость доставки правильно добавляется к итоговой сумме.
      */
     public function test_includes_delivery_cost_in_total(): void
@@ -327,7 +326,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: calculateTotal() вычитает скидку из итоговой суммы
-     * 
+     *
      * Проверяем, что скидка правильно вычитается из итоговой суммы.
      */
     public function test_subtracts_discount_from_total(): void
@@ -348,7 +347,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: calculateTotal() правильно работает с комплексным расчетом
-     * 
+     *
      * Проверяем полную формулу со всеми компонентами:
      * subtotal + delivery_cost - discount
      */
@@ -370,7 +369,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: calculateTotal() округляет результат до 2 знаков после запятой
-     * 
+     *
      * Проверяем, что итоговая сумма всегда округляется до копеек.
      */
     public function test_calculates_total_rounds_to_two_decimals(): void
@@ -388,7 +387,7 @@ final class OrderTest extends TestCase
         // Assert: Результат должен быть округлен до 2 знаков
         // (1234.567 + 300.123 - 50.789 = 1483.901 ≈ 1483.90)
         $this->assertEquals(1483.90, $total);
-        
+
         // Дополнительно проверяем, что это именно 2 знака после запятой
         $totalString = number_format($total, 2, '.', '');
         $this->assertEquals('1483.90', $totalString);
@@ -396,7 +395,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: calculateTotal() работает с нулевой стоимостью доставки
-     * 
+     *
      * Проверяем расчет для заказа с самовывозом (delivery_cost = 0).
      */
     public function test_calculates_total_with_zero_delivery_cost(): void
@@ -417,7 +416,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: calculateTotal() работает с нулевой скидкой
-     * 
+     *
      * Проверяем расчет для заказа без скидки.
      */
     public function test_calculates_total_with_zero_discount(): void
@@ -442,7 +441,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Scope pending() фильтрует заказы со статусом pending
-     * 
+     *
      * Проверяем, что scope pending() возвращает только заказы,
      * ожидающие обработки.
      */
@@ -459,7 +458,7 @@ final class OrderTest extends TestCase
 
         // Assert: Должно быть ровно 2 pending заказа
         $this->assertCount(2, $pendingOrders);
-        
+
         // Проверяем, что все заказы имеют статус pending
         foreach ($pendingOrders as $order) {
             $this->assertEquals('pending', $order->status);
@@ -468,7 +467,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Scope paid() фильтрует оплаченные заказы
-     * 
+     *
      * Проверяем, что scope paid() возвращает только заказы
      * с payment_status = 'paid'.
      */
@@ -485,7 +484,7 @@ final class OrderTest extends TestCase
 
         // Assert: Должно быть ровно 2 оплаченных заказа
         $this->assertCount(2, $paidOrders);
-        
+
         // Проверяем, что все заказы имеют payment_status = paid
         foreach ($paidOrders as $order) {
             $this->assertEquals('paid', $order->payment_status);
@@ -494,7 +493,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Scope delivered() фильтрует доставленные заказы
-     * 
+     *
      * Проверяем, что scope delivered() возвращает только заказы
      * со статусом 'delivered'.
      */
@@ -512,7 +511,7 @@ final class OrderTest extends TestCase
 
         // Assert: Должно быть ровно 3 доставленных заказа
         $this->assertCount(3, $deliveredOrders);
-        
+
         // Проверяем, что все заказы имеют статус delivered
         foreach ($deliveredOrders as $order) {
             $this->assertEquals('delivered', $order->status);
@@ -521,7 +520,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Scope cancelled() фильтрует отмененные заказы
-     * 
+     *
      * Проверяем, что scope cancelled() возвращает только заказы
      * со статусом 'cancelled'.
      */
@@ -538,7 +537,7 @@ final class OrderTest extends TestCase
 
         // Assert: Должно быть ровно 2 отмененных заказа
         $this->assertCount(2, $cancelledOrders);
-        
+
         // Проверяем, что все заказы имеют статус cancelled
         foreach ($cancelledOrders as $order) {
             $this->assertEquals('cancelled', $order->status);
@@ -547,7 +546,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Scope byUser() фильтрует заказы по пользователю
-     * 
+     *
      * Проверяем, что scope byUser() возвращает только заказы
      * конкретного пользователя.
      */
@@ -559,7 +558,7 @@ final class OrderTest extends TestCase
 
         // Создаем заказы для первого пользователя
         Order::factory()->count(3)->create(['user_id' => $user1->id]);
-        
+
         // Создаем заказы для второго пользователя
         Order::factory()->count(2)->create(['user_id' => $user2->id]);
 
@@ -571,7 +570,7 @@ final class OrderTest extends TestCase
 
         // Assert: У первого пользователя должно быть 3 заказа
         $this->assertCount(3, $user1Orders);
-        
+
         // Проверяем, что все заказы принадлежат первому пользователю
         foreach ($user1Orders as $order) {
             $this->assertEquals($user1->id, $order->user_id);
@@ -580,7 +579,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Scope recent() сортирует заказы по дате (новые первые)
-     * 
+     *
      * Проверяем, что scope recent() возвращает заказы
      * отсортированные по created_at в порядке убывания.
      */
@@ -606,7 +605,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Заказ связан с пользователем
-     * 
+     *
      * Проверяем, что заказ правильно связан с пользователем через user_id.
      */
     public function test_belongs_to_user(): void
@@ -626,7 +625,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Гостевой заказ не имеет пользователя
-     * 
+     *
      * Проверяем, что гостевой заказ (user_id = null) не связан с пользователем.
      */
     public function test_guest_order_has_no_user(): void
@@ -644,14 +643,14 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Заказ имеет позиции (items)
-     * 
+     *
      * Проверяем, что заказ правильно связан с позициями заказа.
      */
     public function test_has_many_items(): void
     {
         // Arrange: Создаем заказ с 3 позициями
         $order = Order::factory()->create();
-        
+
         OrderItem::factory()->count(3)->create([
             'order_id' => $order->id,
         ]);
@@ -670,7 +669,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Атрибут status_text возвращает текстовое описание статуса
-     * 
+     *
      * Проверяем, что каждый статус заказа имеет правильное русское описание.
      */
     public function test_status_text_attribute_returns_russian_description(): void
@@ -697,7 +696,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Атрибут payment_status_text возвращает текстовое описание статуса оплаты
-     * 
+     *
      * Проверяем, что каждый статус оплаты имеет правильное русское описание.
      */
     public function test_payment_status_text_attribute_returns_russian_description(): void
@@ -715,7 +714,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Атрибут delivery_method_text возвращает текстовое описание способа доставки
-     * 
+     *
      * Проверяем, что каждый способ доставки имеет правильное русское описание.
      */
     public function test_delivery_method_text_attribute_returns_russian_description(): void
@@ -733,7 +732,7 @@ final class OrderTest extends TestCase
 
     /**
      * Тест: Атрибут payment_method_text возвращает текстовое описание способа оплаты
-     * 
+     *
      * Проверяем, что каждый способ оплаты имеет правильное русское описание.
      */
     public function test_payment_method_text_attribute_returns_russian_description(): void

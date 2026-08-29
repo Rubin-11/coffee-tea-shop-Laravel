@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Модель позиции корзины
- * 
+ *
  * Представляет товар, добавленный в корзину покупок.
  * Поддерживает как авторизованных пользователей (через user_id),
  * так и гостей (через session_id).
@@ -21,11 +23,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $session_id
  * @property int $product_id
  * @property int $quantity
- * @property numeric $price
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Product $product
- * @property-read \App\Models\User|null $user
+ * @property numeric|null $price
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Product|null $product
+ * @property-read User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem available()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem bySession(string $sessionId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem byUser(int $userId)
@@ -40,6 +43,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereSessionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CartItem whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 final class CartItem extends Model
@@ -48,8 +52,8 @@ final class CartItem extends Model
 
     /**
      * Поля, которые можно массово заполнять
-     * 
-     * @var array<int, string>
+     *
+     * @var list<string>
      */
     protected $fillable = [
         'user_id',      // ID авторизованного пользователя (null для гостей)
@@ -61,7 +65,7 @@ final class CartItem extends Model
 
     /**
      * Преобразование типов атрибутов
-     * 
+     *
      * @return array<string, string>
      */
     protected function casts(): array
@@ -76,10 +80,8 @@ final class CartItem extends Model
 
     /**
      * Получить пользователя, владельца корзины
-     * 
+     *
      * Для гостевых корзин вернет null
-     * 
-     * @return BelongsTo
      */
     public function user(): BelongsTo
     {
@@ -88,8 +90,6 @@ final class CartItem extends Model
 
     /**
      * Получить товар из корзины
-     * 
-     * @return BelongsTo
      */
     public function product(): BelongsTo
     {
@@ -98,11 +98,9 @@ final class CartItem extends Model
 
     /**
      * Получить промежуточную сумму позиции
-     * 
+     *
      * Вычисляет: цена * количество
      * Это общая стоимость данной позиции в корзине
-     * 
-     * @return float
      */
     public function getSubtotal(): float
     {
@@ -111,11 +109,9 @@ final class CartItem extends Model
 
     /**
      * Получить актуальную цену товара
-     * 
+     *
      * Возвращает текущую цену товара из БД
      * (может отличаться от цены в корзине, если цена изменилась)
-     * 
-     * @return float|null
      */
     public function getCurrentPrice(): ?float
     {
@@ -124,15 +120,13 @@ final class CartItem extends Model
 
     /**
      * Проверить, изменилась ли цена товара
-     * 
+     *
      * Сравнивает цену в корзине с актуальной ценой товара
-     * 
-     * @return bool
      */
     public function hasPriceChanged(): bool
     {
         $currentPrice = $this->getCurrentPrice();
-        
+
         if (is_null($currentPrice)) {
             return false;
         }
@@ -142,41 +136,36 @@ final class CartItem extends Model
 
     /**
      * Обновить цену в корзине до актуальной
-     * 
+     *
      * Синхронизирует цену в корзине с текущей ценой товара
-     * 
-     * @return bool
      */
     public function updatePrice(): bool
     {
         $currentPrice = $this->getCurrentPrice();
-        
+
         if (is_null($currentPrice)) {
             return false;
         }
 
         $this->price = $currentPrice;
+
         return $this->save();
     }
 
     /**
      * Проверить, доступен ли товар для заказа
-     * 
+     *
      * Товар доступен, если он есть в наличии в нужном количестве
-     * 
-     * @return bool
      */
     public function isAvailable(): bool
     {
-        return $this->product 
-               && $this->product->is_available 
+        return $this->product
+               && $this->product->is_available
                && $this->product->stock >= $this->quantity;
     }
 
     /**
      * Получить максимально доступное количество товара
-     * 
-     * @return int
      */
     public function getMaxAvailableQuantity(): int
     {
@@ -185,12 +174,11 @@ final class CartItem extends Model
 
     /**
      * Scope для получения корзины авторизованного пользователя
-     * 
+     *
      * Использование: CartItem::byUser($userId)->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $userId
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeByUser($query, int $userId)
     {
@@ -199,12 +187,11 @@ final class CartItem extends Model
 
     /**
      * Scope для получения гостевой корзины по ID сессии
-     * 
+     *
      * Использование: CartItem::bySession($sessionId)->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $sessionId
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeBySession($query, string $sessionId)
     {
@@ -213,33 +200,31 @@ final class CartItem extends Model
 
     /**
      * Scope для получения доступных позиций
-     * 
+     *
      * Фильтрует только те позиции, товары которых доступны для заказа
-     * 
+     *
      * Использование: CartItem::available()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeAvailable($query)
     {
         return $query->whereHas('product', function ($q) {
             $q->where('is_available', true)
-              ->where('stock', '>', 0);
+                ->where('stock', '>', 0);
         });
     }
 
     /**
      * Boot модели для автоматических действий
-     * 
-     * @return void
      */
     protected static function boot(): void
     {
         parent::boot();
 
         // При создании позиции корзины автоматически устанавливаем текущую цену товара
-        static::creating(function (CartItem $cartItem) {
+        self::creating(function (CartItem $cartItem) {
             if (is_null($cartItem->price) && $cartItem->product) {
                 $cartItem->price = $cartItem->product->price;
             }

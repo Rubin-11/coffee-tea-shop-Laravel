@@ -5,11 +5,10 @@ namespace Database\Seeders;
 use App\Models\Category;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 /**
  * Seeder для создания категорий и подкатегорий товаров
- * 
+ *
  * Создает структуру категорий магазина:
  * - 4 главные категории (Свежеобжаренный кофе, Чай и кофейные напитки, Продукция вендинга, Здоровое питание)
  * - 26 подкатегорий (распределены по главным категориям)
@@ -20,7 +19,7 @@ class CategorySeeder extends Seeder
 
     /**
      * Запуск seeder'а для заполнения категорий
-     * 
+     *
      * Создает главные категории и их подкатегории в правильном порядке.
      * Использует транзакцию для целостности данных.
      */
@@ -30,22 +29,22 @@ class CategorySeeder extends Seeder
 
         // Создаем главные категории
         $mainCategories = $this->createMainCategories();
-        
+
         // Создаем подкатегории для всех категорий
         $this->createFreshCoffeeSubcategories($mainCategories);
         $this->createTeaDrinksSubcategories($mainCategories);
         $this->createVendingSubcategories($mainCategories);
         $this->createHealthyFoodSubcategories($mainCategories);
 
-        $this->command->info('✅ Создано категорий: ' . Category::count());
+        $this->command->info('✅ Создано категорий: '.Category::count());
     }
 
     /**
      * Создание главных (родительских) категорий
-     * 
+     *
      * Создает 4 основные категории магазина, которые будут отображаться
      * в главном меню и на главной странице.
-     * 
+     *
      * @return array<string, Category> Массив созданных категорий с ключами-именами
      */
     private function createMainCategories(): array
@@ -107,10 +106,10 @@ class CategorySeeder extends Seeder
 
     /**
      * Создание подкатегорий для "Свежеобжаренный кофе"
-     * 
+     *
      * Создает 7 подкатегорий по географическим регионам
-     * 
-     * @param array<string, Category> $mainCategories Массив главных категорий
+     *
+     * @param  array<string, Category>  $mainCategories  Массив главных категорий
      */
     private function createFreshCoffeeSubcategories(array $mainCategories): void
     {
@@ -178,10 +177,10 @@ class CategorySeeder extends Seeder
 
     /**
      * Создание подкатегорий для "Чай и кофейные напитки"
-     * 
+     *
      * Создает 7 подкатегорий разных видов чая и кофейных напитков
-     * 
-     * @param array<string, Category> $mainCategories Массив главных категорий
+     *
+     * @param  array<string, Category>  $mainCategories  Массив главных категорий
      */
     private function createTeaDrinksSubcategories(array $mainCategories): void
     {
@@ -249,10 +248,10 @@ class CategorySeeder extends Seeder
 
     /**
      * Создание подкатегорий для "Продукция вендинга"
-     * 
+     *
      * Создает 7 подкатегорий для вендинговых аппаратов
-     * 
-     * @param array<string, Category> $mainCategories Массив главных категорий
+     *
+     * @param  array<string, Category>  $mainCategories  Массив главных категорий
      */
     private function createVendingSubcategories(array $mainCategories): void
     {
@@ -320,10 +319,10 @@ class CategorySeeder extends Seeder
 
     /**
      * Создание подкатегорий для "Здоровое питание"
-     * 
+     *
      * Создает 5 подкатегорий полезных продуктов
-     * 
-     * @param array<string, Category> $mainCategories Массив главных категорий
+     *
+     * @param  array<string, Category>  $mainCategories  Массив главных категорий
      */
     private function createHealthyFoodSubcategories(array $mainCategories): void
     {

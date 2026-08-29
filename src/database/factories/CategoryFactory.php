@@ -8,27 +8,27 @@ use Illuminate\Support\Str;
 
 /**
  * Factory для генерации категорий товаров
- * 
+ *
  * Создает реалистичные категории для магазина кофе и чая:
  * - Главные категории: "Кофе в зернах", "Молотый кофе", "Чай", "Аксессуары"
  * - Подкатегории: "Арабика", "Робуста", "Эспрессо-смеси" и т.д.
- * 
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Category>
+ *
+ * @extends Factory<Category>
  */
 class CategoryFactory extends Factory
 {
     /**
      * Модель, для которой создается фабрика
-     * 
+     *
      * @var string
      */
     protected $model = Category::class;
 
     /**
      * Определение состояния по умолчанию для модели
-     * 
+     *
      * Генерирует случайную категорию с базовыми параметрами
-     * 
+     *
      * @return array<string, mixed>
      */
     public function definition(): array
@@ -54,14 +54,14 @@ class CategoryFactory extends Factory
         return [
             // Название категории
             'name' => $name,
-            
+
             // Slug генерируется автоматически из названия
             // Например: "Кофе в зернах" -> "kofe-v-zernah"
             'slug' => Str::slug($name),
-            
+
             // Описание категории (1-2 предложения)
             'description' => fake()->optional(0.7)->sentence(12),
-            
+
             // Путь к изображению категории (placeholder)
             'image' => fake()->optional(0.5)->randomElement([
                 'categories/coffee-beans.jpg',
@@ -69,13 +69,13 @@ class CategoryFactory extends Factory
                 'categories/tea.jpg',
                 'categories/accessories.jpg',
             ]),
-            
+
             // parent_id будет установлен отдельно для подкатегорий
             'parent_id' => null,
-            
+
             // Порядок сортировки (0-100)
             'sort_order' => fake()->numberBetween(0, 100),
-            
+
             // Большинство категорий активны
             'is_active' => fake()->boolean(90),
         ];
@@ -83,10 +83,8 @@ class CategoryFactory extends Factory
 
     /**
      * Состояние для создания главной категории (без родителя)
-     * 
+     *
      * Использование: Category::factory()->parent()->create()
-     * 
-     * @return static
      */
     public function parent(): static
     {
@@ -98,11 +96,10 @@ class CategoryFactory extends Factory
 
     /**
      * Состояние для создания подкатегории (с родителем)
-     * 
+     *
      * Использование: Category::factory()->child($parentId)->create()
-     * 
-     * @param int $parentId ID родительской категории
-     * @return static
+     *
+     * @param  int  $parentId  ID родительской категории
      */
     public function child(int $parentId): static
     {
@@ -114,10 +111,8 @@ class CategoryFactory extends Factory
 
     /**
      * Состояние для неактивной категории
-     * 
+     *
      * Использование: Category::factory()->inactive()->create()
-     * 
-     * @return static
      */
     public function inactive(): static
     {

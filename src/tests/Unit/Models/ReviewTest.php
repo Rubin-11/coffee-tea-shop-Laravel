@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Models;
 
-use App\Models\Product;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -47,7 +46,7 @@ final class ReviewTest extends TestCase
                 'product_id' => $product->id,
                 'user_id' => $user->id,
                 'rating' => $rating,
-                'comment' => 'Тестовый отзыв для рейтинга ' . $rating,
+                'comment' => 'Тестовый отзыв для рейтинга '.$rating,
             ]);
 
             $this->assertEquals($rating, $review->rating);

@@ -5,12 +5,13 @@ namespace Database\Seeders;
 use App\Models\BlogPost;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 /**
  * Seeder для заполнения таблицы статей блога
- * 
+ *
  * Создает 10-12 статей блога по темам:
  * - Здоровое питание
  * - Рецепты с кофе
@@ -19,7 +20,7 @@ use Illuminate\Support\Str;
  * - Новости компании
  * - Советы бариста
  * - Культура чаепития
- * 
+ *
  * Статьи привязываются к существующим пользователям (администраторам)
  * и имеют разное количество просмотров (50-500)
  */
@@ -29,10 +30,8 @@ class BlogPostSeeder extends Seeder
 
     /**
      * Запуск seeder'а
-     * 
+     *
      * Создает 10 опубликованных статей с реалистичным контентом
-     * 
-     * @return void
      */
     public function run(): void
     {
@@ -40,12 +39,12 @@ class BlogPostSeeder extends Seeder
 
         // Получаем администраторов или любых пользователей для привязки статей
         $authors = User::where('is_admin', true)->get();
-        
+
         // Если администраторов нет, берем любых пользователей
         if ($authors->isEmpty()) {
             $authors = User::limit(3)->get();
         }
-        
+
         // Если пользователей вообще нет, создаем одного для статей
         if ($authors->isEmpty()) {
             $this->command->warn('⚠️  Пользователи не найдены. Создаем автора для статей...');
@@ -57,7 +56,7 @@ class BlogPostSeeder extends Seeder
                     'password' => bcrypt('password'),
                     'is_admin' => true,
                     'is_active' => true,
-                ])
+                ]),
             ]);
         }
 
@@ -125,12 +124,11 @@ class BlogPostSeeder extends Seeder
 
     /**
      * Создание специальных статей с конкретным контентом
-     * 
+     *
      * Эти статьи имеют определенные темы и контент для демонстрации
      * возможностей блога
-     * 
-     * @param \Illuminate\Database\Eloquent\Collection $authors
-     * @return void
+     *
+     * @param  Collection  $authors
      */
     private function createCustomArticles($authors): void
     {
@@ -169,8 +167,6 @@ class BlogPostSeeder extends Seeder
 
     /**
      * Контент статьи о здоровом питании
-     * 
-     * @return string
      */
     private function getHealthyDrinkingContent(): string
     {
@@ -209,8 +205,6 @@ class BlogPostSeeder extends Seeder
 
     /**
      * Контент статьи об истории кофе
-     * 
-     * @return string
      */
     private function getCoffeeHistoryContent(): string
     {

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Таблица подписчиков email рассылки
      * Форма "Ваш email" из макета для подписки на новости
      */
@@ -16,22 +16,22 @@ return new class extends Migration
     {
         Schema::create('subscribers', function (Blueprint $table) {
             $table->id();
-            
+
             // Email подписчика
             $table->string('email')->unique();                 // Уникальный email
-            
+
             // Токен для отписки
             $table->string('token')->unique();                 // Уникальный токен
-            
+
             // Статус подписки
             $table->boolean('is_active')->default(true);       // Активна ли подписка
-            
+
             // Временные метки
             $table->timestamp('subscribed_at');                // Дата подписки
             $table->timestamp('unsubscribed_at')->nullable();  // Дата отписки
-            
+
             $table->timestamps();
-            
+
             // Индексы
             $table->index('email');
             $table->index('is_active');

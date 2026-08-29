@@ -13,14 +13,14 @@ use Illuminate\View\View;
 
 /**
  * Контроллер корзины покупок
- * 
+ *
  * Обрабатывает все HTTP запросы, связанные с корзиной:
  * - Просмотр содержимого корзины
  * - Добавление товаров в корзину
  * - Изменение количества товаров
  * - Удаление товаров из корзины
  * - Очистка корзины
- * 
+ *
  * Вся бизнес-логика вынесена в CartService для соблюдения принципа SRP.
  * Контроллер только обрабатывает HTTP запросы и возвращает ответы.
  */
@@ -28,10 +28,10 @@ final class CartController extends Controller
 {
     /**
      * Конструктор контроллера
-     * 
+     *
      * Dependency Injection: внедряем CartService для работы с корзиной
-     * 
-     * @param CartService $cartService Сервис для работы с корзиной
+     *
+     * @param  CartService  $cartService  Сервис для работы с корзиной
      */
     public function __construct(
         private readonly CartService $cartService
@@ -39,22 +39,22 @@ final class CartController extends Controller
 
     /**
      * Показать содержимое корзины
-     * 
+     *
      * GET /cart
-     * 
+     *
      * Получает все товары из корзины текущего пользователя
      * и отображает их на странице корзины с расчетом общей стоимости.
-     * 
+     *
      * @return View Представление страницы корзины
      */
     public function index(): View
     {
         // Получаем все товары из корзины через сервис
         $cartItems = $this->cartService->getCartItems();
-        
+
         // Рассчитываем общую стоимость корзины
         $total = $this->cartService->getTotal();
-        
+
         // Получаем количество товаров в корзине
         $itemsCount = $this->cartService->getItemsCount();
 
@@ -72,13 +72,13 @@ final class CartController extends Controller
 
     /**
      * Добавить товар в корзину
-     * 
+     *
      * POST /cart/add
-     * 
+     *
      * Добавляет товар в корзину или увеличивает его количество,
      * если товар уже есть в корзине.
-     * 
-     * @param AddToCartRequest $request Валидированные данные запроса
+     *
+     * @param  AddToCartRequest  $request  Валидированные данные запроса
      * @return RedirectResponse|JsonResponse Перенаправление или JSON ответ
      */
     public function add(AddToCartRequest $request): RedirectResponse|JsonResponse
@@ -111,7 +111,7 @@ final class CartController extends Controller
 
         } catch (\Exception $e) {
             // Обработка ошибок
-            
+
             // Для AJAX запроса - возвращаем JSON с ошибкой
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
@@ -129,13 +129,13 @@ final class CartController extends Controller
 
     /**
      * Обновить количество товара в корзине
-     * 
+     *
      * PATCH /cart/{id}
-     * 
+     *
      * Изменяет количество товара в корзине на указанное значение.
-     * 
-     * @param UpdateCartRequest $request Валидированные данные запроса
-     * @param int $id ID позиции корзины
+     *
+     * @param  UpdateCartRequest  $request  Валидированные данные запроса
+     * @param  int  $id  ID позиции корзины
      * @return RedirectResponse|JsonResponse Перенаправление или JSON ответ
      */
     public function update(UpdateCartRequest $request, int $id): RedirectResponse|JsonResponse
@@ -168,7 +168,7 @@ final class CartController extends Controller
 
         } catch (\Exception $e) {
             // Обработка ошибок
-            
+
             // Для AJAX запроса - возвращаем JSON с ошибкой
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
@@ -186,12 +186,12 @@ final class CartController extends Controller
 
     /**
      * Удалить товар из корзины
-     * 
+     *
      * DELETE /cart/{id}
-     * 
+     *
      * Удаляет позицию из корзины полностью.
-     * 
-     * @param int $id ID позиции корзины
+     *
+     * @param  int  $id  ID позиции корзины
      * @return RedirectResponse|JsonResponse Перенаправление или JSON ответ
      */
     public function remove(int $id): RedirectResponse|JsonResponse
@@ -217,7 +217,7 @@ final class CartController extends Controller
 
         } catch (\Exception $e) {
             // Обработка ошибок
-            
+
             // Для AJAX запроса - возвращаем JSON с ошибкой
             if (request()->wantsJson() || request()->ajax()) {
                 return response()->json([
@@ -235,11 +235,11 @@ final class CartController extends Controller
 
     /**
      * Очистить всю корзину
-     * 
+     *
      * DELETE /cart
-     * 
+     *
      * Удаляет все товары из корзины текущего пользователя.
-     * 
+     *
      * @return RedirectResponse|JsonResponse Перенаправление или JSON ответ
      */
     public function clear(): RedirectResponse|JsonResponse
@@ -265,7 +265,7 @@ final class CartController extends Controller
 
         } catch (\Exception $e) {
             // Обработка ошибок
-            
+
             // Для AJAX запроса - возвращаем JSON с ошибкой
             if (request()->wantsJson() || request()->ajax()) {
                 return response()->json([
@@ -283,12 +283,12 @@ final class CartController extends Controller
 
     /**
      * Получить количество товаров в корзине (для AJAX)
-     * 
+     *
      * GET /cart/count
-     * 
+     *
      * Возвращает количество товаров в корзине в формате JSON.
      * Используется для обновления счетчика в хедере.
-     * 
+     *
      * @return JsonResponse JSON ответ с количеством товаров
      */
     public function count(): JsonResponse

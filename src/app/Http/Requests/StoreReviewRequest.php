@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Models\Product;
+use App\Models\Review;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 /**
  * Запрос для валидации создания отзыва на товар
- * 
+ *
  * Этот класс проверяет данные при добавлении отзыва:
  * - Рейтинг товара (от 1 до 5 звезд)
  * - Текст отзыва (обязательный, минимум 10 символов)
@@ -19,7 +23,7 @@ final class StoreReviewRequest extends FormRequest
 {
     /**
      * Определить, авторизован ли пользователь для выполнения этого запроса
-     * 
+     *
      * @return bool Возвращает true только для авторизованных пользователей
      */
     public function authorize(): bool
@@ -31,13 +35,13 @@ final class StoreReviewRequest extends FormRequest
 
     /**
      * Правила валидации для запроса
-     * 
+     *
      * Описание полей:
      * - rating: Оценка товара от 1 до 5 звезд
      * - comment: Основной текст отзыва (обязательный)
      * - pros: Достоинства товара (необязательное поле)
      * - cons: Недостатки товара (необязательное поле)
-     * 
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -89,11 +93,10 @@ final class StoreReviewRequest extends FormRequest
 
     /**
      * Дополнительная валидация с использованием валидатора
-     * 
+     *
      * Проверяем, что пользователь еще не оставлял отзыв на этот товар
-     * 
-     * @param \Illuminate\Validation\Validator $validator
-     * @return void
+     *
+     * @param  Validator  $validator
      */
     public function withValidator($validator): void
     {
@@ -102,7 +105,7 @@ final class StoreReviewRequest extends FormRequest
             $productId = $this->route('product');
 
             // Проверяем, существует ли уже отзыв от этого пользователя
-            $existingReview = \App\Models\Review::where('user_id', auth()->id())
+            $existingReview = Review::where('user_id', auth()->id())
                 ->where('product_id', $productId)
                 ->exists();
 
@@ -114,8 +117,8 @@ final class StoreReviewRequest extends FormRequest
             }
 
             // Проверяем, существует ли товар
-            $product = \App\Models\Product::find($productId);
-            if (!$product) {
+            $product = Product::find($productId);
+            if (! $product) {
                 $validator->errors()->add(
                     'product_id',
                     'Товар не найден'
@@ -126,7 +129,7 @@ final class StoreReviewRequest extends FormRequest
 
     /**
      * Пользовательские сообщения об ошибках валидации
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -155,7 +158,7 @@ final class StoreReviewRequest extends FormRequest
 
     /**
      * Пользовательские названия атрибутов
-     * 
+     *
      * @return array<string, string>
      */
     public function attributes(): array
@@ -170,15 +173,14 @@ final class StoreReviewRequest extends FormRequest
 
     /**
      * Обработка неудачной авторизации
-     * 
+     *
      * Этот метод вызывается, когда authorize() возвращает false
-     * 
-     * @return void
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @throws AuthorizationException
      */
     protected function failedAuthorization(): void
     {
-        throw new \Illuminate\Auth\Access\AuthorizationException(
+        throw new AuthorizationException(
             'Для добавления отзыва необходимо войти в систему'
         );
     }

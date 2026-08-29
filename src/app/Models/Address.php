@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Модель адреса доставки
- * 
+ *
  * Представляет сохраненный адрес доставки пользователя.
  * Пользователь может иметь несколько адресов (дом, работа, дача и т.д.)
  * и выбирать нужный при оформлении заказа.
@@ -27,10 +29,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $postal_code
  * @property string $phone
  * @property bool $is_default
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read string $short_address
- * @property-read \App\Models\User $user
+ * @property-read User $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Address byUser(int $userId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Address default()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Address newModelQuery()
@@ -49,6 +52,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereStreet($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Address whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 final class Address extends Model
@@ -57,8 +61,8 @@ final class Address extends Model
 
     /**
      * Поля, которые можно массово заполнять
-     * 
-     * @var array<int, string>
+     *
+     * @var list<string>
      */
     protected $fillable = [
         'user_id',          // ID пользователя-владельца адреса
@@ -75,7 +79,7 @@ final class Address extends Model
 
     /**
      * Преобразование типов атрибутов
-     * 
+     *
      * @return array<string, string>
      */
     protected function casts(): array
@@ -89,8 +93,6 @@ final class Address extends Model
 
     /**
      * Получить пользователя, которому принадлежит адрес
-     * 
-     * @return BelongsTo
      */
     public function user(): BelongsTo
     {
@@ -99,38 +101,36 @@ final class Address extends Model
 
     /**
      * Получить полный адрес в читаемом формате
-     * 
+     *
      * Формирует адрес из отдельных компонентов:
      * "г. Калининград, ул. Ленина, д. 25, кв. 10, индекс 236000"
-     * 
-     * @return string
      */
     public function getFullAddress(): string
     {
         $parts = [];
 
         // Добавляем город
-        if (!empty($this->city)) {
+        if (! empty($this->city)) {
             $parts[] = "г. {$this->city}";
         }
 
         // Добавляем улицу
-        if (!empty($this->street)) {
+        if (! empty($this->street)) {
             $parts[] = "ул. {$this->street}";
         }
 
         // Добавляем дом
-        if (!empty($this->house)) {
+        if (! empty($this->house)) {
             $parts[] = "д. {$this->house}";
         }
 
         // Добавляем квартиру, если указана
-        if (!empty($this->apartment)) {
+        if (! empty($this->apartment)) {
             $parts[] = "кв. {$this->apartment}";
         }
 
         // Добавляем индекс, если указан
-        if (!empty($this->postal_code)) {
+        if (! empty($this->postal_code)) {
             $parts[] = "индекс {$this->postal_code}";
         }
 
@@ -139,10 +139,8 @@ final class Address extends Model
 
     /**
      * Получить краткое представление адреса
-     * 
+     *
      * Для отображения в списке: "Дом (ул. Ленина, 25)"
-     * 
-     * @return string
      */
     public function getShortAddressAttribute(): string
     {
@@ -151,10 +149,8 @@ final class Address extends Model
 
     /**
      * Установить этот адрес как основной
-     * 
+     *
      * Автоматически снимает флаг "основной" с других адресов пользователя
-     * 
-     * @return void
      */
     public function setAsDefault(): void
     {
@@ -170,11 +166,11 @@ final class Address extends Model
 
     /**
      * Scope для получения основного адреса пользователя
-     * 
+     *
      * Использование: Address::default()->first()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeDefault($query)
     {
@@ -183,12 +179,11 @@ final class Address extends Model
 
     /**
      * Scope для получения адресов пользователя
-     * 
+     *
      * Использование: Address::byUser($userId)->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $userId
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeByUser($query, int $userId)
     {
@@ -197,17 +192,15 @@ final class Address extends Model
 
     /**
      * Boot модели для автоматических действий
-     * 
+     *
      * При сохранении адреса автоматически генерируем full_address
-     * 
-     * @return void
      */
     protected static function boot(): void
     {
         parent::boot();
 
         // Перед сохранением автоматически генерируем полный адрес
-        static::saving(function (Address $address) {
+        self::saving(function (Address $address) {
             if (empty($address->full_address)) {
                 $address->full_address = $address->getFullAddress();
             }
@@ -215,7 +208,7 @@ final class Address extends Model
 
         // После сохранения, если адрес установлен как основной,
         // снимаем флаг с остальных адресов
-        static::saved(function (Address $address) {
+        self::saved(function (Address $address) {
             if ($address->is_default) {
                 self::where('user_id', $address->user_id)
                     ->where('id', '!=', $address->id)

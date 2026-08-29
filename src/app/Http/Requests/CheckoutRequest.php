@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Models\Address;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * Запрос для валидации оформления заказа
- * 
+ *
  * Этот класс проверяет все данные при оформлении заказа:
  * - Контактные данные покупателя (имя, email, телефон)
  * - Адрес доставки (выбор существующего или создание нового)
@@ -19,7 +20,7 @@ final class CheckoutRequest extends FormRequest
 {
     /**
      * Определить, авторизован ли пользователь для выполнения этого запроса
-     * 
+     *
      * @return bool Возвращает true, так как оформлять заказы могут все
      */
     public function authorize(): bool
@@ -30,8 +31,6 @@ final class CheckoutRequest extends FormRequest
 
     /**
      * Подготовить данные для валидации
-     * 
-     * @return void
      */
     protected function prepareForValidation(): void
     {
@@ -44,7 +43,7 @@ final class CheckoutRequest extends FormRequest
 
     /**
      * Правила валидации для запроса
-     * 
+     *
      * Описание полей:
      * - name: ФИО покупателя
      * - email: Email для уведомлений
@@ -55,14 +54,14 @@ final class CheckoutRequest extends FormRequest
      * - delivery_method: Способ доставки (самовывоз, курьер, почта)
      * - comment: Комментарий к заказу
      * - promocode: Промокод на скидку
-     * 
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
     {
         return [
             // ===== Контактные данные =====
-            
+
             // Валидация ФИО
             // required - обязательное поле
             // string - строковое значение
@@ -96,7 +95,7 @@ final class CheckoutRequest extends FormRequest
             ],
 
             // ===== Адрес доставки =====
-            
+
             // Валидация выбора существующего адреса
             // nullable - можно не указывать (если создается новый)
             // integer - целое число
@@ -108,7 +107,7 @@ final class CheckoutRequest extends FormRequest
                 // Если пользователь авторизован, проверяем что адрес принадлежит ему
                 function ($attribute, $value, $fail) {
                     if (auth()->check() && $value) {
-                        $address = \App\Models\Address::find($value);
+                        $address = Address::find($value);
                         if ($address && $address->user_id !== auth()->id()) {
                             $fail('Выбранный адрес не принадлежит вам');
                         }
@@ -168,7 +167,7 @@ final class CheckoutRequest extends FormRequest
             ],
 
             // ===== Способы оплаты и доставки =====
-            
+
             // Валидация способа оплаты
             // required - обязательное поле
             // in - только из списка разрешенных значений
@@ -188,7 +187,7 @@ final class CheckoutRequest extends FormRequest
             ],
 
             // ===== Дополнительные поля =====
-            
+
             // Валидация комментария к заказу
             // nullable - необязательное поле
             // string - строковое значение
@@ -233,7 +232,7 @@ final class CheckoutRequest extends FormRequest
 
     /**
      * Пользовательские сообщения об ошибках валидации
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -296,7 +295,7 @@ final class CheckoutRequest extends FormRequest
 
     /**
      * Пользовательские названия атрибутов
-     * 
+     *
      * @return array<string, string>
      */
     public function attributes(): array

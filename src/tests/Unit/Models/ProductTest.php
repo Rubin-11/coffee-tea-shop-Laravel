@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 /**
  * Unit тесты для модели Product
- * 
+ *
  * Тестируем:
  * - Наличие товара (inStock)
  * - Скидки (hasDiscount, discount_percent, savings)
@@ -313,7 +313,7 @@ final class ProductTest extends TestCase
         // Arrange: Создаем две категории и товары в них
         $category1 = Category::factory()->create();
         $category2 = Category::factory()->create();
-        
+
         $productInCategory1 = Product::factory()->create(['category_id' => $category1->id]);
         $productInCategory2 = Product::factory()->create(['category_id' => $category2->id]);
 
@@ -533,7 +533,7 @@ final class ProductTest extends TestCase
     {
         // Arrange: Создаем различные товары
         $category = Category::factory()->create();
-        
+
         $targetProduct = Product::factory()->create([
             'category_id' => $category->id,
             'is_available' => true,
@@ -541,7 +541,7 @@ final class ProductTest extends TestCase
             'stock' => 10,
             'price' => 300.00,
         ]);
-        
+
         $wrongCategory = Product::factory()->create([
             'category_id' => Category::factory()->create()->id,
             'is_available' => true,
@@ -549,7 +549,7 @@ final class ProductTest extends TestCase
             'stock' => 10,
             'price' => 300.00,
         ]);
-        
+
         $notAvailable = Product::factory()->create([
             'category_id' => $category->id,
             'is_available' => false,
@@ -631,6 +631,6 @@ final class ProductTest extends TestCase
         $this->assertNotNull($product->price, 'Цена должна быть заполнена');
         $this->assertNotNull($product->sku, 'SKU должен быть заполнен');
         $this->assertGreaterThanOrEqual(0, $product->stock, 'Stock должен быть >= 0');
-        $this->assertIsFloat((float)$product->rating, 'Рейтинг должен быть числом');
+        $this->assertIsFloat((float) $product->rating, 'Рейтинг должен быть числом');
     }
 }

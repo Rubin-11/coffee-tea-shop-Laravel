@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Модель изображения товара
- * 
+ *
  * Хранит информацию об изображениях товаров.
  * Один товар может иметь несколько изображений (галерея).
  * Одно из изображений помечается как главное (is_primary = true)
@@ -21,10 +23,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $alt_text
  * @property int $sort_order
  * @property bool $is_primary
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read string $url
- * @property-read \App\Models\Product $product
+ * @property-read Product $product
+ *
  * @method static \Database\Factories\ProductImageFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage newQuery()
@@ -39,6 +42,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage whereProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage whereSortOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductImage whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 final class ProductImage extends Model
@@ -47,8 +51,8 @@ final class ProductImage extends Model
 
     /**
      * Поля, которые можно массово заполнять
-     * 
-     * @var array<int, string>
+     *
+     * @var list<string>
      */
     protected $fillable = [
         'product_id',    // ID товара, которому принадлежит изображение
@@ -60,7 +64,7 @@ final class ProductImage extends Model
 
     /**
      * Преобразование типов атрибутов
-     * 
+     *
      * @return array<string, string>
      */
     protected function casts(): array
@@ -75,8 +79,6 @@ final class ProductImage extends Model
 
     /**
      * Получить товар, которому принадлежит изображение
-     * 
-     * @return BelongsTo
      */
     public function product(): BelongsTo
     {
@@ -85,10 +87,8 @@ final class ProductImage extends Model
 
     /**
      * Получить полный URL изображения
-     * 
+     *
      * Добавляет базовый URL к пути изображения
-     * 
-     * @return string
      */
     public function getUrlAttribute(): string
     {
@@ -96,18 +96,18 @@ final class ProductImage extends Model
         if (str_starts_with($this->image_path, 'http')) {
             return $this->image_path;
         }
-        
+
         // Иначе добавляем базовый путь из public/storage
-        return asset('storage/' . $this->image_path);
+        return asset('storage/'.$this->image_path);
     }
 
     /**
      * Scope для получения только главных изображений
-     * 
+     *
      * Использование: ProductImage::primary()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopePrimary($query)
     {
@@ -116,11 +116,11 @@ final class ProductImage extends Model
 
     /**
      * Scope для сортировки по порядку отображения
-     * 
+     *
      * Использование: ProductImage::ordered()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeOrdered($query)
     {

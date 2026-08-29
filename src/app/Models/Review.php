@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Модель отзыва на товар
- * 
+ *
  * Хранит отзывы покупателей на товары: рейтинг (1-5 звезд),
  * текст отзыва, достоинства и недостатки.
  * Отзывы проходят модерацию перед публикацией (is_approved).
@@ -25,11 +27,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $cons
  * @property bool $is_verified_purchase
  * @property bool $is_approved
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read string $rating_text
- * @property-read \App\Models\Product $product
- * @property-read \App\Models\User $user
+ * @property-read Product $product
+ * @property-read User $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review approved()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review byRating(int $rating)
  * @method static \Database\Factories\ReviewFactory factory($count = null, $state = [])
@@ -51,6 +54,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereRating($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 final class Review extends Model
@@ -59,8 +63,8 @@ final class Review extends Model
 
     /**
      * Поля, которые можно массово заполнять
-     * 
-     * @var array<int, string>
+     *
+     * @var list<string>
      */
     protected $fillable = [
         'product_id',           // ID товара, на который оставлен отзыв
@@ -75,7 +79,7 @@ final class Review extends Model
 
     /**
      * Преобразование типов атрибутов
-     * 
+     *
      * @return array<string, string>
      */
     protected function casts(): array
@@ -91,8 +95,6 @@ final class Review extends Model
 
     /**
      * Получить товар, к которому относится отзыв
-     * 
-     * @return BelongsTo
      */
     public function product(): BelongsTo
     {
@@ -101,8 +103,6 @@ final class Review extends Model
 
     /**
      * Получить пользователя, который оставил отзыв
-     * 
-     * @return BelongsTo
      */
     public function user(): BelongsTo
     {
@@ -111,10 +111,8 @@ final class Review extends Model
 
     /**
      * Проверить, является ли отзыв положительным
-     * 
+     *
      * Положительным считается отзыв с рейтингом 4 или 5 звезд
-     * 
-     * @return bool
      */
     public function isPositive(): bool
     {
@@ -123,10 +121,8 @@ final class Review extends Model
 
     /**
      * Проверить, является ли отзыв отрицательным
-     * 
+     *
      * Отрицательным считается отзыв с рейтингом 1 или 2 звезды
-     * 
-     * @return bool
      */
     public function isNegative(): bool
     {
@@ -135,12 +131,10 @@ final class Review extends Model
 
     /**
      * Получить текстовое представление рейтинга
-     * 
-     * @return string
      */
     public function getRatingTextAttribute(): string
     {
-        return match($this->rating) {
+        return match ($this->rating) {
             5 => 'Отлично',
             4 => 'Хорошо',
             3 => 'Нормально',
@@ -152,11 +146,11 @@ final class Review extends Model
 
     /**
      * Scope для получения только одобренных отзывов
-     * 
+     *
      * Использование: Review::approved()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeApproved($query)
     {
@@ -165,11 +159,11 @@ final class Review extends Model
 
     /**
      * Scope для получения отзывов от проверенных покупателей
-     * 
+     *
      * Использование: Review::verified()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeVerified($query)
     {
@@ -178,11 +172,11 @@ final class Review extends Model
 
     /**
      * Scope для получения положительных отзывов
-     * 
+     *
      * Использование: Review::positive()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopePositive($query)
     {
@@ -191,11 +185,11 @@ final class Review extends Model
 
     /**
      * Scope для получения отрицательных отзывов
-     * 
+     *
      * Использование: Review::negative()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeNegative($query)
     {
@@ -204,11 +198,11 @@ final class Review extends Model
 
     /**
      * Scope для сортировки по новизне
-     * 
+     *
      * Использование: Review::latest()->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeLatestFirst($query)
     {
@@ -217,12 +211,11 @@ final class Review extends Model
 
     /**
      * Scope для фильтрации по рейтингу
-     * 
+     *
      * Использование: Review::byRating(5)->get()
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $rating
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeByRating($query, int $rating)
     {
@@ -233,18 +226,16 @@ final class Review extends Model
      * Boot модели для автоматических действий
      *
      * Выполняет валидацию рейтинга при создании и обновлении отзыва.
-     *
-     * @return void
      */
     protected static function boot(): void
     {
         parent::boot();
 
         // Проверяем валидность рейтинга при создании и обновлении
-        static::saving(function (Review $review) {
+        self::saving(function (Review $review) {
             if ($review->rating < 1 || $review->rating > 5) {
                 throw new \InvalidArgumentException(
-                    'Рейтинг отзыва должен быть от 1 до 5. Получено: ' . $review->rating
+                    'Рейтинг отзыва должен быть от 1 до 5. Получено: '.$review->rating
                 );
             }
         });

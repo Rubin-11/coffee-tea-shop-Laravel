@@ -7,10 +7,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Модель позиции заказа
- * 
+ *
  * Представляет отдельный товар в заказе.
  * Хранит "снапшот" информации о товаре на момент оформления заказа:
  * название, количество, цену. Это важно, т.к. цены товаров могут меняться,
@@ -23,10 +24,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $quantity
  * @property numeric $price
  * @property numeric $total
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Order $order
- * @property-read \App\Models\Product $product
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Order|null $order
+ * @property-read Product|null $product
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem query()
@@ -39,6 +41,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereQuantity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereTotal($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 final class OrderItem extends Model
@@ -47,8 +50,8 @@ final class OrderItem extends Model
 
     /**
      * Поля, которые можно массово заполнять
-     * 
-     * @var array<int, string>
+     *
+     * @var list<string>
      */
     protected $fillable = [
         'order_id',         // ID заказа, к которому относится позиция
@@ -61,7 +64,7 @@ final class OrderItem extends Model
 
     /**
      * Преобразование типов атрибутов
-     * 
+     *
      * @return array<string, string>
      */
     protected function casts(): array
@@ -77,8 +80,6 @@ final class OrderItem extends Model
 
     /**
      * Получить заказ, к которому относится позиция
-     * 
-     * @return BelongsTo
      */
     public function order(): BelongsTo
     {
@@ -87,11 +88,9 @@ final class OrderItem extends Model
 
     /**
      * Получить товар
-     * 
+     *
      * Связь с товаром нужна для отображения актуальной информации
      * (изображение, наличие и т.д.), но цена берется из snapshot
-     * 
-     * @return BelongsTo
      */
     public function product(): BelongsTo
     {
@@ -100,11 +99,9 @@ final class OrderItem extends Model
 
     /**
      * Получить промежуточную сумму позиции
-     * 
+     *
      * Вычисляет: количество * цена за единицу
      * Этот метод полезен для пересчета, если total не был сохранен
-     * 
-     * @return float
      */
     public function getSubtotal(): float
     {
@@ -113,13 +110,12 @@ final class OrderItem extends Model
 
     /**
      * Получить размер скидки для позиции
-     * 
+     *
      * Если на момент заказа была старая цена у товара,
      * можно вычислить размер скидки на единицу товара.
      * Этот метод предполагает, что скидка уже учтена в price.
-     * 
-     * @param float|null $originalPrice Оригинальная цена (если была скидка)
-     * @return float
+     *
+     * @param  float|null  $originalPrice  Оригинальная цена (если была скидка)
      */
     public function getDiscountAmount(?float $originalPrice = null): float
     {
@@ -128,29 +124,26 @@ final class OrderItem extends Model
         }
 
         $discountPerUnit = $originalPrice - (float) $this->price;
+
         return round($discountPerUnit * (int) $this->quantity, 2);
     }
 
     /**
      * Проверить, доступен ли товар в данный момент
-     * 
+     *
      * Полезно для повторного заказа или отображения актуальности товара
-     * 
-     * @return bool
      */
     public function isProductAvailable(): bool
     {
-        return $this->product 
-               && $this->product->is_available 
+        return $this->product
+               && $this->product->is_available
                && $this->product->stock >= $this->quantity;
     }
 
     /**
      * Получить актуальную цену товара
-     * 
+     *
      * Возвращает текущую цену товара (для сравнения с ценой в заказе)
-     * 
-     * @return float|null
      */
     public function getCurrentPrice(): ?float
     {
@@ -159,13 +152,11 @@ final class OrderItem extends Model
 
     /**
      * Проверить, изменилась ли цена товара с момента заказа
-     * 
-     * @return bool
      */
     public function hasPriceChanged(): bool
     {
         $currentPrice = $this->getCurrentPrice();
-        
+
         if (is_null($currentPrice)) {
             return false;
         }

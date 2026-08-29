@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 
 /**
  * Модель тега товара
- * 
+ *
  * Теги используются для маркировки товаров специальными метками.
  * Примеры: "Новинка", "Хит продаж", "Акция", "Органический", "Премиум"
  * Один товар может иметь несколько тегов, один тег может быть у многих товаров
@@ -18,12 +20,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int $id
  * @property string $name
  * @property string $slug
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Product> $availableProducts
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Product> $availableProducts
  * @property-read int|null $available_products_count
  * @property-read int|null $products_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Product> $products
+ * @property-read Collection<int, Product> $products
+ *
  * @method static \Database\Factories\TagFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tag newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tag newQuery()
@@ -33,6 +36,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tag whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tag whereSlug($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tag whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 final class Tag extends Model
@@ -41,8 +45,8 @@ final class Tag extends Model
 
     /**
      * Поля, которые можно массово заполнять
-     * 
-     * @var array<int, string>
+     *
+     * @var list<string>
      */
     protected $fillable = [
         'name',    // Название тега (например: "Новинка", "Хит продаж")
@@ -51,7 +55,7 @@ final class Tag extends Model
 
     /**
      * Преобразование типов атрибутов
-     * 
+     *
      * @return array<string, string>
      */
     protected function casts(): array
@@ -64,22 +68,18 @@ final class Tag extends Model
 
     /**
      * Получить все товары с этим тегом
-     * 
+     *
      * Связь многие-ко-многим через таблицу product_tag
      * Например, тег "Новинка" может быть у 10 разных товаров
-     * 
-     * @return BelongsToMany
      */
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class, 'product_tag')
-                    ->withTimestamps(); // Сохраняем время создания связи
+            ->withTimestamps(); // Сохраняем время создания связи
     }
 
     /**
      * Получить только доступные товары с этим тегом
-     * 
-     * @return BelongsToMany
      */
     public function availableProducts(): BelongsToMany
     {
@@ -88,8 +88,6 @@ final class Tag extends Model
 
     /**
      * Получить количество товаров с этим тегом
-     * 
-     * @return int
      */
     public function getProductsCountAttribute(): int
     {

@@ -8,17 +8,18 @@ use App\Models\ProductImage;
 use App\Models\Tag;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
  * Seeder для создания товаров с изображениями и тегами
- * 
+ *
  * Создает реалистичный ассортимент магазина:
  * - 35-42 товаров свежеобжаренного кофе (по географическим регионам)
  * - 21-24 товаров чая и кофейных напитков
  * - 14-16 товаров продукции вендинга
  * - 15-17 товаров здорового питания
- * 
+ *
  * К каждому товару добавляется:
  * - 2-4 изображения (одно главное)
  * - 1-3 тега ("Новинка", "Хит продаж", "Популярное" и т.д.)
@@ -30,27 +31,27 @@ class ProductSeeder extends Seeder
 
     /**
      * Массив для хранения созданных тегов (кеш)
-     * 
-     * @var \Illuminate\Support\Collection
+     *
+     * @var Collection
      */
     private $tags;
 
     /**
      * Массив для хранения созданных категорий (кеш)
-     * 
-     * @var \Illuminate\Support\Collection
+     *
+     * @var Collection
      */
     private $categories;
 
     /**
      * Запуск seeder'а для заполнения товаров
-     * 
+     *
      * Создает товары в следующем порядке:
      * 1. Свежеобжаренный кофе (35-42 шт)
      * 2. Чай и кофейные напитки (21-24 шт)
      * 3. Продукция вендинга (14-16 шт)
      * 4. Здоровое питание (15-17 шт)
-     * 
+     *
      * Для каждого товара создаются изображения и привязываются теги.
      */
     public function run(): void
@@ -65,11 +66,13 @@ class ProductSeeder extends Seeder
         // Проверяем, что есть категории и теги
         if ($this->categories->isEmpty()) {
             $this->command->error('❌ Ошибка: сначала нужно запустить CategorySeeder!');
+
             return;
         }
 
         if ($this->tags->isEmpty()) {
             $this->command->error('❌ Ошибка: сначала нужно запустить TagSeeder!');
+
             return;
         }
 
@@ -105,14 +108,14 @@ class ProductSeeder extends Seeder
         $this->command->newLine();
 
         // Итоговая статистика
-        $this->command->info('✅ Всего создано товаров: ' . $totalProducts);
-        $this->command->info('📸 Всего создано изображений: ' . ProductImage::count());
+        $this->command->info('✅ Всего создано товаров: '.$totalProducts);
+        $this->command->info('📸 Всего создано изображений: '.ProductImage::count());
         $this->command->info('🏷️  Товары привязаны к тегам и категориям');
     }
 
     /**
      * Создание свежеобжаренного кофе (35-42 товара)
-     * 
+     *
      * Распределение по подкатегориям:
      * - Африка (5-6 товаров)
      * - Йемен (2-3 товара)
@@ -121,7 +124,7 @@ class ProductSeeder extends Seeder
      * - Азия (5-6 товаров)
      * - Центральная Америка (6-7 товаров)
      * - Латинская Америка (8-9 товаров)
-     * 
+     *
      * @return int Количество созданных товаров
      */
     private function createFreshRoastedCoffeeProducts(): int
@@ -130,7 +133,7 @@ class ProductSeeder extends Seeder
 
         // Получаем категорию "Свежеобжаренный кофе"
         $freshCoffeeCat = $this->categories->get('svezheobzharennyy-kofe');
-        
+
         // Получаем все подкатегории кофе
         $coffeeSubcategories = Category::where('parent_id', $freshCoffeeCat->id)->get()->keyBy('slug');
 
@@ -188,22 +191,22 @@ class ProductSeeder extends Seeder
         // Создаем товары для каждого региона
         foreach ($coffeeProductsByRegion as $regionSlug => $products) {
             $subcategory = $coffeeSubcategories->get($regionSlug);
-            
-            if (!$subcategory) {
+
+            if (! $subcategory) {
                 continue;
             }
 
             foreach ($products as $productData) {
                 // Создаем товар для каждого доступного веса
                 foreach ($productData['weight'] as $weight) {
-                    $productName = $productData['name'] . ' ' . $weight . 'г';
+                    $productName = $productData['name'].' '.$weight.'г';
                     $product = $this->createCoffeeProduct(
                         $productName,
                         $subcategory->id,
                         $productData['price'],
                         $weight
                     );
-                    
+
                     if ($product) {
                         $count++;
                         $this->command->line("   ✓ {$productName} ({$subcategory->name})");
@@ -217,18 +220,18 @@ class ProductSeeder extends Seeder
 
     /**
      * Создать один товар кофе
-     * 
-     * @param string $name Название товара
-     * @param int $categoryId ID категории
-     * @param float|null $price Цена товара (если null - генерируется случайная)
-     * @param int|null $weight Вес товара в граммах (если null - генерируется случайный)
+     *
+     * @param  string  $name  Название товара
+     * @param  int  $categoryId  ID категории
+     * @param  float|null  $price  Цена товара (если null - генерируется случайная)
+     * @param  int|null  $weight  Вес товара в граммах (если null - генерируется случайный)
      * @return Product|null Созданный товар или null при ошибке
      */
     private function createCoffeeProduct(string $name, int $categoryId, ?float $price = null, ?int $weight = null): ?Product
     {
         try {
             // Генерируем уникальный slug
-            $slug = Str::slug($name) . '-' . fake()->numberBetween(1, 999);
+            $slug = Str::slug($name).'-'.fake()->numberBetween(1, 999);
 
             // Используем переданные значения или генерируем случайные
             $productPrice = $price ?? fake()->randomFloat(2, 300, 800);
@@ -244,7 +247,7 @@ class ProductSeeder extends Seeder
                 'price' => $productPrice,
                 'old_price' => fake()->boolean(30) ? $productPrice * 1.3 : null,
                 'weight' => $productWeight,
-                'sku' => 'CF-' . fake()->unique()->numberBetween(1000, 9999),
+                'sku' => 'CF-'.fake()->unique()->numberBetween(1000, 9999),
                 'stock' => fake()->numberBetween(5, 100),
                 'rating' => fake()->randomFloat(2, 4.0, 5.0),
                 'reviews_count' => 0, // Будет обновлено после создания отзывов
@@ -252,7 +255,7 @@ class ProductSeeder extends Seeder
                 'acidity_percent' => fake()->randomElement([0, 2, 4, 6, 8, 10]),
                 'is_featured' => fake()->boolean(25), // 25% товаров рекомендуемые
                 'is_available' => true,
-                'meta_title' => $name . ' - купить кофе в интернет-магазине',
+                'meta_title' => $name.' - купить кофе в интернет-магазине',
                 'meta_description' => "Купить {$name} по выгодной цене. Свежая обжарка, доставка по России.",
             ]);
 
@@ -263,16 +266,17 @@ class ProductSeeder extends Seeder
             $this->attachRandomTags($product);
 
             return $product;
-            
+
         } catch (\Exception $e) {
-            $this->command->error("   ✗ Ошибка при создании товара {$name}: " . $e->getMessage());
+            $this->command->error("   ✗ Ошибка при создании товара {$name}: ".$e->getMessage());
+
             return null;
         }
     }
 
     /**
      * Создание чая и кофейных напитков (21-24 товара)
-     * 
+     *
      * Распределение по подкатегориям:
      * - Черный чай (3-4 товара)
      * - Зеленый чай (4-5 товаров)
@@ -281,7 +285,7 @@ class ProductSeeder extends Seeder
      * - Матча (2-3 товара)
      * - Пуэр (2-3 товара)
      * - Кофейные напитки (4-5 товаров)
-     * 
+     *
      * @return int Количество созданных товаров
      */
     private function createTeaCoffeeDrinksProducts(): int
@@ -291,8 +295,9 @@ class ProductSeeder extends Seeder
         // Получаем категорию "Чай и кофейные напитки"
         $teaCoffeeCat = $this->categories->get('chay-i-kofejnye-napitki');
 
-        if (!$teaCoffeeCat) {
+        if (! $teaCoffeeCat) {
             $this->command->error('   ✗ Категория "Чай и кофейные напитки" не найдена!');
+
             return 0;
         }
 
@@ -347,17 +352,17 @@ class ProductSeeder extends Seeder
         // Создаем товары для каждой подкатегории
         foreach ($teaProductsByCategory as $categorySlug => $products) {
             $subcategory = $subcategories->get($categorySlug);
-            
-            if (!$subcategory) {
+
+            if (! $subcategory) {
                 continue;
             }
 
             foreach ($products as $productData) {
                 // Создаем товар для каждого доступного веса
                 foreach ($productData['weight'] as $weight) {
-                    $productName = $productData['name'] . ' ' . $weight . 'г';
+                    $productName = $productData['name'].' '.$weight.'г';
                     $skuPrefix = $productData['sku_prefix'] ?? 'TE';
-                    
+
                     $product = $this->createTeaProduct(
                         $productName,
                         $subcategory->id,
@@ -365,7 +370,7 @@ class ProductSeeder extends Seeder
                         $weight,
                         $skuPrefix
                     );
-                    
+
                     if ($product) {
                         $count++;
                         $this->command->line("   ✓ {$productName} ({$subcategory->name})");
@@ -379,19 +384,19 @@ class ProductSeeder extends Seeder
 
     /**
      * Создать один товар чая
-     * 
-     * @param string $name Название товара
-     * @param int $categoryId ID категории
-     * @param float|null $price Цена товара (если null - генерируется случайная)
-     * @param int|null $weight Вес товара в граммах (если null - генерируется случайный)
-     * @param string $skuPrefix Префикс для артикула (TE - чай, IC - растворимый кофе)
+     *
+     * @param  string  $name  Название товара
+     * @param  int  $categoryId  ID категории
+     * @param  float|null  $price  Цена товара (если null - генерируется случайная)
+     * @param  int|null  $weight  Вес товара в граммах (если null - генерируется случайный)
+     * @param  string  $skuPrefix  Префикс для артикула (TE - чай, IC - растворимый кофе)
      * @return Product|null Созданный товар или null при ошибке
      */
     private function createTeaProduct(string $name, int $categoryId, ?float $price = null, ?int $weight = null, string $skuPrefix = 'TE'): ?Product
     {
         try {
             // Генерируем уникальный slug
-            $slug = Str::slug($name) . '-' . fake()->numberBetween(1, 999);
+            $slug = Str::slug($name).'-'.fake()->numberBetween(1, 999);
 
             // Используем переданные значения или генерируем случайные
             $productPrice = $price ?? fake()->randomFloat(2, 200, 600);
@@ -407,7 +412,7 @@ class ProductSeeder extends Seeder
                 'price' => $productPrice,
                 'old_price' => fake()->boolean(25) ? $productPrice * 1.3 : null,
                 'weight' => $productWeight,
-                'sku' => $skuPrefix . '-' . fake()->unique()->numberBetween(1000, 9999),
+                'sku' => $skuPrefix.'-'.fake()->unique()->numberBetween(1000, 9999),
                 'stock' => fake()->numberBetween(10, 80),
                 'rating' => fake()->randomFloat(2, 4.0, 5.0),
                 'reviews_count' => 0, // Будет обновлено после создания отзывов
@@ -415,7 +420,7 @@ class ProductSeeder extends Seeder
                 'acidity_percent' => 0, // Для чая не применяется
                 'is_featured' => fake()->boolean(20), // 20% товаров рекомендуемые
                 'is_available' => true,
-                'meta_title' => $name . ' - купить чай в интернет-магазине',
+                'meta_title' => $name.' - купить чай в интернет-магазине',
                 'meta_description' => "Купить {$name} по выгодной цене. Качественный листовой чай, быстрая доставка.",
             ]);
 
@@ -426,16 +431,17 @@ class ProductSeeder extends Seeder
             $this->attachRandomTags($product);
 
             return $product;
-            
+
         } catch (\Exception $e) {
-            $this->command->error("   ✗ Ошибка при создании товара {$name}: " . $e->getMessage());
+            $this->command->error("   ✗ Ошибка при создании товара {$name}: ".$e->getMessage());
+
             return null;
         }
     }
 
     /**
      * Создание продукции вендинга (14-16 товаров)
-     * 
+     *
      * Распределение по подкатегориям:
      * - Гранулированный кофе (2-3 товара)
      * - Гранулированный цикорий (2 товара)
@@ -444,7 +450,7 @@ class ProductSeeder extends Seeder
      * - Гранулированные кофейные напитки (2-3 товара)
      * - Кофе порошкообразный (2 товара)
      * - Сухое молоко гранулированное (2 товара)
-     * 
+     *
      * @return int Количество созданных товаров
      */
     private function createVendingProducts(): int
@@ -454,8 +460,9 @@ class ProductSeeder extends Seeder
         // Получаем категорию "Продукция вендинга"
         $vendingCat = $this->categories->get('produktsiya-vendinga');
 
-        if (!$vendingCat) {
+        if (! $vendingCat) {
             $this->command->error('   ✗ Категория "Продукция вендинга" не найдена!');
+
             return 0;
         }
 
@@ -499,21 +506,21 @@ class ProductSeeder extends Seeder
         // Создаем товары для каждой подкатегории
         foreach ($vendingProductsByCategory as $categorySlug => $products) {
             $subcategory = $subcategories->get($categorySlug);
-            
-            if (!$subcategory) {
+
+            if (! $subcategory) {
                 continue;
             }
 
             foreach ($products as $productData) {
-                $productName = $productData['name'] . ' ' . $productData['weight'] . 'г';
-                
+                $productName = $productData['name'].' '.$productData['weight'].'г';
+
                 $product = $this->createVendingProduct(
                     $productName,
                     $subcategory->id,
                     $productData['price'],
                     $productData['weight']
                 );
-                
+
                 if ($product) {
                     $count++;
                     $this->command->line("   ✓ {$productName} ({$subcategory->name})");
@@ -526,14 +533,14 @@ class ProductSeeder extends Seeder
 
     /**
      * Создание товаров здорового питания (15-17 товаров)
-     * 
+     *
      * Распределение по подкатегориям:
      * - Цикорий и корень цикория (3-4 товара)
      * - Ячменные напитки (3 товара)
      * - Напитки для здоровья (3-4 товара)
      * - Протеиновые смеси (3 товара)
      * - Толокняные каши (3-4 товара)
-     * 
+     *
      * @return int Количество созданных товаров
      */
     private function createHealthyFoodProducts(): int
@@ -543,8 +550,9 @@ class ProductSeeder extends Seeder
         // Получаем категорию "Здоровое питание"
         $healthyCat = $this->categories->get('zdorovoe-pitanie');
 
-        if (!$healthyCat) {
+        if (! $healthyCat) {
             $this->command->error('   ✗ Категория "Здоровое питание" не найдена!');
+
             return 0;
         }
 
@@ -586,25 +594,25 @@ class ProductSeeder extends Seeder
         // Создаем товары для каждой подкатегории
         foreach ($healthyProductsByCategory as $categorySlug => $products) {
             $subcategory = $subcategories->get($categorySlug);
-            
-            if (!$subcategory) {
+
+            if (! $subcategory) {
                 continue;
             }
 
             foreach ($products as $productData) {
                 // Если есть массив весов, создаем для каждого веса
                 $weights = is_array($productData['weight']) ? $productData['weight'] : [$productData['weight']];
-                
+
                 foreach ($weights as $weight) {
-                    $productName = $productData['name'] . ' ' . $weight . 'г';
-                    
+                    $productName = $productData['name'].' '.$weight.'г';
+
                     $product = $this->createHealthyProduct(
                         $productName,
                         $subcategory->id,
                         $productData['price'],
                         $weight
                     );
-                    
+
                     if ($product) {
                         $count++;
                         $this->command->line("   ✓ {$productName} ({$subcategory->name})");
@@ -618,18 +626,18 @@ class ProductSeeder extends Seeder
 
     /**
      * Создать один товар вендинга
-     * 
-     * @param string $name Название товара
-     * @param int $categoryId ID категории
-     * @param float $price Цена товара
-     * @param int $weight Вес товара в граммах
+     *
+     * @param  string  $name  Название товара
+     * @param  int  $categoryId  ID категории
+     * @param  float  $price  Цена товара
+     * @param  int  $weight  Вес товара в граммах
      * @return Product|null Созданный товар или null при ошибке
      */
     private function createVendingProduct(string $name, int $categoryId, float $price, int $weight): ?Product
     {
         try {
             // Генерируем уникальный slug
-            $slug = Str::slug($name) . '-' . fake()->numberBetween(1, 999);
+            $slug = Str::slug($name).'-'.fake()->numberBetween(1, 999);
 
             // Создаем товар вендинга
             $product = Product::create([
@@ -641,7 +649,7 @@ class ProductSeeder extends Seeder
                 'price' => $price,
                 'old_price' => fake()->boolean(20) ? $price * 1.25 : null,
                 'weight' => $weight,
-                'sku' => 'VN-' . fake()->unique()->numberBetween(1000, 9999),
+                'sku' => 'VN-'.fake()->unique()->numberBetween(1000, 9999),
                 'stock' => fake()->numberBetween(20, 100),
                 'rating' => fake()->randomFloat(2, 4.0, 5.0),
                 'reviews_count' => 0, // Будет обновлено после создания отзывов
@@ -649,7 +657,7 @@ class ProductSeeder extends Seeder
                 'acidity_percent' => 0, // Для вендинга не применяется
                 'is_featured' => fake()->boolean(15), // 15% товаров рекомендуемые
                 'is_available' => true,
-                'meta_title' => $name . ' - купить для вендинга',
+                'meta_title' => $name.' - купить для вендинга',
                 'meta_description' => "Купить {$name} по оптовой цене. Продукция для вендинговых аппаратов.",
             ]);
 
@@ -660,27 +668,28 @@ class ProductSeeder extends Seeder
             $this->attachRandomTags($product, 1, 2);
 
             return $product;
-            
+
         } catch (\Exception $e) {
-            $this->command->error("   ✗ Ошибка при создании товара {$name}: " . $e->getMessage());
+            $this->command->error("   ✗ Ошибка при создании товара {$name}: ".$e->getMessage());
+
             return null;
         }
     }
 
     /**
      * Создать один товар здорового питания
-     * 
-     * @param string $name Название товара
-     * @param int $categoryId ID категории
-     * @param float $price Цена товара
-     * @param int $weight Вес товара в граммах
+     *
+     * @param  string  $name  Название товара
+     * @param  int  $categoryId  ID категории
+     * @param  float  $price  Цена товара
+     * @param  int  $weight  Вес товара в граммах
      * @return Product|null Созданный товар или null при ошибке
      */
     private function createHealthyProduct(string $name, int $categoryId, float $price, int $weight): ?Product
     {
         try {
             // Генерируем уникальный slug
-            $slug = Str::slug($name) . '-' . fake()->numberBetween(1, 999);
+            $slug = Str::slug($name).'-'.fake()->numberBetween(1, 999);
 
             // Создаем товар здорового питания
             $product = Product::create([
@@ -692,7 +701,7 @@ class ProductSeeder extends Seeder
                 'price' => $price,
                 'old_price' => fake()->boolean(25) ? $price * 1.3 : null,
                 'weight' => $weight,
-                'sku' => 'HF-' . fake()->unique()->numberBetween(1000, 9999),
+                'sku' => 'HF-'.fake()->unique()->numberBetween(1000, 9999),
                 'stock' => fake()->numberBetween(15, 80),
                 'rating' => fake()->randomFloat(2, 4.0, 5.0),
                 'reviews_count' => 0, // Будет обновлено после создания отзывов
@@ -700,7 +709,7 @@ class ProductSeeder extends Seeder
                 'acidity_percent' => 0, // Для здорового питания не применяется
                 'is_featured' => fake()->boolean(20), // 20% товаров рекомендуемые
                 'is_available' => true,
-                'meta_title' => $name . ' - купить в интернет-магазине',
+                'meta_title' => $name.' - купить в интернет-магазине',
                 'meta_description' => "Купить {$name} по выгодной цене. Полезные продукты для здорового образа жизни.",
             ]);
 
@@ -711,31 +720,31 @@ class ProductSeeder extends Seeder
             $this->attachRandomTags($product);
 
             return $product;
-            
+
         } catch (\Exception $e) {
-            $this->command->error("   ✗ Ошибка при создании товара {$name}: " . $e->getMessage());
+            $this->command->error("   ✗ Ошибка при создании товара {$name}: ".$e->getMessage());
+
             return null;
         }
     }
 
     /**
      * Добавить изображения к товару
-     * 
+     *
      * Создает изображения для товара.
      * Для кофе используется единое изображение products/coffee/coffee.png
      * Первое изображение помечается как главное (is_primary = true).
-     * 
-     * @param Product $product Товар, к которому добавляются изображения
-     * @param string $type Тип товара: 'coffee', 'tea', 'accessory'
-     * @return void
+     *
+     * @param  Product  $product  Товар, к которому добавляются изображения
+     * @param  string  $type  Тип товара: 'coffee', 'tea', 'accessory'
      */
     private function addProductImages(Product $product, string $type): void
     {
         // Определяем путь к изображению в зависимости от типа товара
         if ($type === 'coffee') {
             // Для всех кофейных товаров используем одно изображение
-            $imagePath = "products/coffee/coffee.png";
-            
+            $imagePath = 'products/coffee/coffee.png';
+
             // Создаем одно главное изображение для кофе
             ProductImage::create([
                 'product_id' => $product->id,
@@ -751,7 +760,7 @@ class ProductSeeder extends Seeder
             for ($i = 0; $i < $imagesCount; $i++) {
                 // Генерируем номер изображения
                 $imageNumber = fake()->numberBetween(1, 20);
-                
+
                 ProductImage::create([
                     'product_id' => $product->id,
                     'image_path' => "products/{$type}-{$imageNumber}.jpg",
@@ -765,31 +774,30 @@ class ProductSeeder extends Seeder
 
     /**
      * Привязать случайные теги к товару
-     * 
+     *
      * Выбирает 1-3 случайных тега из доступных и привязывает к товару
      * через промежуточную таблицу product_tag.
-     * 
-     * @param Product $product Товар, к которому привязываются теги
-     * @param int $min Минимальное количество тегов
-     * @param int $max Максимальное количество тегов
-     * @return void
+     *
+     * @param  Product  $product  Товар, к которому привязываются теги
+     * @param  int  $min  Минимальное количество тегов
+     * @param  int  $max  Максимальное количество тегов
      */
     private function attachRandomTags(Product $product, int $min = 1, int $max = 3): void
     {
         // Количество тегов: от $min до $max
         $tagsCount = fake()->numberBetween($min, $max);
-        
+
         // Выбираем случайные теги
         $randomTags = $this->tags->random(min($tagsCount, $this->tags->count()));
-        
+
         // Привязываем теги к товару
         $product->tags()->attach($randomTags->pluck('id'));
     }
 
     /**
      * Генерация краткого описания для кофе
-     * 
-     * @param string $name Название товара
+     *
+     * @param  string  $name  Название товара
      * @return string Описание
      */
     private function generateCoffeeDescription(string $name): string
@@ -807,8 +815,8 @@ class ProductSeeder extends Seeder
 
     /**
      * Генерация подробного описания для кофе
-     * 
-     * @param string $name Название товара
+     *
+     * @param  string  $name  Название товара
      * @return string Подробное описание
      */
     private function generateCoffeeLongDescription(string $name): string
@@ -825,16 +833,16 @@ class ProductSeeder extends Seeder
         $acidity = fake()->randomElement(['низкая', 'средняя', 'высокая', 'яркая']);
         $notes = fake()->randomElement($tastingNotes);
 
-        return "Этот кофе обладает {$body} телом и {$acidity} кислотностью. " .
-               "Во вкусе четко прослеживаются ноты {$notes}. " .
-               "Идеально подходит для приготовления эспрессо, капучино и латте. " .
-               "Рекомендуем заваривать при температуре 92-96°C.";
+        return "Этот кофе обладает {$body} телом и {$acidity} кислотностью. ".
+               "Во вкусе четко прослеживаются ноты {$notes}. ".
+               'Идеально подходит для приготовления эспрессо, капучино и латте. '.
+               'Рекомендуем заваривать при температуре 92-96°C.';
     }
 
     /**
      * Генерация краткого описания для чая
-     * 
-     * @param string $name Название товара
+     *
+     * @param  string  $name  Название товара
      * @return string Описание
      */
     private function generateTeaDescription(string $name): string
@@ -852,8 +860,8 @@ class ProductSeeder extends Seeder
 
     /**
      * Генерация подробного описания для чая
-     * 
-     * @param string $name Название товара
+     *
+     * @param  string  $name  Название товара
      * @return string Подробное описание
      */
     private function generateTeaLongDescription(string $name): string
@@ -869,16 +877,16 @@ class ProductSeeder extends Seeder
         $temperature = fake()->numberBetween(70, 95);
         $time = fake()->numberBetween(2, 5);
 
-        return "Этот чай отличается {$characteristic}. " .
-               "Собран вручную в экологически чистых регионах. " .
-               "Для заваривания рекомендуем использовать воду температурой {$temperature}°C " .
+        return "Этот чай отличается {$characteristic}. ".
+               'Собран вручную в экологически чистых регионах. '.
+               "Для заваривания рекомендуем использовать воду температурой {$temperature}°C ".
                "и настаивать {$time} минут. Можно заваривать повторно.";
     }
 
     /**
      * Генерация краткого описания для вендинга
-     * 
-     * @param string $name Название товара
+     *
+     * @param  string  $name  Название товара
      * @return string Описание
      */
     private function generateVendingDescription(string $name): string
@@ -896,23 +904,23 @@ class ProductSeeder extends Seeder
 
     /**
      * Генерация подробного описания для вендинга
-     * 
-     * @param string $name Название товара
+     *
+     * @param  string  $name  Название товара
      * @return string Подробное описание
      */
     private function generateVendingLongDescription(string $name): string
     {
-        return "Специально разработано для использования в вендинговых аппаратах. " .
-               "Обеспечивает стабильное качество напитка и легкую растворимость. " .
-               "Подходит для большинства моделей кофейных автоматов. " .
-               "Продукт прошел сертификацию и соответствует всем стандартам качества. " .
-               "Удобная упаковка для коммерческого использования.";
+        return 'Специально разработано для использования в вендинговых аппаратах. '.
+               'Обеспечивает стабильное качество напитка и легкую растворимость. '.
+               'Подходит для большинства моделей кофейных автоматов. '.
+               'Продукт прошел сертификацию и соответствует всем стандартам качества. '.
+               'Удобная упаковка для коммерческого использования.';
     }
 
     /**
      * Генерация краткого описания для здорового питания
-     * 
-     * @param string $name Название товара
+     *
+     * @param  string  $name  Название товара
      * @return string Описание
      */
     private function generateHealthyDescription(string $name): string
@@ -930,8 +938,8 @@ class ProductSeeder extends Seeder
 
     /**
      * Генерация подробного описания для здорового питания
-     * 
-     * @param string $name Название товара
+     *
+     * @param  string  $name  Название товара
      * @return string Подробное описание
      */
     private function generateHealthyLongDescription(string $name): string
@@ -946,10 +954,10 @@ class ProductSeeder extends Seeder
 
         $benefit = fake()->randomElement($benefits);
 
-        return "Натуральный продукт, который {$benefit}. " .
-               "Произведен из экологически чистого сырья без использования химических добавок. " .
-               "Идеально подходит для людей, заботящихся о своем здоровье. " .
-               "Рекомендован диетологами как часть сбалансированного питания. " .
-               "Удобная упаковка сохраняет все полезные свойства продукта.";
+        return "Натуральный продукт, который {$benefit}. ".
+               'Произведен из экологически чистого сырья без использования химических добавок. '.
+               'Идеально подходит для людей, заботящихся о своем здоровье. '.
+               'Рекомендован диетологами как часть сбалансированного питания. '.
+               'Удобная упаковка сохраняет все полезные свойства продукта.';
     }
 }

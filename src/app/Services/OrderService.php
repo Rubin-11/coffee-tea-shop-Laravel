@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Сервис для работы с заказами
- * 
+ *
  * Этот сервис инкапсулирует всю бизнес-логику создания и обработки заказов:
  * - Создание заказа из корзины
  * - Расчет стоимости заказа (товары, доставка, скидки)
@@ -29,8 +29,8 @@ final readonly class OrderService
 {
     /**
      * Конструктор сервиса
-     * 
-     * @param CartService $cartService Сервис корзины для получения товаров
+     *
+     * @param  CartService  $cartService  Сервис корзины для получения товаров
      */
     public function __construct(
         private CartService $cartService
@@ -38,16 +38,17 @@ final readonly class OrderService
 
     /**
      * Создать заказ из корзины
-     * 
+     *
      * Основной метод создания заказа. Выполняет:
      * 1. Валидацию корзины (не пуста, товары доступны)
      * 2. Расчет стоимости заказа
      * 3. Создание заказа и позиций заказа
      * 4. Уменьшение остатков товаров
      * 5. Очистку корзины
-     * 
-     * @param array $data Данные заказа из CheckoutRequest
+     *
+     * @param  array  $data  Данные заказа из CheckoutRequest
      * @return Order Созданный заказ
+     *
      * @throws \Exception При ошибках валидации или создания
      */
     public function createOrder(array $data): Order
@@ -62,7 +63,7 @@ final readonly class OrderService
 
         // Проверяем доступность всех товаров
         $availability = $this->cartService->checkAvailability();
-        if (!$availability['available']) {
+        if (! $availability['available']) {
             throw new \Exception(
                 'Некоторые товары в корзине недоступны или отсутствуют в нужном количестве.'
             );
@@ -117,28 +118,28 @@ final readonly class OrderService
 
     /**
      * Рассчитать промежуточную сумму заказа (стоимость товаров)
-     * 
-     * @param Collection<CartItem> $cartItems Товары из корзины
+     *
+     * @param  Collection<CartItem>  $cartItems  Товары из корзины
      * @return float Промежуточная сумма
      */
     public function calculateSubtotal(Collection $cartItems): float
     {
         return round(
-            $cartItems->sum(fn(CartItem $item) => $item->getSubtotal()),
+            $cartItems->sum(fn (CartItem $item) => $item->getSubtotal()),
             2
         );
     }
 
     /**
      * Рассчитать стоимость доставки
-     * 
+     *
      * Логика расчета стоимости доставки:
      * - Самовывоз (pickup): бесплатно
      * - Курьерская доставка (courier): 300 руб. (бесплатно при заказе от 2000 руб.)
      * - Почта России (post): 400 руб.
-     * 
-     * @param string $deliveryMethod Способ доставки
-     * @param float $subtotal Промежуточная сумма заказа
+     *
+     * @param  string  $deliveryMethod  Способ доставки
+     * @param  float  $subtotal  Промежуточная сумма заказа
      * @return float Стоимость доставки
      */
     public function calculateDeliveryCost(string $deliveryMethod, float $subtotal): float
@@ -153,13 +154,13 @@ final readonly class OrderService
 
     /**
      * Рассчитать скидку на заказ
-     * 
+     *
      * Логика расчета скидки:
      * - Скидка может зависеть от статуса пользователя, промокодов и т.д.
      * - Сейчас реализована простая логика: скидка 5% для заказов от 3000 руб.
-     * 
-     * @param float $subtotal Промежуточная сумма заказа
-     * @param User|null $user Пользователь (null для гостей)
+     *
+     * @param  float  $subtotal  Промежуточная сумма заказа
+     * @param  User|null  $user  Пользователь (null для гостей)
      * @return float Размер скидки
      */
     public function calculateDiscount(float $subtotal, ?User $user): float
@@ -182,10 +183,10 @@ final readonly class OrderService
 
     /**
      * Рассчитать итоговую сумму заказа
-     * 
-     * @param Collection<CartItem> $cartItems Товары из корзины
-     * @param string $deliveryMethod Способ доставки
-     * @param User|null $user Пользователь
+     *
+     * @param  Collection<CartItem>  $cartItems  Товары из корзины
+     * @param  string  $deliveryMethod  Способ доставки
+     * @param  User|null  $user  Пользователь
      * @return array{subtotal: float, delivery_cost: float, discount: float, total: float}
      */
     public function calculateOrderTotal(
@@ -208,14 +209,14 @@ final readonly class OrderService
 
     /**
      * Обработать оплату заказа
-     * 
+     *
      * Это заглушка для интеграции с платежной системой.
      * В реальном приложении здесь будет:
      * - Перенаправление на страницу оплаты
      * - Вызов API платежной системы (Stripe, PayPal, ЮKassa и т.д.)
      * - Обработка webhook-уведомлений о статусе оплаты
-     * 
-     * @param Order $order Заказ для оплаты
+     *
+     * @param  Order  $order  Заказ для оплаты
      * @return array{success: bool, payment_url: string|null, message: string}
      */
     public function processPayment(Order $order): array
@@ -242,10 +243,10 @@ final readonly class OrderService
 
     /**
      * Отметить заказ как оплаченный
-     * 
+     *
      * Используется при получении подтверждения оплаты от платежной системы
-     * 
-     * @param Order $order Заказ
+     *
+     * @param  Order  $order  Заказ
      * @return Order Обновленный заказ
      */
     public function markAsPaid(Order $order): Order
@@ -262,27 +263,26 @@ final readonly class OrderService
 
     /**
      * Отправить email-подтверждение о создании заказа
-     * 
+     *
      * Отправляет письмо клиенту с:
      * - Номером заказа
      * - Списком товаров
      * - Суммой к оплате
      * - Способом доставки
      * - Ссылкой для отслеживания статуса
-     * 
-     * @param Order $order Заказ
-     * @return void
+     *
+     * @param  Order  $order  Заказ
      */
     public function sendOrderConfirmation(Order $order): void
     {
         // Здесь будет реализация отправки email
         // Используя встроенные Mail и Notification Laravel
-        
+
         Log::info("Отправлено email-подтверждение заказа #{$order->order_number} на {$order->customer_email}");
 
         // Пример реализации (закомментировано):
         // Mail::to($order->customer_email)->send(new OrderConfirmationMail($order));
-        
+
         // Или с использованием уведомлений:
         // Notification::route('mail', $order->customer_email)
         //     ->notify(new OrderPlacedNotification($order));
@@ -290,21 +290,22 @@ final readonly class OrderService
 
     /**
      * Отменить заказ
-     * 
+     *
      * Выполняет:
      * 1. Проверку возможности отмены
      * 2. Изменение статуса заказа
      * 3. Возврат товаров на склад
      * 4. Уведомление клиента
-     * 
-     * @param Order $order Заказ для отмены
-     * @param string|null $reason Причина отмены
+     *
+     * @param  Order  $order  Заказ для отмены
+     * @param  string|null  $reason  Причина отмены
      * @return Order Обновленный заказ
+     *
      * @throws \Exception Если заказ нельзя отменить
      */
     public function cancelOrder(Order $order, ?string $reason = null): Order
     {
-        if (!$order->canBeCancelled()) {
+        if (! $order->canBeCancelled()) {
             throw new \Exception('Заказ не может быть отменен. Он уже отправлен или доставлен.');
         }
 
@@ -334,10 +335,9 @@ final readonly class OrderService
 
     /**
      * Создать позиции заказа из корзины
-     * 
-     * @param Order $order Заказ
-     * @param Collection<CartItem> $cartItems Товары из корзины
-     * @return void
+     *
+     * @param  Order  $order  Заказ
+     * @param  Collection<CartItem>  $cartItems  Товары из корзины
      */
     private function createOrderItems(Order $order, Collection $cartItems): void
     {
@@ -355,20 +355,19 @@ final readonly class OrderService
 
     /**
      * Уменьшить количество товаров на складе
-     * 
-     * @param Collection<CartItem> $cartItems Товары из корзины
-     * @return void
+     *
+     * @param  Collection<CartItem>  $cartItems  Товары из корзины
      */
     private function decreaseStock(Collection $cartItems): void
     {
         foreach ($cartItems as $cartItem) {
             $product = Product::find($cartItem->product_id);
-            
+
             if ($product) {
                 $product->stock -= $cartItem->quantity;
                 $product->save();
 
-                Log::debug("Уменьшен остаток товара", [
+                Log::debug('Уменьшен остаток товара', [
                     'product_id' => $product->id,
                     'product_name' => $product->name,
                     'quantity' => $cartItem->quantity,
@@ -380,10 +379,10 @@ final readonly class OrderService
 
     /**
      * Сгенерировать уникальный номер заказа
-     * 
+     *
      * Формат: ORD-YYYY-XXXXX
      * Например: ORD-2026-00001
-     * 
+     *
      * @return string Уникальный номер заказа
      */
     private function generateOrderNumber(): string
@@ -406,13 +405,13 @@ final readonly class OrderService
         }
 
         // Форматируем номер с ведущими нулями (5 цифр)
-        return $prefix . str_pad((string) $newNumber, 5, '0', STR_PAD_LEFT);
+        return $prefix.str_pad((string) $newNumber, 5, '0', STR_PAD_LEFT);
     }
 
     /**
      * Форматировать адрес доставки из данных формы
-     * 
-     * @param array $data Данные формы заказа
+     *
+     * @param  array  $data  Данные формы заказа
      * @return string Отформатированный адрес
      */
     private function formatDeliveryAddress(array $data): string
@@ -432,6 +431,7 @@ final readonly class OrderService
         // Если указан новый адрес
         if (isset($data['new_address'])) {
             $address = $data['new_address'];
+
             return implode(', ', [
                 $address['city'] ?? '',
                 $address['street'] ?? '',

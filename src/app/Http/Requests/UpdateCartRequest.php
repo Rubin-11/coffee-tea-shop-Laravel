@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Models\CartItem;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 /**
  * Запрос для валидации обновления количества товара в корзине
- * 
+ *
  * Этот класс проверяет корректность данных при изменении количества:
  * - Количество должно быть положительным числом
  * - Не должно превышать доступный остаток на складе
@@ -17,7 +19,7 @@ final class UpdateCartRequest extends FormRequest
 {
     /**
      * Определить, авторизован ли пользователь для выполнения этого запроса
-     * 
+     *
      * @return bool Возвращает true, так как обновлять корзину могут все
      */
     public function authorize(): bool
@@ -28,8 +30,6 @@ final class UpdateCartRequest extends FormRequest
 
     /**
      * Подготовить данные для валидации
-     * 
-     * @return void
      */
     protected function prepareForValidation(): void
     {
@@ -43,10 +43,10 @@ final class UpdateCartRequest extends FormRequest
 
     /**
      * Правила валидации для запроса
-     * 
+     *
      * Описание полей:
      * - quantity: Новое количество товара (от 1 до 100)
-     * 
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -68,11 +68,10 @@ final class UpdateCartRequest extends FormRequest
 
     /**
      * Дополнительная валидация с использованием валидатора
-     * 
+     *
      * Проверяем, что запрашиваемое количество не превышает остаток на складе
-     * 
-     * @param \Illuminate\Validation\Validator $validator
-     * @return void
+     *
+     * @param  Validator  $validator
      */
     public function withValidator($validator): void
     {
@@ -81,7 +80,7 @@ final class UpdateCartRequest extends FormRequest
             $cartItemId = $this->route('id');
 
             // Находим позицию в корзине
-            $cartItem = \App\Models\CartItem::find($cartItemId);
+            $cartItem = CartItem::find($cartItemId);
 
             if ($cartItem) {
                 // Получаем товар
@@ -96,7 +95,7 @@ final class UpdateCartRequest extends FormRequest
                 }
 
                 // Проверяем, что товар еще доступен
-                if ($product && !$product->is_available) {
+                if ($product && ! $product->is_available) {
                     $validator->errors()->add(
                         'quantity',
                         'Этот товар больше недоступен для заказа'
@@ -108,7 +107,7 @@ final class UpdateCartRequest extends FormRequest
 
     /**
      * Пользовательские сообщения об ошибках валидации
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -123,7 +122,7 @@ final class UpdateCartRequest extends FormRequest
 
     /**
      * Пользовательские названия атрибутов
-     * 
+     *
      * @return array<string, string>
      */
     public function attributes(): array

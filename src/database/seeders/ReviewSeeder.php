@@ -7,15 +7,16 @@ use App\Models\Review;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 
 /**
  * Seeder для генерации отзывов на товары
- * 
+ *
  * Создает реалистичное распределение отзывов:
  * - Популярные товары: 8-12 отзывов
  * - Средние товары: 3-5 отзывов
  * - Новые товары: 0-2 отзыва
- * 
+ *
  * После создания отзывов обновляет рейтинг и количество отзывов для каждого товара
  */
 class ReviewSeeder extends Seeder
@@ -24,14 +25,12 @@ class ReviewSeeder extends Seeder
 
     /**
      * Запуск seeder'а для заполнения отзывов
-     * 
+     *
      * Процесс:
      * 1. Получить все товары и пользователей из БД
      * 2. Разделить товары на группы по популярности
      * 3. Создать отзывы для каждого товара
      * 4. Обновить рейтинги и счетчики товаров
-     * 
-     * @return void
      */
     public function run(): void
     {
@@ -44,23 +43,25 @@ class ReviewSeeder extends Seeder
         // Проверяем наличие необходимых данных
         if ($products->isEmpty()) {
             $this->command->error('❌ Товары не найдены! Сначала запустите ProductSeeder.');
+
             return;
         }
 
         if ($users->isEmpty()) {
             $this->command->error('❌ Пользователи не найдены! Сначала запустите UserSeeder.');
+
             return;
         }
 
         // Разделяем товары на группы по популярности
         $productsCount = $products->count();
-        
+
         // Популярные товары (первые 25%) - получат много отзывов
         $popularProducts = $products->take((int) ceil($productsCount * 0.25));
-        
+
         // Средние товары (следующие 50%) - получат среднее количество отзывов
         $mediumProducts = $products->skip($popularProducts->count())->take((int) ceil($productsCount * 0.5));
-        
+
         // Новые товары (оставшиеся 25%) - получат мало отзывов или не получат вовсе
         $newProducts = $products->skip($popularProducts->count() + $mediumProducts->count());
 
@@ -92,15 +93,15 @@ class ReviewSeeder extends Seeder
 
     /**
      * Создание отзывов для группы товаров
-     * 
+     *
      * Для каждого товара создается случайное количество отзывов в заданном диапазоне.
      * Отзывы привязываются к случайным пользователям.
      * Один пользователь может оставить только один отзыв на товар.
-     * 
-     * @param \Illuminate\Support\Collection $products Коллекция товаров
-     * @param \Illuminate\Support\Collection $users Коллекция пользователей
-     * @param int $minReviews Минимальное количество отзывов
-     * @param int $maxReviews Максимальное количество отзывов
+     *
+     * @param  Collection  $products  Коллекция товаров
+     * @param  Collection  $users  Коллекция пользователей
+     * @param  int  $minReviews  Минимальное количество отзывов
+     * @param  int  $maxReviews  Максимальное количество отзывов
      * @return int Количество созданных отзывов
      */
     private function createReviewsForProducts($products, $users, int $minReviews, int $maxReviews): int
@@ -138,16 +139,15 @@ class ReviewSeeder extends Seeder
 
     /**
      * Обновление рейтингов и счетчиков отзывов для товаров
-     * 
+     *
      * Для каждого товара вычисляется:
      * - rating: средний рейтинг из всех одобренных отзывов (от 0.00 до 5.00)
      * - reviews_count: количество одобренных отзывов
-     * 
+     *
      * Используются только одобренные отзывы (is_approved = true),
      * так как неодобренные не должны влиять на рейтинг.
-     * 
-     * @param \Illuminate\Support\Collection $products Коллекция товаров
-     * @return void
+     *
+     * @param  Collection  $products  Коллекция товаров
      */
     private function updateProductRatings($products): void
     {
@@ -163,6 +163,7 @@ class ReviewSeeder extends Seeder
                     'rating' => 0,
                     'reviews_count' => 0,
                 ]);
+
                 continue;
             }
 

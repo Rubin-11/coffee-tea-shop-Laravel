@@ -9,28 +9,28 @@ use Illuminate\Support\Str;
 
 /**
  * Factory для генерации статей блога
- * 
+ *
  * Создает реалистичные статьи для блога магазина:
  * - Статьи о здоровом питании
  * - Рецепты с кофе и чаем
  * - Гиды по выбору кофе
  * - История происхождения кофейных сортов
  * - Новости компании
- * 
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\BlogPost>
+ *
+ * @extends Factory<BlogPost>
  */
 class BlogPostFactory extends Factory
 {
     /**
      * Модель, для которой создается фабрика
-     * 
+     *
      * @var string
      */
     protected $model = BlogPost::class;
 
     /**
      * Категории статей блога
-     * 
+     *
      * @var array<string>
      */
     private static array $categories = [
@@ -46,7 +46,7 @@ class BlogPostFactory extends Factory
 
     /**
      * Заголовки статей о кофе
-     * 
+     *
      * @var array<string>
      */
     private static array $coffeeTitles = [
@@ -64,7 +64,7 @@ class BlogPostFactory extends Factory
 
     /**
      * Заголовки статей о чае
-     * 
+     *
      * @var array<string>
      */
     private static array $teaTitles = [
@@ -80,22 +80,22 @@ class BlogPostFactory extends Factory
 
     /**
      * Определение состояния по умолчанию для модели
-     * 
+     *
      * Генерирует случайную статью блога
-     * 
+     *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         // Случайно выбираем тему статьи
         $isCoffee = fake()->boolean(60); // 60% статей о кофе, 40% о чае
-        $title = $isCoffee 
+        $title = $isCoffee
             ? fake()->randomElement(self::$coffeeTitles)
             : fake()->randomElement(self::$teaTitles);
 
         // Генерируем содержимое статьи
         $paragraphs = fake()->paragraphs(fake()->numberBetween(5, 10));
-        $content = '<p>' . implode('</p><p>', $paragraphs) . '</p>';
+        $content = '<p>'.implode('</p><p>', $paragraphs).'</p>';
 
         // Определяем, опубликована ли статья
         $isPublished = fake()->boolean(85); // 85% статей опубликованы
@@ -104,37 +104,37 @@ class BlogPostFactory extends Factory
         return [
             // Заголовок статьи
             'title' => $title,
-            
+
             // Slug генерируется из заголовка
-            'slug' => Str::slug($title) . '-' . fake()->numberBetween(1, 999),
-            
+            'slug' => Str::slug($title).'-'.fake()->numberBetween(1, 999),
+
             // Краткое описание (анонс)
             'excerpt' => fake()->sentence(20),
-            
+
             // Полный текст статьи (HTML)
             'content' => $content,
-            
+
             // Главное изображение статьи
-            'featured_image' => 'blog/article-' . fake()->numberBetween(1, 20) . '.jpg',
-            
+            'featured_image' => 'blog/article-'.fake()->numberBetween(1, 20).'.jpg',
+
             // Автор статьи (будет установлен в seeder)
             'author_id' => User::factory(),
-            
+
             // Категория статьи
             'category' => fake()->randomElement(self::$categories),
-            
+
             // Количество просмотров
             'views_count' => fake()->numberBetween(50, 500),
-            
+
             // Опубликована ли статья
             'is_published' => $isPublished,
-            
+
             // Дата публикации
             'published_at' => $publishedAt,
-            
+
             // SEO заголовок
-            'meta_title' => $title . ' | Блог Coffee-Tea Shop',
-            
+            'meta_title' => $title.' | Блог Coffee-Tea Shop',
+
             // SEO описание
             'meta_description' => fake()->sentence(20),
         ];
@@ -142,10 +142,8 @@ class BlogPostFactory extends Factory
 
     /**
      * Состояние для опубликованной статьи
-     * 
+     *
      * Использование: BlogPost::factory()->published()->create()
-     * 
-     * @return static
      */
     public function published(): static
     {
@@ -157,10 +155,8 @@ class BlogPostFactory extends Factory
 
     /**
      * Состояние для черновика статьи
-     * 
+     *
      * Использование: BlogPost::factory()->draft()->create()
-     * 
-     * @return static
      */
     public function draft(): static
     {
@@ -172,10 +168,8 @@ class BlogPostFactory extends Factory
 
     /**
      * Состояние для популярной статьи
-     * 
+     *
      * Использование: BlogPost::factory()->popular()->create()
-     * 
-     * @return static
      */
     public function popular(): static
     {
@@ -188,56 +182,50 @@ class BlogPostFactory extends Factory
 
     /**
      * Состояние для статьи о кофе
-     * 
+     *
      * Использование: BlogPost::factory()->coffee()->create()
-     * 
-     * @return static
      */
     public function coffee(): static
     {
         $title = fake()->randomElement(self::$coffeeTitles);
-        
+
         return $this->state(fn (array $attributes) => [
             'title' => $title,
-            'slug' => Str::slug($title) . '-' . fake()->numberBetween(1, 999),
+            'slug' => Str::slug($title).'-'.fake()->numberBetween(1, 999),
             'category' => fake()->randomElement([
                 'Рецепты с кофе',
                 'Гид по выбору кофе',
                 'История происхождения',
                 'Советы бариста',
             ]),
-            'featured_image' => 'blog/coffee-' . fake()->numberBetween(1, 15) . '.jpg',
+            'featured_image' => 'blog/coffee-'.fake()->numberBetween(1, 15).'.jpg',
         ]);
     }
 
     /**
      * Состояние для статьи о чае
-     * 
+     *
      * Использование: BlogPost::factory()->tea()->create()
-     * 
-     * @return static
      */
     public function tea(): static
     {
         $title = fake()->randomElement(self::$teaTitles);
-        
+
         return $this->state(fn (array $attributes) => [
             'title' => $title,
-            'slug' => Str::slug($title) . '-' . fake()->numberBetween(1, 999),
+            'slug' => Str::slug($title).'-'.fake()->numberBetween(1, 999),
             'category' => fake()->randomElement([
                 'Культура чаепития',
                 'Здоровое питание',
             ]),
-            'featured_image' => 'blog/tea-' . fake()->numberBetween(1, 10) . '.jpg',
+            'featured_image' => 'blog/tea-'.fake()->numberBetween(1, 10).'.jpg',
         ]);
     }
 
     /**
      * Состояние для недавней статьи
-     * 
+     *
      * Использование: BlogPost::factory()->recent()->create()
-     * 
-     * @return static
      */
     public function recent(): static
     {

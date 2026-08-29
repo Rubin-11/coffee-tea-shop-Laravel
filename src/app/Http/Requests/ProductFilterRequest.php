@@ -8,7 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * Запрос для валидации фильтров и параметров сортировки товаров
- * 
+ *
  * Этот класс обрабатывает все параметры фильтрации в каталоге товаров:
  * - Фильтрация по категории
  * - Фильтрация по ценовому диапазону
@@ -20,7 +20,7 @@ final class ProductFilterRequest extends FormRequest
 {
     /**
      * Определить, авторизован ли пользователь для выполнения этого запроса
-     * 
+     *
      * @return bool Возвращает true, так как фильтрация доступна всем
      */
     public function authorize(): bool
@@ -31,7 +31,7 @@ final class ProductFilterRequest extends FormRequest
 
     /**
      * Правила валидации для запроса
-     * 
+     *
      * Описание полей:
      * - category: ID категории для фильтрации (должна существовать в БД)
      * - min_price: Минимальная цена в рублях (не меньше 0)
@@ -40,7 +40,7 @@ final class ProductFilterRequest extends FormRequest
      * - sort: Тип сортировки (популярные, новинки, цена, название)
      * - search: Поисковой запрос (минимум 2 символа)
      * - per_page: Количество товаров на странице (от 12 до 48)
-     * 
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -129,9 +129,9 @@ final class ProductFilterRequest extends FormRequest
 
     /**
      * Пользовательские сообщения об ошибках валидации
-     * 
+     *
      * Эти сообщения будут показаны пользователю при ошибке валидации
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -171,10 +171,10 @@ final class ProductFilterRequest extends FormRequest
 
     /**
      * Получить валидированные данные с значениями по умолчанию
-     * 
+     *
      * Этот метод возвращает отвалидированные данные и устанавливает
      * значения по умолчанию для необязательных полей
-     * 
+     *
      * @return array<string, mixed>
      */
     public function validated($key = null, $default = null): array

@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 /**
  * Модель категории товаров
- * 
+ *
  * Представляет категории и подкатегории товаров в магазине.
  * Поддерживает вложенную структуру категорий через parent_id.
  * Например: "Кофе" -> "Арабика" -> "Колумбия"
@@ -24,17 +27,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $parent_id
  * @property int $sort_order
  * @property bool $is_active
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Category> $activeChildren
  * @property-read int|null $active_children_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Product> $availableProducts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $availableProducts
  * @property-read int|null $available_products_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Category> $children
  * @property-read int|null $children_count
  * @property-read Category|null $parent
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Product> $products
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read int|null $products_count
+ *
  * @method static \Database\Factories\CategoryFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category newQuery()
@@ -49,6 +53,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereSlug($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereSortOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 final class Category extends Model
@@ -57,8 +62,8 @@ final class Category extends Model
 
     /**
      * Поля, которые можно массово заполнять
-     * 
-     * @var array<int, string>
+     *
+     * @var list<string>
      */
     protected $fillable = [
         'name',              // Название категории (например: "Кофе в зернах")
@@ -72,7 +77,7 @@ final class Category extends Model
 
     /**
      * Преобразование типов атрибутов
-     * 
+     *
      * @return array<string, string>
      */
     protected function casts(): array
@@ -87,10 +92,8 @@ final class Category extends Model
 
     /**
      * Получить родительскую категорию
-     * 
+     *
      * Например, для "Арабика" родителем будет "Кофе в зернах"
-     * 
-     * @return BelongsTo
      */
     public function parent(): BelongsTo
     {
@@ -99,10 +102,8 @@ final class Category extends Model
 
     /**
      * Получить все дочерние категории (подкатегории)
-     * 
+     *
      * Например, для "Кофе в зернах" вернет ["Арабика", "Робуста", "Эспрессо-смеси"]
-     * 
-     * @return HasMany
      */
     public function children(): HasMany
     {
@@ -111,10 +112,8 @@ final class Category extends Model
 
     /**
      * Получить все активные дочерние категории
-     * 
+     *
      * Отфильтрованный список только активных подкатегорий
-     * 
-     * @return HasMany
      */
     public function activeChildren(): HasMany
     {
@@ -123,10 +122,8 @@ final class Category extends Model
 
     /**
      * Получить все товары в этой категории
-     * 
+     *
      * Возвращает все продукты, принадлежащие данной категории
-     * 
-     * @return HasMany
      */
     public function products(): HasMany
     {
@@ -135,10 +132,8 @@ final class Category extends Model
 
     /**
      * Получить только доступные товары в категории
-     * 
+     *
      * Фильтрует товары по is_available = true
-     * 
-     * @return HasMany
      */
     public function availableProducts(): HasMany
     {
@@ -147,11 +142,11 @@ final class Category extends Model
 
     /**
      * Scope для фильтрации только активных категорий
-     * 
+     *
      * Использование: Category::active()->get()
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeActive($query)
     {
@@ -160,13 +155,13 @@ final class Category extends Model
 
     /**
      * Получить всех предков категории (родитель, родитель родителя и т.д.)
-     * 
+     *
      * Рекурсивно обходит цепочку parent до корневой категории.
      * Возвращает коллекцию от ближайшего родителя к самому дальнему предку.
      *
-     * @return \Illuminate\Support\Collection<int, Category>
+     * @return Collection<int, Category>
      */
-    public function getAllAncestors(): \Illuminate\Support\Collection
+    public function getAllAncestors(): Collection
     {
         $ancestors = collect();
         $current = $this->parent;
@@ -181,13 +176,13 @@ final class Category extends Model
 
     /**
      * Получить всех потомков категории (дети, дети детей и т.д.)
-     * 
+     *
      * Рекурсивно обходит дерево дочерних категорий.
      * Возвращает плоскую коллекцию всех подкатегорий любого уровня вложенности.
      *
-     * @return \Illuminate\Support\Collection<int, Category>
+     * @return Collection<int, Category>
      */
-    public function getAllDescendants(): \Illuminate\Support\Collection
+    public function getAllDescendants(): Collection
     {
         $descendants = collect();
 
@@ -201,8 +196,6 @@ final class Category extends Model
 
     /**
      * Проверить, является ли категория главной (без родителя)
-     * 
-     * @return bool
      */
     public function isParent(): bool
     {
@@ -211,8 +204,6 @@ final class Category extends Model
 
     /**
      * Проверить, имеет ли категория дочерние элементы
-     * 
-     * @return bool
      */
     public function hasChildren(): bool
     {
@@ -220,23 +211,21 @@ final class Category extends Model
     }
 
     /**
- * Получить полный URL изображения категории
- * 
- * Если поле image заполнено, возвращает публичный URL к файлу через storage
- * Если поле image пустое, возвращает плейсхолдер
- * 
- * @return string
- */
-public function getImageUrlAttribute(): string
-{
-    // Если изображение задано в БД
-    if ($this->image) {
-        // Используем asset() для формирования URL
-        // storage/categories/имя-файла.png → http://домен/storage/categories/имя-файла.png
-        return asset('storage/' . $this->image);
+     * Получить полный URL изображения категории
+     *
+     * Если поле image заполнено, возвращает публичный URL к файлу через storage
+     * Если поле image пустое, возвращает плейсхолдер
+     */
+    public function getImageUrlAttribute(): string
+    {
+        // Если изображение задано в БД
+        if ($this->image) {
+            // Используем asset() для формирования URL
+            // storage/categories/имя-файла.png → http://домен/storage/categories/имя-файла.png
+            return asset('storage/'.$this->image);
+        }
+
+        // Если изображения нет - возвращаем плейсхолдер
+        return asset('images/placeholder-category.png');
     }
-    
-    // Если изображения нет - возвращаем плейсхолдер
-    return asset('images/placeholder-category.png');
-}
 }

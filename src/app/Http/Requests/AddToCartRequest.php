@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 /**
  * Запрос для валидации добавления товара в корзину
- * 
+ *
  * Этот класс проверяет корректность данных при добавлении товара:
  * - ID товара должен существовать и товар должен быть доступен
  * - Количество должно быть положительным и не превышать остаток на складе
@@ -19,7 +21,7 @@ final class AddToCartRequest extends FormRequest
 {
     /**
      * Определить, авторизован ли пользователь для выполнения этого запроса
-     * 
+     *
      * @return bool Возвращает true, так как добавлять в корзину могут все
      */
     public function authorize(): bool
@@ -31,11 +33,9 @@ final class AddToCartRequest extends FormRequest
 
     /**
      * Подготовить данные для валидации
-     * 
+     *
      * Этот метод вызывается до валидации и позволяет
      * преобразовать или очистить входные данные
-     * 
-     * @return void
      */
     protected function prepareForValidation(): void
     {
@@ -49,12 +49,12 @@ final class AddToCartRequest extends FormRequest
 
     /**
      * Правила валидации для запроса
-     * 
+     *
      * Описание полей:
      * - product_id: ID товара из каталога (обязательное поле)
      * - quantity: Количество единиц товара (по умолчанию 1)
      * - weight: Вес товара в граммах (для товаров на развес)
-     * 
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -71,7 +71,7 @@ final class AddToCartRequest extends FormRequest
                 Rule::exists('products', 'id')->where(function ($query) {
                     // Проверяем, что товар доступен для заказа и не удален
                     $query->where('is_available', true)
-                          ->whereNull('deleted_at');
+                        ->whereNull('deleted_at');
                 }),
             ],
 
@@ -101,19 +101,18 @@ final class AddToCartRequest extends FormRequest
 
     /**
      * Дополнительная валидация с использованием валидатора
-     * 
+     *
      * Этот метод позволяет добавить более сложные правила валидации,
      * которые требуют обращения к базе данных
-     * 
-     * @param \Illuminate\Validation\Validator $validator
-     * @return void
+     *
+     * @param  Validator  $validator
      */
     public function withValidator($validator): void
     {
         // Добавляем проверку после основной валидации
         $validator->after(function ($validator) {
             // Проверяем наличие товара на складе
-            $product = \App\Models\Product::find($this->product_id);
+            $product = Product::find($this->product_id);
 
             if ($product) {
                 // Проверяем, достаточно ли товара на складе
@@ -137,7 +136,7 @@ final class AddToCartRequest extends FormRequest
 
     /**
      * Пользовательские сообщения об ошибках валидации
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -162,7 +161,7 @@ final class AddToCartRequest extends FormRequest
 
     /**
      * Пользовательские названия атрибутов для сообщений об ошибках
-     * 
+     *
      * @return array<string, string>
      */
     public function attributes(): array

@@ -6,16 +6,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\NewsletterSubscribeRequest;
 use App\Models\Subscriber;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Контроллер для управления email-рассылкой
- * 
+ *
  * Отвечает за подписку и отписку пользователей на новостную рассылку.
  * Форма подписки обычно располагается в футере сайта.
- * 
+ *
  * ФУНКЦИОНАЛЬНОСТЬ:
  * - Подписка новых email адресов
  * - Отписка по уникальному токену
@@ -26,30 +27,30 @@ final class NewsletterController extends Controller
 {
     /**
      * Подписать пользователя на рассылку
-     * 
+     *
      * Обрабатывает форму подписки на email-рассылку.
-     * 
+     *
      * ПРОЦЕСС ПОДПИСКИ:
-     * 
+     *
      * 1. ВАЛИДАЦИЯ (в NewsletterSubscribeRequest):
      *    - Email должен быть корректным
      *    - Email не должен быть уже подписан
      *    - Дополнительные поля (имя, категории)
-     * 
+     *
      * 2. ПРОВЕРКА НА ПОВТОРНУЮ ПОДПИСКУ:
      *    - Если email ранее отписался (is_active = false)
      *    - Активируем старую запись вместо создания новой
-     * 
+     *
      * 3. СОЗДАНИЕ ПОДПИСЧИКА:
      *    - Создаем новую запись в БД
      *    - Генерируем уникальный токен для отписки
      *    - Устанавливаем дату подписки
-     * 
+     *
      * 4. ОТПРАВКА ПИСЬМА (опционально):
      *    - Приветственное письмо
      *    - Подтверждение подписки (double opt-in)
-     * 
-     * @param NewsletterSubscribeRequest $request Валидированный запрос
+     *
+     * @param  NewsletterSubscribeRequest  $request  Валидированный запрос
      * @return RedirectResponse Редирект обратно с сообщением
      */
     public function subscribe(NewsletterSubscribeRequest $request): RedirectResponse
@@ -58,12 +59,12 @@ final class NewsletterController extends Controller
             // ==========================================
             // ПОЛУЧЕНИЕ ВАЛИДИРОВАННЫХ ДАННЫХ
             // ==========================================
-            // 
+            //
             // Данные прошли валидацию в NewsletterSubscribeRequest:
             // - email: валидный, уникальный среди активных подписок
             // - name: необязательное, только буквы
             // - categories: массив ID интересующих категорий
-            // 
+            //
             // validated() также добавляет:
             // - ip_address: IP адрес подписчика
             // - user_agent: браузер/устройство
@@ -72,7 +73,7 @@ final class NewsletterController extends Controller
             // ==========================================
             // ПРОВЕРКА НА ПОВТОРНУЮ ПОДПИСКУ
             // ==========================================
-            // 
+            //
             // Если пользователь ранее отписался, не создаем новую запись,
             // а реактивируем старую. Это сохраняет историю подписок.
             $existingSubscriber = Subscriber::where('email', $validated['email'])
@@ -104,7 +105,7 @@ final class NewsletterController extends Controller
             // ==========================================
             // СОЗДАНИЕ НОВОЙ ПОДПИСКИ
             // ==========================================
-            // 
+            //
             // Используем транзакцию для обеспечения целостности данных
             DB::transaction(function () use ($validated) {
                 // Создаем запись подписчика
@@ -119,7 +120,7 @@ final class NewsletterController extends Controller
 
                 // Если указаны интересующие категории, сохраняем их
                 // (требуется таблица subscriber_categories для связи many-to-many)
-                if (isset($validated['categories']) && !empty($validated['categories'])) {
+                if (isset($validated['categories']) && ! empty($validated['categories'])) {
                     // TODO: Реализовать связь many-to-many с категориями
                     // $subscriber->categories()->attach($validated['categories']);
                 }
@@ -127,10 +128,10 @@ final class NewsletterController extends Controller
                 // ==========================================
                 // ОТПРАВКА ПРИВЕТСТВЕННОГО ПИСЬМА
                 // ==========================================
-                // 
+                //
                 // TODO: Реализовать отправку email
                 // Mail::to($subscriber->email)->send(new WelcomeNewsletterMail($subscriber));
-                // 
+                //
                 // Письмо должно содержать:
                 // - Приветствие и благодарность за подписку
                 // - Информацию о том, какие рассылки будет получать
@@ -170,25 +171,25 @@ final class NewsletterController extends Controller
 
     /**
      * Отписать пользователя от рассылки
-     * 
+     *
      * Обрабатывает переход по ссылке отписки из email-письма.
-     * 
+     *
      * ПРОЦЕСС ОТПИСКИ:
-     * 
+     *
      * 1. ПОИСК ПОДПИСЧИКА ПО ТОКЕНУ:
      *    - Каждый подписчик имеет уникальный токен
      *    - Токен передается в URL: /newsletter/unsubscribe/{token}
-     * 
+     *
      * 2. ДЕАКТИВАЦИЯ ПОДПИСКИ:
      *    - Устанавливаем is_active = false
      *    - Сохраняем дату отписки (unsubscribed_at)
      *    - Запись остается в БД для статистики
-     * 
+     *
      * 3. ВОЗВРАТ РЕЗУЛЬТАТА:
      *    - Показываем страницу с подтверждением отписки
      *    - Опционально: форма для повторной подписки
-     * 
-     * @param string $token Уникальный токен подписчика
+     *
+     * @param  string  $token  Уникальный токен подписчика
      * @return RedirectResponse Редирект на главную с сообщением
      */
     public function unsubscribe(string $token): RedirectResponse
@@ -197,7 +198,7 @@ final class NewsletterController extends Controller
             // ==========================================
             // ПОИСК ПОДПИСЧИКА ПО ТОКЕНУ
             // ==========================================
-            // 
+            //
             // where('token', $token) - ищем по уникальному токену
             // firstOrFail() - возвращает подписчика или 404 если не найден
             $subscriber = Subscriber::where('token', $token)
@@ -206,9 +207,9 @@ final class NewsletterController extends Controller
             // ==========================================
             // ПРОВЕРКА СТАТУСА ПОДПИСКИ
             // ==========================================
-            // 
+            //
             // Если подписчик уже отписан, не выполняем повторную отписку
-            if (!$subscriber->is_active) {
+            if (! $subscriber->is_active) {
                 return redirect()
                     ->route('home')
                     ->with('info', 'Вы уже отписаны от рассылки.');
@@ -217,7 +218,7 @@ final class NewsletterController extends Controller
             // ==========================================
             // ОТПИСКА ОТ РАССЫЛКИ
             // ==========================================
-            // 
+            //
             // Метод unsubscribe() определен в модели Subscriber
             // Он устанавливает:
             // - is_active = false
@@ -236,10 +237,10 @@ final class NewsletterController extends Controller
             // ==========================================
             // ОТПРАВКА ПОДТВЕРЖДАЮЩЕГО ПИСЬМА
             // ==========================================
-            // 
+            //
             // TODO: Опционально отправить письмо с подтверждением отписки
             // Mail::to($subscriber->email)->send(new UnsubscribeConfirmationMail($subscriber));
-            // 
+            //
             // Письмо должно содержать:
             // - Подтверждение отписки
             // - Причины, по которым стоит остаться (опционально)
@@ -253,7 +254,7 @@ final class NewsletterController extends Controller
                 ->route('home')
                 ->with('success', 'Вы успешно отписались от рассылки. Жаль расставаться!');
 
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             // ==========================================
             // ОБРАБОТКА НЕСУЩЕСТВУЮЩЕГО ТОКЕНА
             // ==========================================

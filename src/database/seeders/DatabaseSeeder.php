@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -12,7 +11,7 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Заполнение базы данных тестовыми данными
-     * 
+     *
      * Порядок выполнения важен из-за внешних ключей:
      * 1. UserSeeder - пользователи (нужны для отзывов и блога)
      * 2. CategorySeeder - категории товаров
@@ -26,7 +25,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->command->info('🌱 Начинаем заполнение базы данных тестовыми данными...');
         $this->command->newLine();
-        
+
         // Запускаем seeder'ы в правильном порядке
         $this->call([
             UserSeeder::class,           // ✓ Пользователи
@@ -37,7 +36,7 @@ class DatabaseSeeder extends Seeder
             BlogPostSeeder::class,       // ✓ Статьи блога
             SubscriberSeeder::class,     // ✓ Подписчики на рассылку
         ]);
-        
+
         $this->command->newLine();
         $this->command->info('✅ Заполнение базы данных завершено!');
     }

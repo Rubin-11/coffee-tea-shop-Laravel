@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Models;
 
 use App\Models\Category;
-use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;

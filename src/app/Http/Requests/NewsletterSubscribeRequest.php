@@ -9,7 +9,7 @@ use Illuminate\Validation\Rule;
 
 /**
  * Запрос для валидации подписки на email-рассылку
- * 
+ *
  * Этот класс проверяет корректность данных при подписке:
  * - Email должен быть валидным
  * - Email не должен быть уже подписан
@@ -19,7 +19,7 @@ final class NewsletterSubscribeRequest extends FormRequest
 {
     /**
      * Определить, авторизован ли пользователь для выполнения этого запроса
-     * 
+     *
      * @return bool Возвращает true, так как подписаться могут все
      */
     public function authorize(): bool
@@ -30,8 +30,6 @@ final class NewsletterSubscribeRequest extends FormRequest
 
     /**
      * Подготовить данные для валидации
-     * 
-     * @return void
      */
     protected function prepareForValidation(): void
     {
@@ -45,12 +43,12 @@ final class NewsletterSubscribeRequest extends FormRequest
 
     /**
      * Правила валидации для запроса
-     * 
+     *
      * Описание полей:
      * - email: Email адрес для рассылки (обязательный, уникальный)
      * - name: Имя подписчика (необязательное, для персонализации)
      * - categories: Интересующие категории товаров (необязательное)
-     * 
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -107,7 +105,7 @@ final class NewsletterSubscribeRequest extends FormRequest
 
     /**
      * Пользовательские сообщения об ошибках валидации
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -133,7 +131,7 @@ final class NewsletterSubscribeRequest extends FormRequest
 
     /**
      * Пользовательские названия атрибутов
-     * 
+     *
      * @return array<string, string>
      */
     public function attributes(): array
@@ -147,12 +145,12 @@ final class NewsletterSubscribeRequest extends FormRequest
 
     /**
      * Получить валидированные данные с дополнительной обработкой
-     * 
+     *
      * Этот метод возвращает валидированные данные и добавляет
      * дополнительную информацию о подписчике
-     * 
-     * @param string|null $key
-     * @param mixed $default
+     *
+     * @param  string|null  $key
+     * @param  mixed  $default
      * @return array<string, mixed>
      */
     public function validated($key = null, $default = null): array

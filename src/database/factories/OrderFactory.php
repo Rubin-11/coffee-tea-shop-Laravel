@@ -10,21 +10,21 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * Factory для генерации заказов
- * 
+ *
  * Создает реалистичные заказы для тестирования:
  * - Заказы авторизованных пользователей и гостей
  * - Различные способы доставки (курьер, самовывоз, почта)
  * - Различные способы оплаты (наличные, карта, онлайн)
  * - Разные статусы заказа (ожидает, оплачен, доставлен и т.д.)
  * - Реалистичные суммы: товары, доставка, скидки
- * 
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Order>
+ *
+ * @extends Factory<Order>
  */
 class OrderFactory extends Factory
 {
     /**
      * Модель, для которой создается фабрика
-     * 
+     *
      * @var string
      */
     protected $model = Order::class;
@@ -32,44 +32,42 @@ class OrderFactory extends Factory
     /**
      * Счетчик для генерации уникальных номеров заказов
      * Используется для формата ORD-2026-00001
-     * 
-     * @var int
      */
     private static int $orderCounter = 1;
 
     /**
      * Возможные способы доставки
-     * 
+     *
      * @var array<string>
      */
     private const DELIVERY_METHODS = ['courier', 'pickup', 'post'];
 
     /**
      * Возможные способы оплаты
-     * 
+     *
      * @var array<string>
      */
     private const PAYMENT_METHODS = ['cash', 'card', 'online'];
 
     /**
      * Возможные статусы заказа
-     * 
+     *
      * @var array<string>
      */
     private const ORDER_STATUSES = ['pending', 'processing', 'paid', 'shipped', 'delivered', 'cancelled'];
 
     /**
      * Возможные статусы оплаты
-     * 
+     *
      * @var array<string>
      */
     private const PAYMENT_STATUSES = ['pending', 'paid', 'failed'];
 
     /**
      * Определение состояния по умолчанию для модели
-     * 
+     *
      * Генерирует случайный заказ с реалистичными данными
-     * 
+     *
      * @return array<string, mixed>
      */
     public function definition(): array
@@ -85,7 +83,7 @@ class OrderFactory extends Factory
         $subtotal = fake()->randomFloat(2, 500, 5000);
 
         // Рассчитываем стоимость доставки в зависимости от метода
-        $deliveryCost = match($deliveryMethod) {
+        $deliveryCost = match ($deliveryMethod) {
             'pickup' => 0.00,                                    // Самовывоз - бесплатно
             'courier' => $subtotal >= 2000 ? 0.00 : 300.00,    // Курьер - бесплатно от 2000 руб
             'post' => 400.00,                                   // Почта - 400 руб
@@ -122,7 +120,7 @@ class OrderFactory extends Factory
             'order_number' => $orderNumber,
 
             // Имя покупателя (реальное русское имя)
-            'customer_name' => fake()->firstName() . ' ' . fake()->lastName(),
+            'customer_name' => fake()->firstName().' '.fake()->lastName(),
 
             // Email покупателя
             'customer_email' => fake()->safeEmail(),
@@ -136,7 +134,7 @@ class OrderFactory extends Factory
                 fake()->randomElement(['Калининград', 'Москва', 'Санкт-Петербург', 'Нижний Новгород']),
                 fake()->randomElement(['Ленина', 'Мира', 'Советская', 'Победы', 'Гагарина']),
                 fake()->numberBetween(1, 150),
-                fake()->boolean(70) ? ', кв. ' . fake()->numberBetween(1, 200) : ''
+                fake()->boolean(70) ? ', кв. '.fake()->numberBetween(1, 200) : ''
             ),
 
             // Способ доставки
@@ -181,10 +179,8 @@ class OrderFactory extends Factory
 
     /**
      * Состояние для гостевого заказа (без авторизации)
-     * 
+     *
      * Использование: Order::factory()->guest()->create()
-     * 
-     * @return static
      */
     public function guest(): static
     {
@@ -195,11 +191,10 @@ class OrderFactory extends Factory
 
     /**
      * Состояние для заказа авторизованного пользователя
-     * 
+     *
      * Использование: Order::factory()->forUser($user)->create()
-     * 
-     * @param \App\Models\User|int $user Пользователь или его ID
-     * @return static
+     *
+     * @param  User|int  $user  Пользователь или его ID
      */
     public function forUser($user): static
     {
@@ -212,10 +207,8 @@ class OrderFactory extends Factory
 
     /**
      * Состояние для заказа в статусе "ожидает обработки"
-     * 
+     *
      * Использование: Order::factory()->pending()->create()
-     * 
-     * @return static
      */
     public function pending(): static
     {
@@ -231,16 +224,14 @@ class OrderFactory extends Factory
 
     /**
      * Состояние для оплаченного заказа
-     * 
+     *
      * Использование: Order::factory()->paid()->create()
-     * 
-     * @return static
      */
     public function paid(): static
     {
         return $this->state(function (array $attributes) {
             $createdAt = $attributes['created_at'] ?? now();
-            
+
             return [
                 'status' => 'paid',
                 'payment_status' => 'paid',
@@ -254,10 +245,8 @@ class OrderFactory extends Factory
 
     /**
      * Состояние для доставленного заказа
-     * 
+     *
      * Использование: Order::factory()->delivered()->create()
-     * 
-     * @return static
      */
     public function delivered(): static
     {
@@ -266,7 +255,7 @@ class OrderFactory extends Factory
             $paidAt = fake()->dateTimeBetween($createdAt, 'now');
             $shippedAt = fake()->dateTimeBetween($paidAt, 'now');
             $deliveredAt = fake()->dateTimeBetween($shippedAt, 'now');
-            
+
             return [
                 'status' => 'delivered',
                 'payment_status' => 'paid',
@@ -280,16 +269,14 @@ class OrderFactory extends Factory
 
     /**
      * Состояние для отмененного заказа
-     * 
+     *
      * Использование: Order::factory()->cancelled()->create()
-     * 
-     * @return static
      */
     public function cancelled(): static
     {
         return $this->state(function (array $attributes) {
             $createdAt = $attributes['created_at'] ?? now();
-            
+
             return [
                 'status' => 'cancelled',
                 'payment_status' => 'pending',
@@ -303,10 +290,8 @@ class OrderFactory extends Factory
 
     /**
      * Состояние для заказа с курьерской доставкой
-     * 
+     *
      * Использование: Order::factory()->courier()->create()
-     * 
-     * @return static
      */
     public function courier(): static
     {
@@ -316,7 +301,7 @@ class OrderFactory extends Factory
             $subtotal = $attributes['subtotal'] ?? fake()->randomFloat(2, 500, 5000);
             $discount = $attributes['discount'] ?? ($subtotal >= 3000 ? round($subtotal * 0.05, 2) : 0.00);
             $deliveryCost = $subtotal >= 2000 ? 0.00 : 300.00;
-            
+
             return [
                 'delivery_method' => 'courier',
                 'subtotal' => $subtotal,
@@ -329,16 +314,14 @@ class OrderFactory extends Factory
 
     /**
      * Состояние для заказа с самовывозом
-     * 
+     *
      * Использование: Order::factory()->pickup()->create()
-     * 
-     * @return static
      */
     public function pickup(): static
     {
         return $this->state(function (array $attributes) {
             $subtotal = $attributes['subtotal'];
-            
+
             return [
                 'delivery_method' => 'pickup',
                 'delivery_cost' => 0.00,
@@ -349,17 +332,15 @@ class OrderFactory extends Factory
 
     /**
      * Состояние для заказа с доставкой почтой
-     * 
+     *
      * Использование: Order::factory()->post()->create()
-     * 
-     * @return static
      */
     public function post(): static
     {
         return $this->state(function (array $attributes) {
             $subtotal = $attributes['subtotal'];
             $deliveryCost = 400.00;
-            
+
             return [
                 'delivery_method' => 'post',
                 'delivery_cost' => $deliveryCost,
@@ -370,10 +351,8 @@ class OrderFactory extends Factory
 
     /**
      * Состояние для крупного заказа (более 3000 рублей со скидкой)
-     * 
+     *
      * Использование: Order::factory()->large()->create()
-     * 
-     * @return static
      */
     public function large(): static
     {
@@ -381,7 +360,7 @@ class OrderFactory extends Factory
             $subtotal = fake()->randomFloat(2, 3000, 8000);
             $discount = round($subtotal * 0.05, 2); // 5% скидка
             $deliveryCost = $attributes['delivery_method'] === 'courier' ? 0.00 : $attributes['delivery_cost'];
-            
+
             return [
                 'subtotal' => $subtotal,
                 'discount' => $discount,
@@ -393,8 +372,6 @@ class OrderFactory extends Factory
 
     /**
      * Сброс счетчика номеров заказов (полезно для тестов)
-     * 
-     * @return void
      */
     public static function resetOrderCounter(): void
     {

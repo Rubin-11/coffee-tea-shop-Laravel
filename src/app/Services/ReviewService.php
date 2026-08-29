@@ -7,14 +7,15 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Review;
-use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Сервис для работы с отзывами на товары
- * 
+ *
  * Этот сервис инкапсулирует всю бизнес-логику работы с отзывами:
  * - Создание отзывов на товары
  * - Проверка возможности оставить отзыв (купил ли пользователь товар)
@@ -26,17 +27,18 @@ final readonly class ReviewService
 {
     /**
      * Создать отзыв на товар
-     * 
+     *
      * Выполняет:
      * 1. Валидацию данных (выполнена в StoreReviewRequest)
      * 2. Проверку, не оставлял ли пользователь уже отзыв на этот товар
      * 3. Проверку, покупал ли пользователь этот товар (verified purchase)
      * 4. Создание отзыва
      * 5. Пересчет рейтинга товара
-     * 
-     * @param int $productId ID товара
-     * @param array $data Данные отзыва (rating, comment, pros, cons)
+     *
+     * @param  int  $productId  ID товара
+     * @param  array  $data  Данные отзыва (rating, comment, pros, cons)
      * @return Review Созданный отзыв
+     *
      * @throws \Exception При ошибках валидации или создания
      */
     public function createReview(int $productId, array $data): Review
@@ -45,7 +47,7 @@ final readonly class ReviewService
         $product = Product::findOrFail($productId);
 
         // Проверяем, авторизован ли пользователь
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             throw new \Exception('Для добавления отзыва необходимо авторизоваться');
         }
 
@@ -88,7 +90,7 @@ final readonly class ReviewService
                 $this->updateProductRating($productId);
             }
 
-            Log::info("Создан отзыв на товар", [
+            Log::info('Создан отзыв на товар', [
                 'review_id' => $review->id,
                 'product_id' => $productId,
                 'user_id' => $userId,
@@ -102,12 +104,11 @@ final readonly class ReviewService
 
     /**
      * Обновить средний рейтинг товара
-     * 
+     *
      * Пересчитывает средний рейтинг на основе всех одобренных отзывов.
      * Также обновляет количество отзывов.
-     * 
-     * @param int $productId ID товара
-     * @return void
+     *
+     * @param  int  $productId  ID товара
      */
     public function updateProductRating(int $productId): void
     {
@@ -124,6 +125,7 @@ final readonly class ReviewService
                 'rating' => 0,
                 'reviews_count' => 0,
             ]);
+
             return;
         }
 
@@ -136,7 +138,7 @@ final readonly class ReviewService
             'reviews_count' => $reviewsCount,
         ]);
 
-        Log::debug("Обновлен рейтинг товара", [
+        Log::debug('Обновлен рейтинг товара', [
             'product_id' => $productId,
             'rating' => round($averageRating, 2),
             'reviews_count' => $reviewsCount,
@@ -145,11 +147,11 @@ final readonly class ReviewService
 
     /**
      * Одобрить отзыв (модерация)
-     * 
+     *
      * Используется администратором для одобрения отзыва после проверки.
      * После одобрения пересчитывается рейтинг товара.
-     * 
-     * @param Review $review Отзыв для одобрения
+     *
+     * @param  Review  $review  Отзыв для одобрения
      * @return Review Обновленный отзыв
      */
     public function approveReview(Review $review): Review
@@ -165,7 +167,7 @@ final readonly class ReviewService
             // Пересчитываем рейтинг товара
             $this->updateProductRating($review->product_id);
 
-            Log::info("Отзыв одобрен", [
+            Log::info('Отзыв одобрен', [
                 'review_id' => $review->id,
                 'product_id' => $review->product_id,
             ]);
@@ -176,11 +178,11 @@ final readonly class ReviewService
 
     /**
      * Отклонить отзыв (модерация)
-     * 
+     *
      * Используется администратором для отклонения отзыва.
      * Отзыв остается в БД, но не учитывается в рейтинге.
-     * 
-     * @param Review $review Отзыв для отклонения
+     *
+     * @param  Review  $review  Отзыв для отклонения
      * @return Review Обновленный отзыв
      */
     public function rejectReview(Review $review): Review
@@ -195,7 +197,7 @@ final readonly class ReviewService
             $this->updateProductRating($review->product_id);
         }
 
-        Log::info("Отзыв отклонен", [
+        Log::info('Отзыв отклонен', [
             'review_id' => $review->id,
             'product_id' => $review->product_id,
         ]);
@@ -205,10 +207,10 @@ final readonly class ReviewService
 
     /**
      * Удалить отзыв
-     * 
+     *
      * Полностью удаляет отзыв из БД и пересчитывает рейтинг товара.
-     * 
-     * @param Review $review Отзыв для удаления
+     *
+     * @param  Review  $review  Отзыв для удаления
      * @return bool Успешность удаления
      */
     public function deleteReview(Review $review): bool
@@ -223,7 +225,7 @@ final readonly class ReviewService
             $this->updateProductRating($productId);
         }
 
-        Log::info("Отзыв удален", [
+        Log::info('Отзыв удален', [
             'review_id' => $review->id,
             'product_id' => $productId,
         ]);
@@ -233,12 +235,12 @@ final readonly class ReviewService
 
     /**
      * Проверить, покупал ли пользователь товар
-     * 
+     *
      * Проверяет, есть ли у пользователя хотя бы один оплаченный
      * и доставленный заказ с этим товаром.
-     * 
-     * @param int $userId ID пользователя
-     * @param int $productId ID товара
+     *
+     * @param  int  $userId  ID пользователя
+     * @param  int  $productId  ID товара
      * @return bool true если пользователь покупал товар
      */
     public function hasUserPurchasedProduct(int $userId, int $productId): bool
@@ -254,17 +256,17 @@ final readonly class ReviewService
 
     /**
      * Проверить, может ли пользователь оставить отзыв на товар
-     * 
+     *
      * Проверяет:
      * 1. Авторизован ли пользователь
      * 2. Не оставлял ли он уже отзыв
-     * 
-     * @param int $productId ID товара
+     *
+     * @param  int  $productId  ID товара
      * @return array{can_review: bool, reason: string|null}
      */
     public function canUserReview(int $productId): array
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return [
                 'can_review' => false,
                 'reason' => 'Для добавления отзыва необходимо авторизоваться',
@@ -293,10 +295,10 @@ final readonly class ReviewService
 
     /**
      * Получить статистику отзывов на товар
-     * 
+     *
      * Возвращает распределение отзывов по рейтингу (1-5 звезд)
-     * 
-     * @param int $productId ID товара
+     *
+     * @param  int  $productId  ID товара
      * @return array{
      *     total: int,
      *     average_rating: float,
@@ -333,8 +335,8 @@ final readonly class ReviewService
 
     /**
      * Получить процентное распределение отзывов по рейтингу
-     * 
-     * @param int $productId ID товара
+     *
+     * @param  int  $productId  ID товара
      * @return array<int, float> Массив [рейтинг => процент]
      */
     public function getRatingsPercentage(int $productId): array
@@ -356,12 +358,12 @@ final readonly class ReviewService
 
     /**
      * Получить последние отзывы для товара
-     * 
-     * @param int $productId ID товара
-     * @param int $limit Количество отзывов (по умолчанию 5)
-     * @return \Illuminate\Database\Eloquent\Collection<Review>
+     *
+     * @param  int  $productId  ID товара
+     * @param  int  $limit  Количество отзывов (по умолчанию 5)
+     * @return Collection<Review>
      */
-    public function getLatestReviews(int $productId, int $limit = 5): \Illuminate\Database\Eloquent\Collection
+    public function getLatestReviews(int $productId, int $limit = 5): Collection
     {
         return Review::where('product_id', $productId)
             ->approved()
@@ -373,12 +375,11 @@ final readonly class ReviewService
 
     /**
      * Получить отзывы с фильтрацией
-     * 
-     * @param int $productId ID товара
-     * @param array $filters Фильтры (rating, verified_only, sort)
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     *
+     * @param  int  $productId  ID товара
+     * @param  array  $filters  Фильтры (rating, verified_only, sort)
      */
-    public function getFilteredReviews(int $productId, array $filters = []): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getFilteredReviews(int $productId, array $filters = []): LengthAwarePaginator
     {
         $query = Review::where('product_id', $productId)
             ->approved()

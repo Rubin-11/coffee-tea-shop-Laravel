@@ -9,7 +9,7 @@ use Illuminate\Support\ServiceProvider;
 
 /**
  * Сервис-провайдер приложения
- * 
+ *
  * Регистрирует и загружает сервисы приложения:
  * - View Composers для автоматической передачи данных в представления
  * - Глобальные настройки и конфигурации
@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap any application services.
-     * 
+     *
      * Регистрируем View Composers для автоматической передачи данных
      * в представления Blade.
      */

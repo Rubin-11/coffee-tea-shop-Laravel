@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Middleware для проверки, что корзина не пуста
- * 
+ *
  * Используется на странице оформления заказа (checkout).
  * Если корзина пуста, перенаправляет пользователя на страницу корзины
  * с сообщением о том, что нужно добавить товары.
@@ -18,10 +18,10 @@ class CheckCartNotEmpty
 {
     /**
      * Конструктор Middleware
-     * 
+     *
      * Внедряем CartService для проверки состояния корзины
-     * 
-     * @param CartService $cartService Сервис для работы с корзиной
+     *
+     * @param  CartService  $cartService  Сервис для работы с корзиной
      */
     public function __construct(
         protected CartService $cartService
@@ -29,11 +29,11 @@ class CheckCartNotEmpty
 
     /**
      * Обработать входящий запрос
-     * 
+     *
      * Проверяет, что в корзине есть хотя бы один товар.
      * Если корзина пуста, перенаправляет на страницу корзины.
      *
-     * @param \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response) $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {

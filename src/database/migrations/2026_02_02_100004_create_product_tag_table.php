@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Pivot таблица связи товаров и тегов (многие ко многим)
      */
     public function up(): void
@@ -16,15 +16,15 @@ return new class extends Migration
         Schema::create('product_tag', function (Blueprint $table) {
             // Связи
             $table->foreignId('product_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
-                  
+                ->constrained()
+                ->cascadeOnDelete();
+
             $table->foreignId('tag_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
-            
+                ->constrained()
+                ->cascadeOnDelete();
+
             $table->timestamps();
-            
+
             // Составной первичный ключ
             $table->primary(['product_id', 'tag_id']);
         });
