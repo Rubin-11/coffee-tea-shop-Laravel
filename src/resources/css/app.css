@@ -236,7 +236,7 @@ button, input, select, textarea {
 
 .hero__inner {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 744px; /* медиа-колонка ровно под чашку из макета */
+    grid-template-columns: 1.1fr 0.9fr;
     gap: 40px;
     align-items: center;
 }
@@ -272,11 +272,12 @@ button, input, select, textarea {
     min-height: 540px;
 }
 
+/* Тёмный круг-подложка за чашкой убран (в макете его нет — см. правку 2026-08-29) */
 .hero__beans {
     position: absolute;
     z-index: 1;
-    width: 756px; /* точный размер из макета: 756.54 × 521.4 */
-    height: 521px;
+    width: 756px;
+    max-width: 88%;
     right: 0;
     top: 56%;
     transform: translateY(-50%);
@@ -285,8 +286,8 @@ button, input, select, textarea {
 .hero__cup {
     position: relative;
     z-index: 2;
-    width: 744px; /* точный размер из макета: 744 × 496 */
-    height: 496px;
+    width: 744px;
+    max-width: 72%;
     margin-right: 10%;
 }
 
