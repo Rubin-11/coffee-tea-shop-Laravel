@@ -8,7 +8,7 @@
 
 ## Стек
 
-- **Laravel 12** (PHP 8.2+) — код приложения в `src/`
+- **Laravel 13** (PHP 8.3+, в Docker — 8.5) — код приложения в `src/`
 - **PostgreSQL 18** — база данных
 - **Docker + docker-compose** — окружение (nginx, php, postgres)
 - **Makefile** — все команды (`make help` — список)

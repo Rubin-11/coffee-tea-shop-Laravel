@@ -1,5 +1,5 @@
 # Используем официальный образ PHP с FPM для Laravel
-FROM php:8.4-fpm
+FROM php:8.5-fpm
 
 # Установка необходимых расширений PHP для Laravel
 RUN apt-get update && apt-get install -y \

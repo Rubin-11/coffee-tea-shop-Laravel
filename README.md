@@ -1,9 +1,9 @@
 # ☕ Coffee-Tea Shop
 
-> Интернет-магазин премиального кофе и чая на Laravel 12
+> Интернет-магазин премиального кофе и чая на Laravel 13
 
-[![Laravel](https://img.shields.io/badge/Laravel-12.0-red.svg)](https://laravel.com)
-[![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
+[![Laravel](https://img.shields.io/badge/Laravel-13.0-red.svg)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.3+-blue.svg)](https://php.net)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-blue.svg)](https://postgresql.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -11,7 +11,7 @@
 
 ## 📖 О проекте
 
-**Coffee-Tea Shop** — современный интернет-магазин для продажи элитного кофе, чая и сопутствующих товаров. Проект построен на Laravel 12 с использованием лучших практик веб-разработки.
+**Coffee-Tea Shop** — современный интернет-магазин для продажи элитного кофе, чая и сопутствующих товаров. Проект построен на Laravel 13 с использованием лучших практик веб-разработки.
 
 ### Основные возможности:
 
@@ -172,8 +172,8 @@ coffee-tea-shop-Laravel/
 ## 🔧 Технологический стек
 
 ### Backend
-- **Laravel 12** - PHP фреймворк
-- **PHP 8.2+** - язык программирования
+- **Laravel 13** - PHP фреймворк
+- **PHP 8.3+** - язык программирования (в Docker — 8.5)
 - **PostgreSQL 18** - база данных
 - **Eloquent ORM** - работа с БД
 
