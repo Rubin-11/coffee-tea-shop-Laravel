@@ -14,6 +14,7 @@
     $ratingValue = (int) round((float) ($product->rating ?? 0));
     $acidity = (int) ($product->acidity ?? 0);
     $bitterness = (int) ($product->bitterness ?? 0);
+    $saturation = (int) ($product->saturation ?? 0);
 
     // Склонение слова «отзыв»
     $reviewsLabel = 'отзывов';
@@ -118,6 +119,14 @@
                                 @endfor
                             </span>
                         </div>
+                        <div class="scale">
+                            <span class="scale__label">Насыщенность</span>
+                            <span class="scale__dots">
+                                @for ($i = 1; $i <= 7; $i++)
+                                    <span class="scale__dot @if ($i <= $saturation) scale__dot--active @endif"></span>
+                                @endfor
+                            </span>
+                        </div>
                     </div>
 
                     {{-- В корзину --}}
@@ -209,6 +218,36 @@
                             <div class="specs__row">
                                 <dt>Кислинка</dt>
                                 <dd>{{ $product->acidity_percent }}%</dd>
+                            </div>
+                        @endif
+                        @if (! is_null($product->saturation_percent))
+                            <div class="specs__row">
+                                <dt>Насыщенность</dt>
+                                <dd>{{ $product->saturation_percent }}%</dd>
+                            </div>
+                        @endif
+                        @if ($product->coffee_type)
+                            <div class="specs__row">
+                                <dt>Вид кофе</dt>
+                                <dd>{{ $product->coffee_type }}</dd>
+                            </div>
+                        @endif
+                        @if ($product->processing)
+                            <div class="specs__row">
+                                <dt>Способ обработки</dt>
+                                <dd>{{ $product->processing }}</dd>
+                            </div>
+                        @endif
+                        @if ($product->arabica)
+                            <div class="specs__row">
+                                <dt>Арабика</dt>
+                                <dd>{{ $product->arabica }}</dd>
+                            </div>
+                        @endif
+                        @if ($product->robusta)
+                            <div class="specs__row">
+                                <dt>Робуста</dt>
+                                <dd>{{ $product->robusta }}</dd>
                             </div>
                         @endif
                         @if ($product->tags->isNotEmpty())

@@ -168,6 +168,19 @@ class ProductFactory extends Factory
             // Процент кислинки (только для кофе, для остальных - 0)
             'acidity_percent' => $type === 'coffee' ? fake()->randomElement([0, 2, 4, 6, 8, 10]) : 0,
 
+            // Насыщенность (третья шкала, только для кофе)
+            'saturation_percent' => $type === 'coffee' ? fake()->randomElement([2, 4, 6, 8, 10]) : 0,
+
+            // Вид кофе: арабика, робуста или смесь (только для кофе)
+            'coffee_type' => $type === 'coffee' ? fake()->randomElement(['арабика', 'робуста', 'смесь арабика/робуста']) : null,
+
+            // Способ обработки (только для кофе)
+            'processing' => $type === 'coffee' ? fake()->randomElement(['мытая', 'сухая', 'натуральная', 'мытая, сухая']) : null,
+
+            // Детали по арабике и робусте (только для кофе)
+            'arabica' => $type === 'coffee' ? fake()->randomElement(['мытая Индия, сухой Вьетнам', 'мытая Эфиопия, сухая Бразилия', 'натуральная Йемен, мытая Колумбия']) : null,
+            'robusta' => $type === 'coffee' ? fake()->randomElement(['мытая Индия, сухой Вьетнам', 'сухая Уганда, мытая Индия', 'мытая Бразилия, сухая Вьетнам']) : null,
+
             // Рекомендуемый товар (показывается на главной)
             'is_featured' => fake()->boolean(20), // 20% товаров рекомендуемые
 
@@ -199,6 +212,11 @@ class ProductFactory extends Factory
             'weight' => fake()->randomElement([250, 500, 1000]),
             'bitterness_percent' => fake()->randomElement([2, 4, 6, 8, 10]), // Убрали 0
             'acidity_percent' => fake()->randomElement([2, 4, 6, 8, 10]), // Убрали 0
+            'saturation_percent' => fake()->randomElement([2, 4, 6, 8, 10]),
+            'coffee_type' => fake()->randomElement(['арабика', 'робуста', 'смесь арабика/робуста']),
+            'processing' => fake()->randomElement(['мытая', 'сухая', 'натуральная', 'мытая, сухая']),
+            'arabica' => fake()->randomElement(['мытая Индия, сухой Вьетнам', 'мытая Эфиопия, сухая Бразилия', 'натуральная Йемен, мытая Колумбия']),
+            'robusta' => fake()->randomElement(['мытая Индия, сухой Вьетнам', 'сухая Уганда, мытая Индия', 'мытая Бразилия, сухая Вьетнам']),
             'description' => 'Премиальный кофе '.$name.'. '.fake()->sentence(12),
         ]);
     }
@@ -220,6 +238,11 @@ class ProductFactory extends Factory
             'weight' => fake()->randomElement([50, 100, 250]),
             'bitterness_percent' => 0,
             'acidity_percent' => 0,
+            'saturation_percent' => 0,
+            'coffee_type' => null,
+            'processing' => null,
+            'arabica' => null,
+            'robusta' => null,
             'description' => 'Качественный чай '.$name.'. '.fake()->sentence(12),
         ]);
     }
@@ -241,6 +264,11 @@ class ProductFactory extends Factory
             'weight' => fake()->randomElement([100, 200, 500, 1000]),
             'bitterness_percent' => 0,
             'acidity_percent' => 0,
+            'saturation_percent' => 0,
+            'coffee_type' => null,
+            'processing' => null,
+            'arabica' => null,
+            'robusta' => null,
             'description' => $name.' для приготовления кофе. '.fake()->sentence(12),
         ]);
     }

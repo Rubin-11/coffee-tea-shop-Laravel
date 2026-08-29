@@ -253,6 +253,11 @@ class ProductSeeder extends Seeder
                 'reviews_count' => 0, // Будет обновлено после создания отзывов
                 'bitterness_percent' => fake()->randomElement([0, 2, 4, 6, 8, 10]),
                 'acidity_percent' => fake()->randomElement([0, 2, 4, 6, 8, 10]),
+                'saturation_percent' => fake()->randomElement([2, 4, 6, 8, 10]),
+                'coffee_type' => fake()->randomElement(['арабика', 'робуста', 'смесь арабика/робуста']),
+                'processing' => fake()->randomElement(['мытая', 'сухая', 'натуральная', 'мытая, сухая']),
+                'arabica' => fake()->randomElement(['мытая Индия, сухой Вьетнам', 'мытая Эфиопия, сухая Бразилия', 'натуральная Йемен, мытая Колумбия']),
+                'robusta' => fake()->randomElement(['мытая Индия, сухой Вьетнам', 'сухая Уганда, мытая Индия', 'мытая Бразилия, сухая Вьетнам']),
                 'is_featured' => fake()->boolean(25), // 25% товаров рекомендуемые
                 'is_available' => true,
                 'meta_title' => $name.' - купить кофе в интернет-магазине',
@@ -418,6 +423,11 @@ class ProductSeeder extends Seeder
                 'reviews_count' => 0, // Будет обновлено после создания отзывов
                 'bitterness_percent' => 0, // Для чая не применяется
                 'acidity_percent' => 0, // Для чая не применяется
+                'saturation_percent' => 0,
+                'coffee_type' => null,
+                'processing' => null,
+                'arabica' => null,
+                'robusta' => null,
                 'is_featured' => fake()->boolean(20), // 20% товаров рекомендуемые
                 'is_available' => true,
                 'meta_title' => $name.' - купить чай в интернет-магазине',
@@ -655,6 +665,11 @@ class ProductSeeder extends Seeder
                 'reviews_count' => 0, // Будет обновлено после создания отзывов
                 'bitterness_percent' => 0, // Для вендинга не применяется
                 'acidity_percent' => 0, // Для вендинга не применяется
+                'saturation_percent' => 0,
+                'coffee_type' => null,
+                'processing' => null,
+                'arabica' => null,
+                'robusta' => null,
                 'is_featured' => fake()->boolean(15), // 15% товаров рекомендуемые
                 'is_available' => true,
                 'meta_title' => $name.' - купить для вендинга',
@@ -707,6 +722,11 @@ class ProductSeeder extends Seeder
                 'reviews_count' => 0, // Будет обновлено после создания отзывов
                 'bitterness_percent' => 0, // Для здорового питания не применяется
                 'acidity_percent' => 0, // Для здорового питания не применяется
+                'saturation_percent' => 0,
+                'coffee_type' => null,
+                'processing' => null,
+                'arabica' => null,
+                'robusta' => null,
                 'is_featured' => fake()->boolean(20), // 20% товаров рекомендуемые
                 'is_available' => true,
                 'meta_title' => $name.' - купить в интернет-магазине',

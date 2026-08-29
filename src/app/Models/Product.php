@@ -36,6 +36,11 @@ use Illuminate\Support\Carbon;
  * @property-read int|null $reviews_count
  * @property int|null $bitterness_percent
  * @property int|null $acidity_percent
+ * @property string|null $coffee_type
+ * @property string|null $processing
+ * @property string|null $arabica
+ * @property string|null $robusta
+ * @property int|null $saturation_percent
  * @property bool $is_featured
  * @property bool $is_available
  * @property string|null $meta_title
@@ -118,6 +123,11 @@ final class Product extends Model
         'reviews_count',        // Количество отзывов
         'bitterness_percent',   // Процент горчинки (0, 2, 4, 6, 8, 10)
         'acidity_percent',      // Процент кислинки
+        'coffee_type',          // Вид кофе (арабика, робуста, смесь)
+        'processing',           // Способ обработки (мытая, сухая, натуральная)
+        'arabica',              // Детали по арабике (напр. «мытая Индия, сухой Вьетнам»)
+        'robusta',              // Детали по робусте
+        'saturation_percent',   // Насыщенность (0–10), третья шкала
         'is_featured',          // Рекомендуемый товар (для главной страницы)
         'is_available',         // Доступен ли для заказа
         'meta_title',           // SEO заголовок
@@ -149,6 +159,7 @@ final class Product extends Model
             'reviews_count' => 'integer',        // Количество отзывов - целое
             'bitterness_percent' => 'integer',   // Процент горчинки - целое
             'acidity_percent' => 'integer',      // Процент кислинки - целое
+            'saturation_percent' => 'integer',   // Насыщенность - целое
             'is_featured' => 'boolean',          // Рекомендуемый - булев
             'is_available' => 'boolean',         // Доступен - булев
             'created_at' => 'datetime',
