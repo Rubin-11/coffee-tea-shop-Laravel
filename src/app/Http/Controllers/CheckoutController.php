@@ -198,6 +198,11 @@ final class CheckoutController extends Controller
                 'total' => $order->total,
             ]);
 
+            // Для гостей сохраняем email в сессию, чтобы открыть страницу подтверждения
+            if (! Auth::check()) {
+                session(['last_order_email' => $order->customer_email]);
+            }
+
             // Отправляем email-подтверждение
             $this->orderService->sendOrderConfirmation($order);
 
