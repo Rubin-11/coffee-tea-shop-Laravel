@@ -204,11 +204,11 @@ button, input, select, textarea {
     align-items: center;
     justify-content: center;
     color: #181818;
-    transition: opacity 0.2s;
+    transition: color 0.2s;
 }
 
 .header__icon:hover {
-    opacity: 0.7;
+    color: var(--accent); /* #F9B300 — подсветка при наведении, как пункты меню */
 }
 
 .header__icon--cart {
