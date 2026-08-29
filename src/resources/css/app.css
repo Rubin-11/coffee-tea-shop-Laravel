@@ -268,22 +268,41 @@ button, input, select, textarea {
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end; /* композиция прижата вправо, как в макете (чашка x=906 из 1904) */
+    min-height: 540px;
+}
+
+/* Тёмный круг-подложка за чашкой (Ellipse 1, #393939 в макете) */
+.hero__media::before {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    width: 666px;
+    max-width: 70%;
+    aspect-ratio: 666 / 494;
+    border-radius: 50%;
+    background: #393939;
+    right: 6%;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .hero__beans {
     position: absolute;
-    z-index: 0;
-    width: 110%;
-    max-width: 756px;
-    opacity: 0.9;
+    z-index: 1;
+    width: 756px;
+    max-width: 82%;
+    right: 2%;
+    top: 54%;
+    transform: translateY(-50%);
 }
 
 .hero__cup {
     position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 744px;
+    z-index: 2;
+    width: 744px;
+    max-width: 70%;
+    margin-right: 8%;
 }
 
 
