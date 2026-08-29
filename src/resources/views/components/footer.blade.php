@@ -30,9 +30,8 @@
 
         <div class="footer__col">
             <div class="footer__col-title">Каталог</div>
-            <a href="{{ route('categories.index') }}">Каталог товаров</a>
-            <a href="{{ route('products.index') }}">Все товары</a>
-            <a href="{{ route('products.index', ['filter' => 'discount']) }}">Товары со скидкой</a>
+            <a href="{{ route('home') }}#catalog">Каталог товаров</a>
+            <a href="{{ route('home') }}#catalog">Товары со скидкой</a>
         </div>
 
         <div class="footer__col">

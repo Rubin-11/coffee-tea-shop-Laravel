@@ -58,7 +58,6 @@
             <div class="container">
                 <div class="section__head">
                     <h2 class="section__title">Товары со скидкой</h2>
-                    <a href="{{ route('products.index', ['filter' => 'discount']) }}" class="section__link">Все товары</a>
                 </div>
 
                 <div class="products-grid">

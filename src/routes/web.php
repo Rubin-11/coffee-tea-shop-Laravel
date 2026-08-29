@@ -37,8 +37,8 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
  * Группа маршрутов для работы с товарами
  */
 Route::prefix('products')->name('products.')->group(function () {
-    // Список всех товаров с фильтрацией и сортировкой
-    Route::get('/', [ProductController::class, 'index'])->name('index');
+    // Общего списка товаров нет (по макету) — редирект на каталог кофе
+    Route::redirect('/', '/categories/svezheobzharennyy-kofe')->name('index');
 
     // Детальная страница товара
     Route::get('/{slug}', [ProductController::class, 'show'])->name('show');
@@ -50,8 +50,8 @@ Route::prefix('products')->name('products.')->group(function () {
  * Группа маршрутов для работы с категориями
  */
 Route::prefix('categories')->name('categories.')->group(function () {
-    // Список всех категорий
-    Route::get('/', [CategoryController::class, 'index'])->name('index');
+    // Отдельной страницы списка категорий нет (по макету) — редирект на главную к блоку «Каталоги нашей продукции»
+    Route::redirect('/', '/#catalog')->name('index');
 
     // Товары в выбранной категории
     Route::get('/{slug}', [CategoryController::class, 'show'])->name('show');
