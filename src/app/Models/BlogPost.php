@@ -151,7 +151,7 @@ final class BlogPost extends Model
     public function getReadingTimeAttribute(): int
     {
         $wordCount = str_word_count(strip_tags($this->content));
-        $minutes = ceil($wordCount / 200);
+        $minutes = (int) ceil($wordCount / 200);
 
         return max(1, $minutes); // Минимум 1 минута
     }
