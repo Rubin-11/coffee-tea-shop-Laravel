@@ -101,11 +101,10 @@ final class BlogController extends Controller
         // ПОЛУЧЕНИЕ СПИСКА КАТЕГОРИЙ
         // ==========================================
         //
-        // Получаем уникальные категории для меню фильтров
-        // pluck('category') - берет только поле category из всех статей
-        // unique() - оставляет только уникальные значения
-        // values() - переиндексирует массив (0, 1, 2...)
-        $categories = BlogPost::published()
+        // Список категорий статей для фильтра блога
+        // НЕ называть $categories: CategoriesComposer (View::composer('*'))
+        // перезаписывает $categories моделями Category на всех view!
+        $blogCategories = BlogPost::published()
             ->pluck('category')
             ->unique()
             ->values();
@@ -125,9 +124,9 @@ final class BlogController extends Controller
         // ВОЗВРАТ ПРЕДСТАВЛЕНИЯ С ДАННЫМИ
         // ==========================================
         return view('blog.index', compact(
-            'posts',         // Статьи с пагинацией
-            'categories',    // Список категорий для фильтра
-            'popularPosts',  // Популярные статьи для сайдбара
+            'posts',            // Статьи с пагинацией
+            'blogCategories',   // Список категорий для фильтра (строки)
+            'popularPosts',     // Популярные статьи для сайдбара
         ));
     }
 

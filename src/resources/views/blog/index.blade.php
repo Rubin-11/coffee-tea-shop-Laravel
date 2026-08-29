@@ -23,7 +23,7 @@
             <div class="blog-filters">
                 <a href="{{ request()->fullUrlWithQuery(['category' => null, 'page' => null]) }}"
                    class="filter-chip @if (! $currentCategory) is-active @endif">Все</a>
-                @foreach ($categories as $cat)
+                @foreach ($blogCategories as $cat)
                     <a href="{{ request()->fullUrlWithQuery(['category' => $cat, 'page' => null]) }}"
                        class="filter-chip @if ($currentCategory === $cat) is-active @endif">{{ $cat }}</a>
                 @endforeach
