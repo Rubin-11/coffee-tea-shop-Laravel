@@ -24,7 +24,7 @@
     --star-empty: #E0E0E0;
 
     /* Типографика */
-    --font: 'Manrope', 'Onest', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font: 'Onest', 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
     /* Геометрия */
     --radius: 20px;
@@ -242,10 +242,10 @@ button, input, select, textarea {
 }
 
 .hero__title {
-    font-size: clamp(40px, 6vw, 80px);
+    font-size: clamp(44px, 7vw, 80px); /* макет: Gilroy Black 80px */
     font-weight: 900; /* Gilroy Black */
     color: var(--black);
-    line-height: 1.05;
+    line-height: 1.15; /* макет: 92/80 */
     margin-bottom: 20px;
 }
 
