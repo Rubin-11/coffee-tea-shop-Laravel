@@ -29,7 +29,7 @@
     </section>
 
     {{-- ============ 2. КАТАЛОГИ НАШЕЙ ПРОДУКЦИИ ============ --}}
-    <section class="section">
+    <section class="section" id="catalog">
         <div class="container">
             <div class="section__head">
                 <h2 class="section__title">Каталоги нашей продукции</h2>

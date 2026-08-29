@@ -6,7 +6,8 @@
         </a>
 
         <nav class="header__nav">
-            <a href="{{ route('categories.index') }}">Каталог товаров</a>
+            {{-- По макету: «При нажатии на каталог товаров, будет скролл на след блок “Каталоги нашей продукции”» --}}
+            <a href="{{ route('home') }}#catalog">Каталог товаров</a>
             <a href="{{ route('blog.index') }}">Блог</a>
             <a href="{{ route('pages.contacts') }}">Контакты</a>
         </nav>

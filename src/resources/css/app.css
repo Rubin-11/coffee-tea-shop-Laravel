@@ -1212,3 +1212,8 @@ button, input, select, textarea {
         align-items: stretch;
     }
 }
+
+/* Якорь «Каталог товаров» из хедера — скролл к секции «Каталоги нашей продукции» */
+#catalog {
+    scroll-margin-top: 180px; /* отступ под фиксированную шапку (160px) */
+}
