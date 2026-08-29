@@ -131,7 +131,7 @@ class ProductFactory extends Factory
             'name' => $name,
 
             // Slug генерируется из названия
-            'slug' => Str::slug($name).'-'.fake()->numberBetween(1, 999),
+            'slug' => Str::slug($name).'-'.fake()->unique()->numberBetween(1, 99999),
 
             // Краткое описание (1-2 предложения)
             'description' => fake()->sentence(15),
@@ -193,7 +193,7 @@ class ProductFactory extends Factory
 
         return $this->state(fn (array $attributes) => [
             'name' => $name,
-            'slug' => Str::slug($name).'-'.fake()->numberBetween(1, 999),
+            'slug' => Str::slug($name).'-'.fake()->unique()->numberBetween(1, 99999),
             'sku' => 'CF-'.fake()->unique()->numberBetween(1000, 9999),
             'price' => fake()->randomFloat(2, 250, 800),
             'weight' => fake()->randomElement([250, 500, 1000]),
@@ -214,7 +214,7 @@ class ProductFactory extends Factory
 
         return $this->state(fn (array $attributes) => [
             'name' => $name,
-            'slug' => Str::slug($name).'-'.fake()->numberBetween(1, 999),
+            'slug' => Str::slug($name).'-'.fake()->unique()->numberBetween(1, 99999),
             'sku' => 'TE-'.fake()->unique()->numberBetween(1000, 9999),
             'price' => fake()->randomFloat(2, 150, 500),
             'weight' => fake()->randomElement([50, 100, 250]),
@@ -235,7 +235,7 @@ class ProductFactory extends Factory
 
         return $this->state(fn (array $attributes) => [
             'name' => $name,
-            'slug' => Str::slug($name).'-'.fake()->numberBetween(1, 999),
+            'slug' => Str::slug($name).'-'.fake()->unique()->numberBetween(1, 99999),
             'sku' => 'AC-'.fake()->unique()->numberBetween(1000, 9999),
             'price' => fake()->randomFloat(2, 300, 2000),
             'weight' => fake()->randomElement([100, 200, 500, 1000]),
