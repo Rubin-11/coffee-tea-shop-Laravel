@@ -18,7 +18,8 @@
                     Кофе Калининградской обжарки из разных стран произрастания с доставкой на дом. Мы обжариваем кофе каждые выходные.
                 </p>
                 <div class="hero__actions">
-                    <a href="{{ route('products.index') }}" class="btn btn--accent">Посмотреть каталог</a>
+                    {{-- По макету: кнопка ведёт на каталог кофе (категория «Свежеобжаренный кофе») --}}
+                    <a href="{{ route('categories.show', 'svezheobzharennyy-kofe') }}" class="btn btn--accent">Посмотреть каталог</a>
                 </div>
             </div>
             <div class="hero__media">
