@@ -286,11 +286,6 @@ button, input, select, textarea {
     max-width: 744px;
 }
 
-.hero__media img {
-    width: 100%;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-hover);
-}
 
 /* ========== 6. СЕКЦИИ ========== */
 .section {
