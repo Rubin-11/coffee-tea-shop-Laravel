@@ -169,16 +169,32 @@
                             <dt>Вес</dt>
                             <dd>{{ $product->weight }} г</dd>
                         </div>
-                        <div class="specs__row">
-                            <dt>Категория</dt>
-                            <dd>
-                                @if ($product->category)
-                                    <a href="{{ route('categories.show', $product->category->slug) }}">{{ $product->category->name }}</a>
-                                @else
-                                    —
-                                @endif
-                            </dd>
-                        </div>
+                        @if ($product->category)
+                            <div class="specs__row">
+                                <dt>Категория</dt>
+                                <dd>
+                                    @if ($product->category->parent)
+                                        <a href="{{ route('categories.show', $product->category->parent->slug) }}">{{ $product->category->parent->name }}</a>
+                                    @else
+                                        <a href="{{ route('categories.show', $product->category->slug) }}">{{ $product->category->name }}</a>
+                                    @endif
+                                </dd>
+                            </div>
+                            {{-- Страна — подкатегория товара (напр. «Африка» для кофе) --}}
+                            @if ($product->category->parent)
+                                <div class="specs__row">
+                                    <dt>Страна</dt>
+                                    <dd>
+                                        <a href="{{ route('categories.show', $product->category->slug) }}">{{ $product->category->name }}</a>
+                                    </dd>
+                                </div>
+                            @endif
+                        @else
+                            <div class="specs__row">
+                                <dt>Категория</dt>
+                                <dd>—</dd>
+                            </div>
+                        @endif
                         <div class="specs__row">
                             <dt>Наличие</dt>
                             <dd>{{ $product->inStock() ? 'В наличии' : 'Нет в наличии' }}</dd>
