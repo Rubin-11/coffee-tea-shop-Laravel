@@ -12,19 +12,18 @@
     {{-- ============ 1. HERO ============ --}}
     <section class="hero">
         <div class="container hero__inner">
-            <div>
-                <span class="hero__eyebrow">Coffee-Tea Shop</span>
-                <h1 class="hero__title">Свежеобжаренный <span>кофе</span></h1>
+            <div class="hero__content">
+                <h1 class="hero__title">Свежеобжаренный кофе</h1>
                 <p class="hero__text">
-                    Премиальный кофе свежей обжарки из лучших плантаций мира. Арабика и робуста высшего качества — обжариваем сами и доставляем по всей России.
+                    Кофе Калининградской обжарки из разных стран произрастания с доставкой на дом. Мы обжариваем кофе каждые выходные.
                 </p>
                 <div class="hero__actions">
                     <a href="{{ route('products.index') }}" class="btn btn--accent">Посмотреть каталог</a>
-                    <a href="{{ route('categories.index') }}" class="btn btn--outline">Перейти в каталог</a>
                 </div>
             </div>
             <div class="hero__media">
-                <img src="{{ asset('images/hero-coffee.png') }}" alt="Свежеобжаренный кофе">
+                <img src="{{ asset('images/coffee-beans-decor.png') }}" alt="" class="hero__beans" aria-hidden="true">
+                <img src="{{ asset('images/hero-coffee.png') }}" alt="Свежеобжаренный кофе" class="hero__cup">
             </div>
         </div>
     </section>
