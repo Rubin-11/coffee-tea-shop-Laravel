@@ -1,0 +1,15 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 5
+    paths:
+        - app
+
+    ignoreErrors:
+        -
+            # Временное исключение: Blade-шаблоны ещё не созданы (сейчас есть только
+            # resources/views/layouts/app.blade.php). Вызов view('...') с несуществующими
+            # шаблонами даёт ложные ошибки "expects view-string|null, string given".
+            # Убрать этот блок после того, как все страницы (views) будут созданы.
+            message: '~expects view-string\|null, string given~'

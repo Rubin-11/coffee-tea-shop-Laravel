@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  tests:
+    name: Тесты (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    env:
+      # На GitHub Actions сервис PostgreSQL доступен на 127.0.0.1,
+      # а не по имени сервиса 'postgres' (как в docker-compose).
+      DB_HOST: 127.0.0.1
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.5']
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: coffee_tea_shop_test
+          POSTGRES_USER: laravel_user
+          POSTGRES_PASSWORD: secret_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U laravel_user -d coffee_tea_shop_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: src
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Установка PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pgsql, mbstring, exif, pcntl, bcmath, gd
+          coverage: none
+
+      - name: Composer install
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Подготовка .env
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Прогон тестов
+        run: php artisan test
+
+  pint:
+    name: Pint (стиль кода)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Установка PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+
+      - name: Composer install
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Проверка стиля
+        run: ./vendor/bin/pint --test
+
+  phpstan:
+    name: PHPStan (статический анализ)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Установка PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: pgsql, mbstring, exif, pcntl, bcmath, gd
+          coverage: none
+
+      - name: Composer install
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: PHPStan
+        run: ./vendor/bin/phpstan analyse --no-progress --memory-limit=512M
