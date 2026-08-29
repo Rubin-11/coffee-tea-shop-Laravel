@@ -31,7 +31,7 @@
             <nav class="breadcrumbs" aria-label="Хлебные крошки">
                 <a href="{{ route('home') }}">Главная</a>
                 <span class="breadcrumbs__sep">→</span>
-                <a href="{{ route('categories.index') }}">Каталог</a>
+                <a href="{{ route('home') }}#catalog">Каталог</a>
                 @foreach ($categoryAncestors as $ancestor)
                     <span class="breadcrumbs__sep">→</span>
                     <a href="{{ route('categories.show', $ancestor->slug) }}">{{ $ancestor->name }}</a>
