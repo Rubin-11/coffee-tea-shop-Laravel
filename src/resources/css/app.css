@@ -216,7 +216,7 @@ button, input, select, textarea {
 }
 
 .header__icon--account {
-    color: var(--accent); /* #F9B300 — оранжевый ЛК */
+    /* обычный цвет как у остальных иконок; оранжевым становится только при наведении (:hover) */
 }
 
 .header__icon svg {
