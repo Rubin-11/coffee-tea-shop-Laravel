@@ -111,7 +111,14 @@ button, input, select, textarea {
 
 .btn--accent {
     background: var(--accent);
-    color: var(--black);
+    color: #FFFFFF; /* макет: белый текст на оранжевой кнопке */
+}
+
+/* Кнопка покупки на странице товара: макет «Купить за 250 ₽» 25px SemiBold */
+.product-page__buy {
+    font-size: 25px;
+    font-weight: 600;
+    padding: 16px 40px;
 }
 
 .btn--accent:hover {
@@ -493,9 +500,10 @@ button, input, select, textarea {
 }
 
 .scale__label {
-    width: 76px;
-    font-size: 13px;
-    color: var(--muted);
+    width: auto;
+    font-size: 20px; /* макет: Gilroy 20px Bold */
+    font-weight: 700;
+    color: #222222;
     flex-shrink: 0;
 }
 
@@ -1283,9 +1291,9 @@ button, input, select, textarea {
 
 /* Информация */
 .product-page__title {
-    font-size: clamp(26px, 3.5vw, 40px);
-    font-weight: 800;
-    color: var(--black);
+    font-size: clamp(28px, 3.5vw, 40px); /* макет: Gilroy 40px */
+    font-weight: 900; /* Black */
+    color: #222222;
     margin-bottom: 16px;
 }
 
@@ -1297,14 +1305,16 @@ button, input, select, textarea {
 }
 
 .product-page__rating-value {
-    font-weight: 800;
-    color: var(--heading);
-    font-size: 18px;
+    font-weight: 700; /* Bold */
+    color: #222222;
+    font-size: 30px; /* макет: Gilroy 30px Bold */
 }
 
 .product-page__rating-count {
-    color: var(--muted);
-    border-bottom: 1px dashed var(--muted);
+    color: #5B5B5B;
+    font-size: 16px;
+    font-weight: 500; /* Medium */
+    border-bottom: 1px dashed #5B5B5B;
 }
 
 .product-page__rating-count:hover {
@@ -1360,7 +1370,8 @@ button, input, select, textarea {
     border: 1px solid var(--border);
     background: var(--white);
     color: var(--heading);
-    font-weight: 600;
+    font-weight: 500; /* Medium */
+    font-size: 30px; /* макет: Gilroy 30px Medium */
     cursor: pointer;
     transition: border-color 0.2s, background-color 0.2s, color 0.2s;
 }
@@ -1426,12 +1437,17 @@ button, input, select, textarea {
     background: none;
     border: none;
     border-bottom: 3px solid transparent;
-    font-weight: 700;
-    font-size: 15px;
+    font-weight: 600; /* SemiBold */
+    font-size: 25px; /* макет: Gilroy 25px SemiBold */
     color: var(--muted);
     cursor: pointer;
     white-space: nowrap;
     transition: color 0.2s, border-color 0.2s;
+}
+
+.tabs__btn.is-active {
+    color: var(--accent); /* #F9B300 */
+    border-bottom-color: var(--accent);
 }
 
 .tabs__btn:hover {
@@ -1473,13 +1489,16 @@ button, input, select, textarea {
 
 .specs__row dt {
     flex: 0 0 160px;
-    color: var(--muted);
+    color: #000000;
+    font-weight: 700; /* Bold */
+    font-size: 25px; /* макет: Gilroy 25px Bold */
 }
 
 .specs__row dd {
     margin: 0;
-    color: var(--heading);
-    font-weight: 600;
+    color: #000000;
+    font-weight: 500; /* Medium */
+    font-size: 25px; /* макет: Gilroy 25px Medium */
 }
 
 /* Отзывы */
