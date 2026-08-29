@@ -53,7 +53,13 @@ abstract class TestCase extends BaseTestCase
      */
     protected function createProduct(array $attributes = []): Product
     {
-        return Product::factory()->create($attributes);
+        // По умолчанию товар доступен для заказа (иначе CartService/OrderService
+        // падают с ModelNotFoundException из-за рандома is_available в фабрике ~10%)
+        // Явно переданные атрибуты имеют приоритет над дефолтом.
+        return Product::factory()->create(array_merge(
+            ['is_available' => true],
+            $attributes
+        ));
     }
 
     /**
