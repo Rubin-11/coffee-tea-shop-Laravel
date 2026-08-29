@@ -272,20 +272,7 @@ button, input, select, textarea {
     min-height: 540px;
 }
 
-/* Тёмный круг-подложка за чашкой (Ellipse 1, #393939 в макете) */
-.hero__circle {
-    position: absolute;
-    z-index: 0;
-    width: 820px;
-    max-width: 100%;
-    aspect-ratio: 666 / 494;
-    border-radius: 50%;
-    background: #393939;
-    right: 0;
-    top: 55%;
-    transform: translateY(-50%);
-}
-
+/* Тёмный круг-подложка за чашкой убран (в макете его нет — см. правку 2026-08-29) */
 .hero__beans {
     position: absolute;
     z-index: 1;
