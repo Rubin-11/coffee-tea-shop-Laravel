@@ -266,28 +266,29 @@ button, input, select, textarea {
 
 .hero__media {
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end; /* композиция прижата вправо, как в макете (чашка x=906 из 1904) */
-    min-height: 540px;
+    min-height: 560px;
 }
 
+/* Зёрна: левее и ниже чашки (в макете x=865, y=318; чашка x=906, y=267) */
 .hero__beans {
     position: absolute;
     z-index: 1;
-    width: 756px; /* точный размер из макета: 756.54 × 521.4 */
-    height: 521px;
-    right: 0;
-    top: 56%;
+    width: 756.5px; /* точный размер из макета: 756.54 × 521.4 */
+    height: 521.4px;
+    right: 28px;
+    top: calc(50% + 63px);
     transform: translateY(-50%);
 }
 
+/* Чашка: правее зёрен, прижата к правому краю (в макете x=906, y=267) */
 .hero__cup {
-    position: relative;
+    position: absolute;
     z-index: 2;
     width: 744px; /* точный размер из макета: 744 × 496 */
     height: 496px;
-    margin-right: 10%;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 
