@@ -22,6 +22,7 @@
                 </div>
             </div>
             <div class="hero__media">
+                <div class="hero__circle" aria-hidden="true"></div>
                 <img src="{{ asset('images/pages/main/main_pages__container1__image/coffee-bean.png') }}" alt="" class="hero__beans" aria-hidden="true">
                 <img src="{{ asset('images/pages/main/main_pages__container1__image/cappuccino-coffee.png') }}" alt="Свежеобжаренный кофе" class="hero__cup">
             </div>
