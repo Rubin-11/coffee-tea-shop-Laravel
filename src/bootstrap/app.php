@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Неавторизованных пользователей отправляем на форму входа (роут auth.login)
         $middleware->redirectGuestsTo('/auth/login');
 
+        // Авторизованных пользователей с форм входа/регистрации ведём в ЛК
+        $middleware->redirectUsersTo(fn () => route('profile.index'));
+
         // Регистрируем middleware-алиас для проверки непустой корзины
         // Использование в маршрутах: ->middleware('cart.not.empty')
         $middleware->alias([

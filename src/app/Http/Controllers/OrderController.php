@@ -7,9 +7,11 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\OrderService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 /**
  * Контроллер для работы с заказами
@@ -157,6 +159,10 @@ final class OrderController extends Controller
                 ->route('orders.show', $order->id)
                 ->with('success', 'Заказ успешно отменен. Средства будут возвращены в течение 3-5 рабочих дней.');
 
+        } catch (HttpExceptionInterface|ModelNotFoundException $e) {
+            // 403 (чужой заказ) и 404 (нет заказа) должны оставаться HTTP-ошибками,
+            // а не превращаться в редирект общим catch ниже.
+            throw $e;
         } catch (\Exception $e) {
             // Перенаправляем с ошибкой
             return redirect()
@@ -230,6 +236,10 @@ final class OrderController extends Controller
                 ->route('cart.index')
                 ->with($addedCount > 0 ? 'success' : 'warning', $message);
 
+        } catch (HttpExceptionInterface|ModelNotFoundException $e) {
+            // 403 (чужой заказ) и 404 (нет заказа) должны оставаться HTTP-ошибками,
+            // а не превращаться в редирект общим catch ниже.
+            throw $e;
         } catch (\Exception $e) {
             // Перенаправляем с ошибкой
             return redirect()

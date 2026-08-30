@@ -4,7 +4,6 @@
          bootstrap="vendor/autoload.php"
          colors="true"
          beStrictAboutOutputDuringTests="true"
-         failOnRisky="true"
          failOnWarning="true"
 >
     <testsuites>

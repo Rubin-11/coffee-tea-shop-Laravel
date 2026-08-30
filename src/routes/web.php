@@ -227,10 +227,14 @@ Route::prefix('auth')->name('auth.')->group(function () {
         // Восстановление пароля: запрос ссылки (шаг 1) и новый пароль по токену (шаг 2)
         Route::get('/forgot-password', [AuthController::class, 'showForgotForm'])->name('forgot');
         Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('forgot.send');
-        Route::get('/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('reset.form');
         Route::post('/reset-password', [AuthController::class, 'reset'])->name('reset');
     });
 
     // Выход из аккаунта (только для авторизованных, POST — защита от CSRF)
     Route::middleware('auth')->post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+
+// GET-форма сброса пароля вынесена из группы с префиксом имени 'auth.' —
+// письмо сброса Laravel (ResetPassword notification) строит ссылку по имени
+// маршрута ровно 'password.reset', а группа добавила бы префикс 'auth.'.
+Route::middleware('guest')->get('/auth/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
