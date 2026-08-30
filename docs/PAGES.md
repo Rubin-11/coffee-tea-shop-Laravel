@@ -108,37 +108,37 @@
 - **Файл:** `pages/about.blade.php`
 - **Маршрут:** `GET /pages/about` → `pages.about`
 - **Тип:** View route (без контроллера)
-- **Статус:** 📝 Заглушка (будет: история, миссия, команда)
+- **Статус:** ✅ Готово (2026-08-30): история, ценности, география
 
 #### 13. Контакты
 - **Файл:** `pages/contacts.blade.php`
 - **Маршрут:** `GET /pages/contacts` → `pages.contacts`
 - **Тип:** View route
-- **Статус:** 📝 Заглушка (будет: адреса, телефоны, карта, форма)
+- **Статус:** ✅ Готово (2026-08-30): телефоны, email, адреса, карта (Яндекс.Карты)
 
 #### 14. Доставка и оплата
 - **Файл:** `pages/delivery.blade.php`
 - **Маршрут:** `GET /pages/delivery` → `pages.delivery`
 - **Тип:** View route
-- **Статус:** 📝 Заглушка (будет: способы доставки, стоимость, сроки)
+- **Статус:** ✅ Готово (2026-08-30): способы доставки, стоимость, оплата
 
 #### 15. Гарантии и возврат
 - **Файл:** `pages/returns.blade.php`
 - **Маршрут:** `GET /pages/returns` → `pages.returns`
 - **Тип:** View route
-- **Статус:** 📝 Заглушка (будет: условия возврата, гарантии)
+- **Статус:** ✅ Готово (2026-08-30): условия возврата, гарантия свежести
 
 #### 16. Политика конфиденциальности
 - **Файл:** `pages/privacy.blade.php`
 - **Маршрут:** `GET /pages/privacy` → `pages.privacy`
 - **Тип:** View route
-- **Статус:** 📝 Заглушка (будет: обработка персональных данных, cookies)
+- **Статус:** ✅ Готово (2026-08-30): обработка персональных данных
 
 #### 17. Пользовательское соглашение
 - **Файл:** `pages/terms.blade.php`
 - **Маршрут:** `GET /pages/terms` → `pages.terms`
 - **Тип:** View route
-- **Статус:** 📝 Заглушка (будет: правила использования сайта)
+- **Статус:** ✅ Готово (2026-08-30): правила использования сайта
 
 ---
 
@@ -147,9 +147,48 @@
 #### 18. Профиль пользователя (требует auth)
 - **Файл:** `profile/index.blade.php`
 - **Маршрут:** `GET /profile` → `profile.index`
-- **Тип:** View route
+- **Контроллер:** `ProfileController@index`
 - **Middleware:** `auth`
-- **Статус:** 📝 Заглушка (будет: личные данные, редактирование, последние заказы)
+- **Статус:** ✅ Готово (2026-08-30): карточка пользователя, последние заказы, выход
+
+#### 19. Мои заказы (требует auth)
+- **Файл:** `orders/index.blade.php`
+- **Маршрут:** `GET /orders` → `orders.index`
+- **Контроллер:** `OrderController@index`
+- **Middleware:** `auth`
+- **Статус:** ✅ Готово (2026-08-30): список заказов, фильтры по статусу, пагинация
+
+#### 20. Детали заказа (требует auth)
+- **Файл:** `orders/show.blade.php`
+- **Маршрут:** `GET /orders/{id}` → `orders.show`
+- **Контроллер:** `OrderController@show`
+- **Middleware:** `auth`
+- **Статус:** ✅ Готово (2026-08-30): состав, сводка, повтор/отмена заказа
+
+---
+
+### 🔐 Авторизация
+
+#### 21. Вход
+- **Файл:** `auth/login.blade.php`
+- **Маршруты:** `GET/POST /auth/login` → `auth.login` / `auth.login.submit`
+- **Контроллер:** `Auth\AuthController@showLoginForm` / `@login`
+- **Middleware:** `guest`
+- **Статус:** ✅ Готово (2026-08-30)
+
+#### 22. Регистрация
+- **Файл:** `auth/register.blade.php`
+- **Маршруты:** `GET/POST /auth/register` → `auth.register` / `auth.register.submit`
+- **Контроллер:** `Auth\AuthController@showRegisterForm` / `@register`
+- **Middleware:** `guest`
+- **Статус:** ✅ Готово (2026-08-30)
+
+#### 23. Восстановление пароля
+- **Файлы:** `auth/forgot-password.blade.php`, `auth/reset-password.blade.php`
+- **Маршруты:** `GET/POST /auth/forgot-password`, `GET /auth/reset-password/{token}`, `POST /auth/reset-password`
+- **Контроллер:** `Auth\AuthController` (sendResetLink / showResetForm / reset)
+- **Middleware:** `guest`
+- **Статус:** ✅ Готово (2026-08-30): таблица `password_reset_tokens`, письма через MAIL_MAILER=log
 
 ---
 

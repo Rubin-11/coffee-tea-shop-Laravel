@@ -12,6 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Неавторизованных пользователей отправляем на форму входа (роут auth.login)
+        $middleware->redirectGuestsTo('/auth/login');
+
         // Регистрируем middleware-алиас для проверки непустой корзины
         // Использование в маршрутах: ->middleware('cart.not.empty')
         $middleware->alias([

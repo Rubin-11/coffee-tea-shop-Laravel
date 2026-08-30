@@ -2499,3 +2499,486 @@ button, input, select, textarea {
         grid-template-columns: 1fr;
     }
 }
+
+/* ========== 16. ОБЩИЕ СТРАНИЦЫ (pages/*) ========== */
+.page {
+    padding: 40px 0 80px;
+}
+
+.page__title {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 24px;
+}
+
+.page__content {
+    max-width: 780px;
+    font-size: 16px;
+    line-height: 1.75;
+    color: var(--text);
+}
+
+.page__content p {
+    margin-bottom: 16px;
+}
+
+.page__content h2 {
+    font-size: 24px;
+    margin: 28px 0 12px;
+}
+
+.page__content ul {
+    margin: 0 0 16px;
+    padding-left: 20px;
+}
+
+.page__content li {
+    margin-bottom: 8px;
+}
+
+/* ========== 17. КОНТАКТЫ ========== */
+.contacts {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 48px;
+    align-items: start;
+}
+
+.contacts__section {
+    margin-bottom: 32px;
+}
+
+.contacts__section-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.contacts__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.contacts__item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.contacts__label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+}
+
+.contacts__value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--heading);
+}
+
+.contacts__value:hover {
+    color: var(--accent-hover);
+}
+
+.contacts__text {
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.contacts__map {
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    background: var(--bg-soft);
+    min-height: 380px;
+}
+
+/* ========== 18. АВТОРИЗАЦИЯ (auth/*) ========== */
+.auth {
+    padding: 60px 0 100px;
+}
+
+.auth__card {
+    max-width: 480px;
+    margin: 0 auto;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px;
+    box-shadow: var(--shadow);
+}
+
+.auth__title {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.auth__subtitle {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 28px;
+    font-size: 15px;
+}
+
+.auth__form .btn {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.auth__row {
+    display: flex;
+    gap: 14px;
+}
+
+.auth__row .form-field {
+    flex: 1;
+}
+
+.auth__remember {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 16px;
+    cursor: pointer;
+}
+
+.auth__footer {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--muted);
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.auth__footer a {
+    color: var(--heading);
+    font-weight: 600;
+}
+
+.auth__footer a:hover {
+    color: var(--accent-hover);
+}
+
+.auth__status {
+    background: var(--accent-soft);
+    color: var(--brown);
+    border-radius: var(--radius-xs);
+    padding: 12px 16px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* ========== 19. ЛИЧНЫЙ КАБИНЕТ (profile/*) ========== */
+.profile {
+    padding: 40px 0 80px;
+}
+
+.profile__title {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 28px;
+}
+
+.profile__layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 40px;
+    align-items: start;
+}
+
+.profile__card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.profile__avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--white);
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 16px;
+}
+
+.profile__name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--heading);
+}
+
+.profile__email {
+    font-size: 14px;
+    color: var(--muted);
+    margin: 4px 0 20px;
+}
+
+.profile__logout .btn {
+    width: 100%;
+}
+
+.profile__section-title {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.profile__actions {
+    display: flex;
+    gap: 14px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+/* ========== 20. ЗАКАЗЫ (orders/*) ========== */
+.orders {
+    padding: 40px 0 80px;
+}
+
+.orders__title {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 24px;
+}
+
+.orders-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 28px;
+}
+
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.order-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr auto;
+    gap: 16px;
+    align-items: center;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 18px 22px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.order-row:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow);
+}
+
+.order-row__number {
+    font-weight: 700;
+    color: var(--heading);
+}
+
+.order-row__date {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.order-row__status {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--brown);
+    background: var(--accent-soft);
+    padding: 4px 12px;
+    border-radius: 999px;
+    justify-self: start;
+}
+
+.order-row__total {
+    font-weight: 800;
+    color: var(--heading);
+    font-size: 17px;
+}
+
+/* ========== 21. ДЕТАЛИ ЗАКАЗА ========== */
+.order-page {
+    padding: 40px 0 80px;
+}
+
+.order-page__title {
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 16px;
+}
+
+.order-page__statuses {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+}
+
+.order-page__badge {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--brown);
+    background: var(--accent-soft);
+    padding: 6px 14px;
+    border-radius: 999px;
+}
+
+.order-page__badge--payment {
+    background: var(--bg-soft);
+    color: var(--text);
+}
+
+.order-page__layout {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 40px;
+    align-items: start;
+}
+
+.order-page__section-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.order-item__info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.order-item__name {
+    font-weight: 600;
+    color: var(--heading);
+}
+
+.order-item__qty {
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.order-item__total {
+    font-weight: 700;
+    color: var(--heading);
+    white-space: nowrap;
+}
+
+.order-page__summary {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow);
+}
+
+.order-page__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+    font-size: 15px;
+    color: var(--text);
+}
+
+.order-page__row strong {
+    color: var(--heading);
+    text-align: right;
+}
+
+.order-page__row--total {
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+    padding-top: 16px;
+    font-size: 18px;
+}
+
+.order-page__row--total strong {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.order-page__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.order-page__actions .btn {
+    width: 100%;
+}
+
+/* ========== 22. АДАПТИВ НОВЫХ СТРАНИЦ ========== */
+@media (max-width: 1024px) {
+    .contacts {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+
+    .profile__layout {
+        grid-template-columns: 1fr;
+    }
+
+    .order-page__layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .auth__card {
+        padding: 24px 20px;
+    }
+
+    .auth__row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .order-row {
+        grid-template-columns: 1fr auto;
+        gap: 8px 16px;
+    }
+
+    .order-row__date,
+    .order-row__status {
+        grid-column: 1;
+    }
+
+    .page__title,
+    .profile__title,
+    .orders__title {
+        font-size: 30px;
+    }
+}

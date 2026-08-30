@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
@@ -201,6 +203,34 @@ Route::prefix('pages')->name('pages.')->group(function () {
  * Требует авторизации
  */
 Route::middleware('auth')->prefix('profile')->name('profile.')->group(function () {
-    // Главная страница профиля
-    Route::view('/', 'profile.index')->name('index');
+    // Главная страница профиля (сводка: данные пользователя + последние заказы)
+    Route::get('/', [ProfileController::class, 'index'])->name('index');
+});
+
+// ==================== АВТОРИЗАЦИЯ ====================
+
+/**
+ * Маршруты входа, регистрации и восстановления пароля.
+ * Доступны только гостям (middleware 'guest'): авторизованных редиректит в ЛК.
+ * Выход (POST) — наоборот, только для авторизованных.
+ */
+Route::prefix('auth')->name('auth.')->group(function () {
+    Route::middleware('guest')->group(function () {
+        // Вход
+        Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+        Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+
+        // Регистрация
+        Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+        Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
+
+        // Восстановление пароля: запрос ссылки (шаг 1) и новый пароль по токену (шаг 2)
+        Route::get('/forgot-password', [AuthController::class, 'showForgotForm'])->name('forgot');
+        Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('forgot.send');
+        Route::get('/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('reset.form');
+        Route::post('/reset-password', [AuthController::class, 'reset'])->name('reset');
+    });
+
+    // Выход из аккаунта (только для авторизованных, POST — защита от CSRF)
+    Route::middleware('auth')->post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
